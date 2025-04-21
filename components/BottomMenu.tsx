@@ -104,16 +104,19 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
     },
   ]
 
-  if (!isVisible) {
-    return (
-      <>
-        {/* Modal de Send */}
-        <SendTokensModal isOpen={isSendModalOpen} onClose={() => setIsSendModalOpen(false)} />
+  // Mantenha os modais, mas não retorne prematuramente
+  const renderModals = () => (
+    <>
+      {/* Modal de Send */}
+      <SendTokensModal isOpen={isSendModalOpen} onClose={() => setIsSendModalOpen(false)} />
 
-        {/* Modal de Receive */}
-        <ReceiveTokensModal isOpen={isReceiveModalOpen} onClose={() => setIsReceiveModalOpen(false)} />
-      </>
-    )
+      {/* Modal de Receive */}
+      <ReceiveTokensModal isOpen={isReceiveModalOpen} onClose={() => setIsReceiveModalOpen(false)} />
+    </>
+  )
+
+  if (!isVisible) {
+    return renderModals()
   }
 
   return (
@@ -238,11 +241,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
         )}
       </AnimatePresence>
 
-      {/* Modal de Send */}
-      <SendTokensModal isOpen={isSendModalOpen} onClose={() => setIsSendModalOpen(false)} />
-
-      {/* Modal de Receive */}
-      <ReceiveTokensModal isOpen={isReceiveModalOpen} onClose={() => setIsReceiveModalOpen(false)} />
+      {renderModals()}
       <style jsx>{`
         .bottom-safe {
           bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));

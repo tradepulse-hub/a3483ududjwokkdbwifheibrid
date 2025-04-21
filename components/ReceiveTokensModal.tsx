@@ -49,17 +49,9 @@ export default function ReceiveTokensModal({
 
   // Ocultar o menu quando o modal abrir
   useEffect(() => {
-    if (isOpen && setMenuVisible) {
-      setMenuVisible(false)
-    }
-
-    // Restaurar a visibilidade do menu quando o modal fechar
-    return () => {
-      if (setMenuVisible) {
-        setMenuVisible(true)
-      }
-    }
-  }, [isOpen, setMenuVisible])
+    // Não altere a visibilidade do menu principal
+    // Apenas gerencie o estado interno do modal
+  }, [isOpen])
 
   // Fechar modal com ESC
   useEffect(() => {
