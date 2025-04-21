@@ -6,7 +6,6 @@ import Image from "next/image"
 import { ethers } from "ethers"
 import { useLanguage } from "@/lib/languageContext"
 import { motion, AnimatePresence } from "framer-motion"
-import { useDeviceDetect } from "@/lib/useDeviceDetect"
 
 // Adicionar uma prop para controlar a visibilidade do menu
 type SendTokenModalProps = {
@@ -42,8 +41,6 @@ export default function SendTokenModal({
     amount?: string
   }>({})
   const [currentStep, setCurrentStep] = useState(1)
-
-  const deviceInfo = useDeviceDetect()
 
   // Ocultar o menu quando o modal abrir
   useEffect(() => {
@@ -332,7 +329,6 @@ export default function SendTokenModal({
                         value={recipientAddress}
                         onChange={(e) => setRecipientAddress(e.target.value)}
                         placeholder="0x..."
-                        inputMode={deviceInfo.isIOS ? "text" : undefined}
                         className={`w-full px-3 py-3 bg-gray-800/80 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                           validationErrors.recipient ? "border-red-500" : "border-gray-700"
                         }`}
@@ -376,7 +372,6 @@ export default function SendTokenModal({
                         placeholder="0.0"
                         min="0"
                         step="0.01"
-                        inputMode={deviceInfo.isIOS ? "decimal" : undefined}
                         className={`w-full px-3 py-3 bg-gray-800/80 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                           validationErrors.amount ? "border-red-500" : "border-gray-700"
                         }`}
