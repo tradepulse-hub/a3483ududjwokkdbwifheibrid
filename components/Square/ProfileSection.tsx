@@ -1,13 +1,13 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Image from "next/image"
 import { useLanguage } from "@/lib/languageContext"
 import type { UserProfile } from "@/types/square"
 import { saveProfile } from "@/lib/squareStorage"
 import { getDefaultProfilePicture, isAdmin } from "@/lib/squareService"
+import { motion } from "framer-motion"
 
 interface ProfileSectionProps {
   userProfile: UserProfile | null
@@ -46,83 +46,92 @@ export default function ProfileSection({ userProfile, currentUserAddress }: Prof
   }
 
   return (
-    <div className="bg-gradient-to-r from-gray-800/70 to-gray-900/70 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50">
+    <div className="relative">
+      {/* Background gradient banner */}
+      <div className="h-16 bg-gradient-to-r from-blue-600/30 via-purple-600/30 to-blue-600/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer bg-size-200"></div>
+      </div>
+
       {isEditing ? (
-        // Modo de edição
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white mb-3">{t("edit_profile", "Edit Profile")}</h3>
+        // Modo de edição compacto
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 -mt-8 relative z-10">
+          <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 border border-gray-700/50 shadow-lg">
+            <h3 className="text-sm font-semibold text-white mb-2">{t("edit_profile", "Edit Profile")}</h3>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t("nickname", "Nickname")}</label>
-            <input
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("nickname", "Nickname")}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              {t("profile_picture", "Profile Picture")}
-            </label>
-            <div className="flex items-center space-x-3">
-              <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
-                <Image
-                  src={profilePicture || getDefaultProfilePicture(userProfile.address)}
-                  alt="Profile"
-                  width={64}
-                  height={64}
-                  className="w-full h-full object-cover"
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-300 mb-1">{t("nickname", "Nickname")}</label>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  className="w-full px-2 py-1.5 bg-gray-900/80 border border-gray-700 rounded-md text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder={t("nickname", "Nickname")}
                 />
               </div>
-              <label className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer transition-colors">
-                {t("attach_image", "Attach Image")}
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-              </label>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-300 mb-1">
+                  {t("profile_picture", "Profile Picture")}
+                </label>
+                <div className="flex items-center space-x-2">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
+                    <Image
+                      src={profilePicture || getDefaultProfilePicture(userProfile.address)}
+                      alt="Profile"
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <label className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md cursor-pointer transition-colors">
+                    {t("attach_image", "Attach Image")}
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-1">
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded-md transition-colors"
+                >
+                  {t("cancel", "Cancel")}
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors"
+                >
+                  {t("save_profile", "Save Profile")}
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="flex justify-end space-x-2 pt-2">
-            <button
-              onClick={() => setIsEditing(false)}
-              className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-            >
-              {t("cancel", "Cancel")}
-            </button>
-            <button
-              onClick={handleSaveProfile}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              {t("save_profile", "Save Profile")}
-            </button>
-          </div>
-        </div>
+        </motion.div>
       ) : (
-        // Modo de visualização
-        <div className="flex items-center">
+        // Modo de visualização compacto
+        <div className="flex items-center px-3 py-2 -mt-8 relative z-10">
           <div className="relative">
-            <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 mr-4">
+            <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-800 border-2 border-gray-800 shadow-lg">
               <Image
                 src={userProfile.profilePicture || getDefaultProfilePicture(userProfile.address)}
                 alt="Profile"
-                width={64}
-                height={64}
+                width={56}
+                height={56}
                 className="w-full h-full object-cover"
               />
             </div>
             {isAdmin(userProfile.address) && (
-              <div className="absolute -bottom-1 -right-1 bg-blue-600 text-xs text-white px-1.5 py-0.5 rounded-full border border-gray-800">
+              <div className="absolute -bottom-1 -right-1 bg-blue-600 text-xs text-white px-1 py-0.5 rounded-full border border-gray-800 text-[10px]">
                 {t("admin_badge", "Admin")}
               </div>
             )}
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 ml-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-white">
+                <h3 className="font-semibold text-white text-sm">
                   {userProfile.nickname ||
                     userProfile.address.substring(0, 6) +
                       "..." +
@@ -136,9 +145,9 @@ export default function ProfileSection({ userProfile, currentUserAddress }: Prof
 
               <button
                 onClick={() => setIsEditing(true)}
-                className="text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded-lg transition-colors"
+                className="text-xs bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 px-2 py-1 rounded-md transition-colors border border-gray-700/50"
               >
-                {t("edit_profile", "Edit Profile")}
+                {t("edit_profile", "Edit")}
               </button>
             </div>
           </div>

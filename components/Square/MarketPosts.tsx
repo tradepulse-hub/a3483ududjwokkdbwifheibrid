@@ -44,11 +44,11 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
   return (
     <div>
       {/* Seletor de criptomoedas */}
-      <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-3 border border-gray-700/50 mb-4">
-        <div className="flex flex-wrap gap-2">
+      <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-2 border border-gray-700/50 mb-3 overflow-x-auto">
+        <div className="flex gap-1 whitespace-nowrap">
           <button
             onClick={() => setSelectedCrypto("ALL")}
-            className={`px-3 py-1 rounded-full text-xs transition-colors ${
+            className={`px-2 py-1 rounded-full text-xs transition-colors ${
               selectedCrypto === "ALL" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
           >
@@ -59,7 +59,7 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
             <button
               key={crypto}
               onClick={() => setSelectedCrypto(crypto)}
-              className={`px-3 py-1 rounded-full text-xs transition-colors ${
+              className={`px-2 py-1 rounded-full text-xs transition-colors ${
                 selectedCrypto === crypto ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
             >
@@ -86,13 +86,13 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
           ))}
         </div>
       ) : (
-        <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-6 border border-gray-700/50 text-center">
-          <p className="text-gray-300 mb-2">
+        <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50 text-center">
+          <p className="text-gray-300 text-sm mb-1">
             {selectedCrypto === "ALL"
               ? t("no_posts_yet", "No posts yet")
               : t("no_posts_for_crypto", "No posts for #{crypto} yet").replace("{crypto}", selectedCrypto)}
           </p>
-          <p className="text-gray-400 text-sm">{t("be_first_to_post", "Be the first to post!")}</p>
+          <p className="text-gray-400 text-xs">{t("be_first_to_post", "Be the first to post!")}</p>
         </div>
       )}
     </div>

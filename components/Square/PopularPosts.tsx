@@ -53,9 +53,9 @@ export default function PopularPosts({ userAddress, userProfile, isBanned }: Pop
           ))}
         </div>
       ) : (
-        <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-6 border border-gray-700/50 text-center">
-          <p className="text-gray-300 mb-2">{t("no_posts_yet", "No posts yet")}</p>
-          <p className="text-gray-400 text-sm">{t("be_first_to_post", "Be the first to post!")}</p>
+        <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50 text-center">
+          <p className="text-gray-300 text-sm mb-1">{t("no_posts_yet", "No posts yet")}</p>
+          <p className="text-gray-400 text-xs">{t("be_first_to_post", "Be the first to post!")}</p>
         </div>
       )}
     </div>

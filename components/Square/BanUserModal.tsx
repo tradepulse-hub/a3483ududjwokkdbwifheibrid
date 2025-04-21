@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import { banUser } from "@/lib/squareStorage"
+import { motion } from "framer-motion"
 
 interface BanUserModalProps {
   userAddress: string
@@ -33,12 +34,16 @@ export default function BanUserModal({ userAddress, adminAddress, onClose }: Ban
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-5 max-w-md w-full">
-        <h3 className="text-lg font-bold text-white mb-4">{t("ban_user", "Ban User")}</h3>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-gray-900 border border-gray-700 rounded-lg p-4 max-w-xs w-full"
+      >
+        <h3 className="text-sm font-bold text-white mb-3">{t("ban_user", "Ban User")}</h3>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-xs font-medium text-gray-300 mb-1">
               {t("ban_duration", "Ban Duration")} ({t("hours", "hours")})
             </label>
             <input
@@ -46,38 +51,38 @@ export default function BanUserModal({ userAddress, adminAddress, onClose }: Ban
               value={duration}
               onChange={(e) => setDuration(Math.max(1, Number.parseInt(e.target.value) || 1))}
               min="1"
-              className="w-full px-3 py-2 bg-gray-800/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-2 py-1.5 bg-gray-800/80 border border-gray-700 rounded-md text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t("ban_reason", "Ban Reason")}</label>
+            <label className="block text-xs font-medium text-gray-300 mb-1">{t("ban_reason", "Ban Reason")}</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-none"
+              className="w-full px-2 py-1.5 bg-gray-800/80 border border-gray-700 rounded-md text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[60px] resize-none"
             />
           </div>
         </div>
 
-        <div className="flex justify-end space-x-2 mt-5">
+        <div className="flex justify-end space-x-2 mt-4">
           <button
             onClick={onClose}
-            className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded-md transition-colors"
           >
             {t("cancel", "Cancel")}
           </button>
           <button
             onClick={handleBanUser}
             disabled={!reason.trim() || isSubmitting}
-            className={`px-3 py-1.5 rounded-lg text-white transition-colors ${
+            className={`px-2 py-1 rounded-md text-white text-xs transition-colors ${
               !reason.trim() || isSubmitting ? "bg-gray-700 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
             }`}
           >
             {isSubmitting ? (
               <span className="flex items-center">
                 <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -96,7 +101,7 @@ export default function BanUserModal({ userAddress, adminAddress, onClose }: Ban
             )}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

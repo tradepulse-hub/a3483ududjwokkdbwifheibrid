@@ -11,6 +11,7 @@ import PopularPosts from "./PopularPosts"
 import MarketPosts from "./MarketPosts"
 import ProfileSection from "./ProfileSection"
 import BannedMessage from "./BannedMessage"
+import { motion } from "framer-motion"
 
 interface SquareProps {
   userAddress: string
@@ -36,15 +37,15 @@ export default function Square({ userAddress }: SquareProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm rounded-2xl p-4 max-w-md mx-auto shadow-xl border border-gray-800">
-      {/* Perfil do usuário */}
+    <div className="bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-800 overflow-hidden">
+      {/* Perfil do usuário em formato compacto */}
       <ProfileSection userProfile={userProfile} currentUserAddress={userAddress} />
 
       {/* Mensagem de banimento (se aplicável) */}
@@ -54,7 +55,13 @@ export default function Square({ userAddress }: SquareProps) {
       <SquareTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Conteúdo baseado na aba ativa */}
-      <div className="mt-4">
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className="p-3"
+      >
         {activeTab === "recent" && (
           <RecentPosts userAddress={userAddress} userProfile={userProfile} isBanned={isBanned} />
         )}
@@ -66,7 +73,7 @@ export default function Square({ userAddress }: SquareProps) {
         {activeTab === "market" && (
           <MarketPosts userAddress={userAddress} userProfile={userProfile} isBanned={isBanned} />
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }
