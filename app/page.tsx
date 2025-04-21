@@ -55,18 +55,23 @@ export default function Home() {
     }
   }, [isMenuVisible])
 
-  // Desabilitar rolagem quando logado
+  // Desabilitar rolagem e forçar tela cheia
   useEffect(() => {
-    if (isLoggedIn) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
+    // Desabilitar rolagem
+    document.body.style.overflow = "hidden"
+    document.documentElement.style.overflow = "hidden"
+
+    // Forçar tela cheia
+    document.documentElement.style.height = "100%"
+    document.body.style.height = "100%"
 
     return () => {
       document.body.style.overflow = ""
+      document.documentElement.style.overflow = ""
+      document.documentElement.style.height = ""
+      document.body.style.height = ""
     }
-  }, [isLoggedIn])
+  }, [])
 
   const truncateAddress = (address: string) => {
     if (!address) return ""
@@ -175,13 +180,13 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-0 bg-black text-white overflow-hidden">
+    <main className="fixed inset-0 flex flex-col items-center justify-center p-0 bg-black text-white overflow-hidden">
       <SafeArea top bottom>
         {/* Animated chart background */}
         <ChartBackground />
 
         {!isLoggedIn ? (
-          <div className="w-full h-screen flex flex-col items-center justify-center relative">
+          <div className="w-full h-full flex flex-col items-center justify-center relative">
             {/* Background overlay for better readability */}
             <div className="absolute w-full h-full bg-black/50"></div>
 
@@ -215,44 +220,46 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-md mx-auto space-y-2 py-2 px-3 relative z-10 h-screen flex flex-col">
+          <div className="w-full h-full flex flex-col relative">
             {/* Background overlay for better readability when logged in */}
             <div className="fixed inset-0 bg-black/70 -z-5"></div>
 
-            <div className="text-center mb-2">
-              <div className="inline-block rounded-full shadow-lg mb-2 p-1 bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse">
+            {/* Header - Mais compacto */}
+            <div className="text-center pt-1 pb-1">
+              <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse">
                 <Image
                   src="/images/tpf-logo.png"
-                  width={32}
-                  height={32}
-                  className="h-6 w-6 rounded-full"
+                  width={24}
+                  height={24}
+                  className="h-5 w-5 rounded-full"
                   alt="TPulseFi Logo"
                 />
               </div>
-              <h1 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+              <h1 className="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
                 TPulseFi
               </h1>
               <p className="text-xs text-gray-400">Global Crypto Bridge</p>
             </div>
 
-            <section className="bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl p-2 border border-gray-700">
+            {/* Status bar - Mais compacto */}
+            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg shadow-md p-1 border border-gray-700 mb-1">
               <div className="flex justify-end">
                 <div className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full inline-block animate-pulse mr-1"></span>
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block animate-pulse mr-1"></span>
                   <span className="text-xs text-gray-300">{t("connected", "Connected")}</span>
                 </div>
               </div>
-            </section>
+            </div>
 
-            {/* Content based on active tab - Ajustado para altura fixa */}
+            {/* Content based on active tab - Altura fixa e sem rolagem */}
             <div className="flex-1 overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
                   className="h-full"
                   onAnimationComplete={ensureMenuVisible}
                 >
@@ -266,7 +273,7 @@ export default function Home() {
             </div>
 
             {/* Espaço para o menu inferior */}
-            <div className="h-24"></div>
+            <div className="h-20"></div>
 
             {/* Bottom Menu com a prop de visibilidade */}
             <BottomMenu activeTab={activeTab} onTabChange={handleTabChange} isVisible={isMenuVisible} />

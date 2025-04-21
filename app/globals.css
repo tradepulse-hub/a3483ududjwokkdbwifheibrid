@@ -22,9 +22,23 @@
   }
 }
 
+html,
 body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
+}
+
+#__next,
+main {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 @layer utilities {
@@ -126,7 +140,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    overflow-y: auto;
+    overflow: hidden;
     -webkit-overflow-scrolling: touch;
   }
 }
@@ -136,4 +150,67 @@ body {
   body {
     overscroll-behavior-y: none;
   }
+}
+
+/* Estilos para garantir que o conteúdo caiba na tela */
+.text-xxs {
+  font-size: 0.65rem;
+  line-height: 1rem;
+}
+
+.text-xxxs {
+  font-size: 0.6rem;
+  line-height: 0.9rem;
+}
+
+.p-xxs {
+  padding: 0.25rem;
+}
+
+.m-xxs {
+  margin: 0.25rem;
+}
+
+.gap-xxs {
+  gap: 0.25rem;
+}
+
+.space-y-xxs > * + * {
+  margin-top: 0.25rem;
+}
+
+.space-x-xxs > * + * {
+  margin-left: 0.25rem;
+}
+
+.h-xxs {
+  height: 0.25rem;
+}
+
+.w-xxs {
+  width: 0.25rem;
+}
+
+.rounded-xxs {
+  border-radius: 0.125rem;
+}
+
+.min-h-screen-safe {
+  min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+.h-screen-safe {
+  height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+.max-h-screen-safe {
+  max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
 }
