@@ -84,6 +84,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
 
   if (!mounted) return null
 
+  // Atualizar a referência ao Square para FiSquare
   const tabs = [
     {
       id: "wallet",
@@ -141,10 +142,10 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
         </svg>
       ),
     },
-    // Novo tab Square
+    // Atualizar o nome de Square para FiSquare
     {
       id: "square",
-      label: t("square", "Square"),
+      label: t("fisquare", "FiSquare"),
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"

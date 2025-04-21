@@ -10,7 +10,7 @@ import BottomMenu from "@/components/BottomMenu"
 import ChartBackground from "@/components/ChartBackground"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
-import Square from "@/components/Square"
+import FiSquare from "@/components/FiSquare"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface User {
@@ -207,7 +207,7 @@ export default function Home() {
 
               {activeTab === "airdrop" && user.walletAddress && <ClaimCoin userAddress={user.walletAddress} />}
 
-              {activeTab === "square" && user.walletAddress && <Square userAddress={user.walletAddress} />}
+              {activeTab === "square" && user.walletAddress && <FiSquare userAddress={user.walletAddress} />}
             </motion.div>
           </AnimatePresence>
 

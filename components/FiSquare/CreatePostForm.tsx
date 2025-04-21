@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import { createPost } from "@/lib/squareStorage"
 import { extractHashtags, SUPPORTED_CRYPTOS, isCryptoSupported } from "@/lib/squareService"
@@ -19,6 +19,10 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
   const [trend, setTrend] = useState<"up" | "down" | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [showTokenSuggestions, setShowTokenSuggestions] = useState(false)
+  const [cursorPosition, setCursorPosition] = useState(0)
+  const [filteredTokens, setFilteredTokens] = useState<string[]>([])
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -60,6 +64,73 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
     onPostCreated()
   }
 
+  // Função para lidar com a mudança de conteúdo e detectar quando o usuário digita #
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value
+    setContent(newContent)
+
+    // Salvar a posição atual do cursor
+    if (textareaRef.current) {
+      setCursorPosition(textareaRef.current.selectionStart)
+    }
+
+    // Verificar se o usuário está digitando uma hashtag
+    const lastHashIndex = newContent.lastIndexOf("#", cursorPosition - 1)
+
+    if (lastHashIndex !== -1) {
+      const textAfterHash = newContent.substring(lastHashIndex + 1, cursorPosition)
+      // Se não houver espaço entre # e o cursor, mostrar sugestões
+      if (!textAfterHash.includes(" ") && lastHashIndex === newContent.lastIndexOf("#")) {
+        // Filtrar tokens que começam com o texto digitado após #
+        const filtered = SUPPORTED_CRYPTOS.filter((token) =>
+          token.toLowerCase().startsWith(textAfterHash.toLowerCase()),
+        )
+        setFilteredTokens(filtered)
+        setShowTokenSuggestions(filtered.length > 0)
+      } else {
+        setShowTokenSuggestions(false)
+      }
+    } else {
+      setShowTokenSuggestions(false)
+    }
+  }
+
+  // Função para selecionar um token da lista de sugestões
+  const selectToken = (token: string) => {
+    if (textareaRef.current) {
+      const lastHashIndex = content.lastIndexOf("#", cursorPosition - 1)
+      if (lastHashIndex !== -1) {
+        // Substituir o texto após # pelo token selecionado
+        const newContent = content.substring(0, lastHashIndex + 1) + token + " " + content.substring(cursorPosition)
+
+        setContent(newContent)
+
+        // Atualizar a posição do cursor para depois do token inserido
+        const newCursorPosition = lastHashIndex + token.length + 2 // +2 para # e espaço
+        setTimeout(() => {
+          if (textareaRef.current) {
+            textareaRef.current.selectionStart = newCursorPosition
+            textareaRef.current.selectionEnd = newCursorPosition
+            textareaRef.current.focus()
+          }
+        }, 0)
+      }
+    }
+    setShowTokenSuggestions(false)
+  }
+
+  // Fechar sugestões quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowTokenSuggestions(false)
+    }
+
+    document.addEventListener("click", handleClickOutside)
+    return () => {
+      document.removeEventListener("click", handleClickOutside)
+    }
+  }, [])
+
   return (
     <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg border border-gray-700/50 mb-3 overflow-hidden">
       {!isExpanded ? (
@@ -90,13 +161,44 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
           exit={{ height: 0, opacity: 0 }}
           className="p-3"
         >
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={t("write_something", "Write something...")}
-            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px] resize-none"
-            autoFocus
-          />
+          <div className="relative">
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={handleContentChange}
+              onClick={(e) => {
+                if (textareaRef.current) {
+                  setCursorPosition(textareaRef.current.selectionStart)
+                }
+              }}
+              onKeyUp={(e) => {
+                if (textareaRef.current) {
+                  setCursorPosition(textareaRef.current.selectionStart)
+                }
+              }}
+              placeholder={t("write_something", "Write something...")}
+              className="w-full px-3 py-2 bg-gray-900/80 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px] resize-none"
+              autoFocus
+            />
+
+            {/* Sugestões de tokens */}
+            {showTokenSuggestions && (
+              <div
+                className="absolute z-10 mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-40 overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {filteredTokens.map((token) => (
+                  <div
+                    key={token}
+                    className="px-3 py-1.5 hover:bg-gray-700 cursor-pointer text-sm text-white"
+                    onClick={() => selectToken(token)}
+                  >
+                    #{token}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {images.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
@@ -225,7 +327,23 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
           {/* Mostrar criptomoedas suportadas */}
           <div className="mt-2 text-[10px] text-gray-500 flex flex-wrap gap-1">
             {SUPPORTED_CRYPTOS.map((crypto) => (
-              <span key={crypto} className="bg-gray-800 px-1 py-0.5 rounded">
+              <span
+                key={crypto}
+                className="bg-gray-800 px-1 py-0.5 rounded cursor-pointer hover:bg-gray-700"
+                onClick={() => {
+                  // Inserir o token no conteúdo
+                  const newContent = content + ` #${crypto} `
+                  setContent(newContent)
+                  // Focar o textarea e mover o cursor para o final
+                  if (textareaRef.current) {
+                    textareaRef.current.focus()
+                    const newPosition = newContent.length
+                    textareaRef.current.selectionStart = newPosition
+                    textareaRef.current.selectionEnd = newPosition
+                    setCursorPosition(newPosition)
+                  }
+                }}
+              >
                 #{crypto}
               </span>
             ))}

@@ -13,11 +13,11 @@ import ProfileSection from "./ProfileSection"
 import BannedMessage from "./BannedMessage"
 import { motion } from "framer-motion"
 
-interface SquareProps {
+interface FiSquareProps {
   userAddress: string
 }
 
-export default function Square({ userAddress }: SquareProps) {
+export default function FiSquare({ userAddress }: FiSquareProps) {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<SquareTab>("recent")
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)

@@ -164,7 +164,8 @@ const translations: Record<Language, Record<string, string>> = {
     select_option: "Select an option to continue",
 
     // Square
-    square: "Square",
+    square: "FiSquare",
+    fisquare: "FiSquare",
     most_recent: "Most Recent",
     popular: "Popular",
     market: "Market",
@@ -379,7 +380,8 @@ const translations: Record<Language, Record<string, string>> = {
     select_option: "Selecciona una opción para continuar",
 
     // Square
-    square: "Square",
+    square: "FiSquare",
+    fisquare: "FiSquare",
     most_recent: "Más Reciente",
     popular: "Popular",
     market: "Mercado",
@@ -593,7 +595,8 @@ const translations: Record<Language, Record<string, string>> = {
     select_option: "Seleziona un'opzione per continuare",
 
     // Square
-    square: "Square",
+    square: "FiSquare",
+    fisquare: "FiSquare",
     most_recent: "Più Recenti",
     popular: "Popolari",
     market: "Mercato",
@@ -806,7 +809,8 @@ const translations: Record<Language, Record<string, string>> = {
     select_option: "选择一个选项继续",
 
     // Square
-    square: "广场",
+    square: "FiSquare",
+    fisquare: "FiSquare",
     most_recent: "最新",
     popular: "热门",
     market: "市场",
@@ -1022,7 +1026,8 @@ const translations: Record<Language, Record<string, string>> = {
     select_option: "Sélectionnez une option pour continuer",
 
     // Square
-    square: "Square",
+    square: "FiSquare",
+    fisquare: "FiSquare",
     most_recent: "Plus Récent",
     popular: "Populaire",
     market: "Marché",
@@ -1236,7 +1241,8 @@ const translations: Record<Language, Record<string, string>> = {
     select_option: "Selecione uma opção para continuar",
 
     // Square
-    square: "Square",
+    square: "FiSquare",
+    fisquare: "FiSquare",
     most_recent: "Mais Recente",
     popular: "Popular",
     market: "Mercado",
