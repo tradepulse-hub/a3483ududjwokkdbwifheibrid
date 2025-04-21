@@ -43,8 +43,8 @@ export function extractHashtags(text: string): string[] {
   return matches ? matches.map((tag) => tag.substring(1).toUpperCase()) : []
 }
 
-// Lista de criptomoedas suportadas
-export const SUPPORTED_CRYPTOS = ["BTC", "ETH", "WLD", "TPF", "USDT", "USDC", "BNB", "XRP", "SOL", "ADA", "DOGE"]
+// Modificar a lista de criptomoedas suportadas para incluir apenas TPF e WLD
+export const SUPPORTED_CRYPTOS = ["TPF", "WLD"]
 
 // Função para verificar se uma criptomoeda é suportada
 export function isCryptoSupported(crypto: string): boolean {
