@@ -8,6 +8,7 @@ import {
   getOrCreateProfile,
   initializeRealTimeListeners,
   removeRealTimeListeners,
+  getPosts,
 } from "@/lib/squareStorage"
 import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
@@ -27,6 +28,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   const [activeTab, setActiveTab] = useState<SquareTab>("recent")
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [communityStats, setCommunityStats] = useState({
     activeUsers: 0,
     registeredUsers: 0,
@@ -35,44 +37,70 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
 
   // Inicializar listeners em tempo real
   useEffect(() => {
-    initializeRealTimeListeners(() => {
-      // Callback quando os posts são atualizados
-      setRefreshTrigger((prev) => prev + 1)
-    })
+    try {
+      console.log("Initializing real-time listeners")
+      initializeRealTimeListeners(() => {
+        // Callback quando os posts são atualizados
+        console.log("Posts updated, triggering refresh")
+        setRefreshTrigger((prev) => prev + 1)
+      })
 
-    // Limpar listeners quando o componente for desmontado
-    return () => {
-      removeRealTimeListeners()
+      // Limpar listeners quando o componente for desmontado
+      return () => {
+        console.log("Removing real-time listeners")
+        removeRealTimeListeners()
+      }
+    } catch (err) {
+      console.error("Error initializing listeners:", err)
+      setError("Failed to initialize listeners")
+      setIsLoading(false)
     }
   }, [])
 
   useEffect(() => {
     async function loadData() {
-      if (userAddress) {
-        setIsLoading(true)
-        try {
-          // Obter ou criar perfil do usuário
-          const profile = await getOrCreateProfile(userAddress)
-          setUserProfile(profile)
+      if (!userAddress) {
+        setIsLoading(false)
+        return
+      }
 
-          // Calcular estatísticas da comunidade
-          const allProfiles = await getProfiles()
+      console.log("Loading FiSquare data for address:", userAddress)
+      setIsLoading(true)
 
-          // Usuários ativos (todos os perfis)
-          const activeUsers = allProfiles.length
+      try {
+        // Verificar se podemos acessar os dados básicos
+        const testPosts = await getPosts()
+        console.log(`Successfully fetched ${testPosts.length} posts`)
 
-          // Usuários registrados (com foto de perfil ou nickname)
-          const registeredUsers = allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length
+        // Obter ou criar perfil do usuário
+        console.log("Getting or creating user profile")
+        const profile = await getOrCreateProfile(userAddress)
+        setUserProfile(profile)
+        console.log("User profile loaded:", profile)
 
-          setCommunityStats({
-            activeUsers,
-            registeredUsers,
-          })
-        } catch (error) {
-          console.error("Error loading FiSquare data:", error)
-        } finally {
-          setIsLoading(false)
-        }
+        // Calcular estatísticas da comunidade
+        console.log("Fetching all profiles for community stats")
+        const allProfiles = await getProfiles()
+        console.log(`Fetched ${allProfiles.length} profiles`)
+
+        // Usuários ativos (todos os perfis)
+        const activeUsers = allProfiles.length
+
+        // Usuários registrados (com foto de perfil ou nickname)
+        const registeredUsers = allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length
+
+        setCommunityStats({
+          activeUsers,
+          registeredUsers,
+        })
+
+        console.log("FiSquare data loaded successfully")
+      } catch (error) {
+        console.error("Error loading FiSquare data:", error)
+        setError("Failed to load data. Please try again.")
+      } finally {
+        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
+        setIsLoading(false)
       }
     }
 
@@ -82,10 +110,50 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   // Verificar se o usuário está banido
   const isBanned = userProfile ? isUserBanned(userProfile) : false
 
+  // Se houver um erro, mostrar mensagem de erro
+  if (error) {
+    return (
+      <div className="bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-800 p-4">
+        <div className="text-center py-6">
+          <div className="text-red-400 mb-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12 mx-auto"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">{t("error_loading", "Error Loading")}</h3>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={() => {
+              setError(null)
+              setRefreshTrigger((prev) => prev + 1)
+            }}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          >
+            {t("try_again", "Try Again")}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-800 p-4">
+        <div className="flex flex-col justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-3"></div>
+          <p className="text-gray-400 text-sm">{t("loading_fisquare", "Loading FiSquare...")}</p>
+        </div>
       </div>
     )
   }

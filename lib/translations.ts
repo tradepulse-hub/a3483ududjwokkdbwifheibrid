@@ -94,6 +94,9 @@ const translations: Record<Language, Record<string, string>> = {
     refreshing_data: "Refreshing data...",
     contract_balance: "Contract Balance",
     total_tokens_available: "Total tokens available for airdrops",
+    error_loading: "Error Loading",
+    try_again: "Try Again",
+    loading_fisquare: "Loading FiSquare...",
   },
 
   es: {
@@ -188,6 +191,9 @@ const translations: Record<Language, Record<string, string>> = {
     refreshing_data: "Actualizando datos...",
     contract_balance: "Saldo del Contrato",
     total_tokens_available: "Total de tokens disponibles para airdrops",
+    error_loading: "Error al Cargar",
+    try_again: "Intentar de Nuevo",
+    loading_fisquare: "Cargando FiSquare...",
   },
 
   it: {
@@ -282,6 +288,9 @@ const translations: Record<Language, Record<string, string>> = {
     refreshing_data: "Aggiornamento dati...",
     contract_balance: "Saldo del Contratto",
     total_tokens_available: "Totale token disponibili per airdrops",
+    error_loading: "Errore di Caricamento",
+    try_again: "Riprova",
+    loading_fisquare: "Caricamento di FiSquare...",
   },
 
   zh: {
@@ -376,6 +385,9 @@ const translations: Record<Language, Record<string, string>> = {
     refreshing_data: "刷新数据...",
     contract_balance: "合约余额",
     total_tokens_available: "可用于空投的代币总量",
+    error_loading: "加载错误",
+    try_again: "重试",
+    loading_fisquare: "正在加载 FiSquare...",
   },
 
   fr: {
@@ -470,6 +482,9 @@ const translations: Record<Language, Record<string, string>> = {
     refreshing_data: "Actualisation des données...",
     contract_balance: "Solde du Contrat",
     total_tokens_available: "Total des tokens disponibles pour les airdrops",
+    error_loading: "Erreur de Chargement",
+    try_again: "Réessayer",
+    loading_fisquare: "Chargement de FiSquare...",
   },
 
   pt: {
@@ -564,6 +579,9 @@ const translations: Record<Language, Record<string, string>> = {
     refreshing_data: "Atualizando dados...",
     contract_balance: "Saldo do Contrato",
     total_tokens_available: "Total de tokens disponíveis para airdrops",
+    error_loading: "Erro ao Carregar",
+    try_again: "Tentar Novamente",
+    loading_fisquare: "Carregando FiSquare...",
   },
 }
 

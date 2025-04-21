@@ -18,20 +18,31 @@ export default function PopularPosts({ userAddress, userProfile, isBanned }: Pop
   const { t } = useLanguage()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     async function loadPosts() {
+      console.log("Loading popular posts")
       setIsLoading(true)
+
       try {
         // Buscar posts e ordenar por popularidade (mais curtidos primeiro)
+        console.log("Fetching posts")
         const allPosts = await getPosts()
+        console.log(`Fetched ${allPosts.length} posts`)
+
         const sortedPosts = sortPostsByPopularity(allPosts)
+        console.log("Posts sorted by popularity")
+
         setPosts(sortedPosts)
       } catch (error) {
         console.error("Error loading popular posts:", error)
+        setError("Failed to load posts")
       } finally {
+        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
         setIsLoading(false)
+        console.log("Popular posts loading complete")
       }
     }
 
@@ -39,16 +50,35 @@ export default function PopularPosts({ userAddress, userProfile, isBanned }: Pop
   }, [refreshTrigger])
 
   const handlePostCreated = () => {
+    console.log("Post created, refreshing")
     setRefreshTrigger((prev) => prev + 1)
   }
 
   const handlePostDeleted = () => {
+    console.log("Post deleted, refreshing")
     setRefreshTrigger((prev) => prev + 1)
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-900/30 border border-red-800/50 rounded-lg p-4 text-center">
+        <p className="text-red-300 text-sm mb-2">{error}</p>
+        <button
+          onClick={() => {
+            setError(null)
+            setRefreshTrigger((prev) => prev + 1)
+          }}
+          className="text-xs bg-red-800 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+        >
+          {t("try_again", "Try Again")}
+        </button>
+      </div>
+    )
   }
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-40">
+      <div className="flex justify-center items-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     )
