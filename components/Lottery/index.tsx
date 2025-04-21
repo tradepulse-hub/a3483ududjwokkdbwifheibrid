@@ -643,14 +643,14 @@ export function Lottery({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-900/90 to-purple-950/90 backdrop-blur-sm rounded-2xl p-5 max-w-md mx-auto shadow-xl border border-purple-700/50 animate-fadeIn">
+    <div className="bg-gradient-to-b from-gray-900/90 to-purple-950/90 backdrop-blur-sm rounded-2xl p-3 max-w-md mx-auto shadow-xl border border-purple-700/50 animate-fadeIn">
       {/* Cabeçalho com título e subtítulo */}
       <div className="text-center mb-6 relative">
         {/* Fundo de brilho animado */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-xl blur-xl animate-pulse"></div>
 
         <div className="relative">
-          <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient">
+          <h1 className="text-xl sm:text-2xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient">
             {t("lottery_title", "Loteria TPF")}
           </h1>
           <div className="h-1 w-32 mx-auto bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-full mb-3"></div>
@@ -659,7 +659,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
           <div className="absolute -top-4 -left-2 text-yellow-300 animate-pulse text-xl">✨</div>
           <div className="absolute -top-2 -right-1 text-yellow-300 animate-pulse delay-300 text-xl">✨</div>
 
-          <p className="text-sm text-gray-300 max-w-xs mx-auto">
+          <p className="text-xs text-gray-300 max-w-xs mx-auto">
             {t("enter_now", "Entre agora")} {t("for_chance_to_win", "para ter a chance de ganhar muito!")}
             <br />
             {t("more_tpf_higher_chance", "Quanto mais enviares = Maior a chance de ganhares!")}
@@ -702,21 +702,21 @@ export function Lottery({ userAddress }: { userAddress: string }) {
       )}
 
       {/* Seção do Grande Prêmio */}
-      <div className="bg-gradient-to-r from-purple-900/80 to-blue-900/80 backdrop-blur-sm rounded-xl p-4 mb-6 border border-purple-500/50 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+      <div className="bg-gradient-to-r from-purple-900/80 to-blue-900/80 backdrop-blur-sm rounded-xl p-3 mb-4 border border-purple-500/50 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
         <div className="relative overflow-hidden">
           {/* Efeito de brilho animado */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer bg-size-200"></div>
 
           <div className="text-center py-2">
-            <h2 className="text-xl font-bold text-yellow-300 mb-1 flex items-center justify-center">
+            <h2 className="text-lg font-bold text-yellow-300 mb-1 flex items-center justify-center">
               <span className="text-2xl mr-1">🏆</span> {t("big_winner", "GRANDE VENCEDOR")}{" "}
               <span className="text-2xl ml-1">🏆</span>
             </h2>
-            <div className="text-3xl font-extrabold text-white mb-2">
+            <div className="text-xl font-extrabold text-white mb-2">
               {Number(lotteryInfo.contractBalance).toLocaleString()} TPF
             </div>
             <p className="text-sm text-purple-200">{t("could_be_yours_in", "Pode ser teu em:")}</p>
-            <div className="text-xl font-mono text-yellow-300 mt-1 bg-purple-900/50 rounded-lg py-1 px-3 inline-block">
+            <div className="text-base font-mono text-yellow-300 mt-1 bg-purple-900/50 rounded-lg py-1 px-3 inline-block">
               {countdown === "Draw ready!" ? t("draw_ready", "Sorteio pronto!") : countdown}
             </div>
 
@@ -736,7 +736,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
       </div>
 
       {/* Formulário de participação integrado na mesma janela */}
-      <div className="bg-gradient-to-r from-blue-900/70 to-purple-900/70 backdrop-blur-sm rounded-lg p-4 mb-4 border border-blue-600/50 shadow-lg transform hover:shadow-purple-500/20 hover:border-purple-500/70 transition-all duration-300">
+      <div className="bg-gradient-to-r from-blue-900/70 to-purple-900/70 backdrop-blur-sm rounded-lg p-3 mb-3 border border-blue-600/50 shadow-lg transform hover:shadow-purple-500/20 hover:border-purple-500/70 transition-all duration-300">
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-purple-300 mb-1">
@@ -771,7 +771,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
               Number(participationAmount) < Number(lotteryInfo.minEntryTPF) ||
               Number(participationAmount) > Number(tpfBalance)
             }
-            className={`w-full py-3 px-4 rounded-lg font-bold text-lg transition-all duration-300 flex items-center justify-center
+            className={`w-full py-2 px-3 rounded-lg font-bold text-base transition-all duration-300 flex items-center justify-center
             ${
               isProcessing
                 ? "bg-purple-700 text-white cursor-wait"
@@ -1040,7 +1040,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                 </div>
 
                 <div className="text-center py-4">
-                  <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 via-orange-500 to-red-600 animate-pulse">
+                  <div className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 via-orange-500 to-red-600 animate-pulse">
                     {Number(lotteryInfo.totalBurned).toLocaleString()} TPF
                   </div>
                   <p className="text-orange-300 mt-2">
