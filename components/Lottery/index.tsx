@@ -348,10 +348,6 @@ type Participant = {
   tickets: string
 }
 
-// Remover a navegação por abas e simplificar o layout
-// Manter apenas o conteúdo principal com o design solicitado
-
-// Modificar a estrutura do componente para remover as abas e reorganizar o conteúdo
 export function Lottery({ userAddress }: { userAddress: string }) {
   const { t } = useLanguage()
   const [isLoading, setIsLoading] = useState(true)
@@ -644,26 +640,37 @@ export function Lottery({ userAddress }: { userAddress: string }) {
 
   return (
     <div className="bg-black/80 backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-purple-700/50 animate-fadeIn -mt-1">
-      {/* Cabeçalho com título e subtítulo */}
-      <div className="text-center mb-4 relative">
-        {/* Fundo de brilho animado */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-xl blur-xl animate-pulse"></div>
+      {/* Seção do Grande Prêmio - reduzir tamanho */}
+      <div className="bg-gradient-to-r from-purple-900/80 to-blue-900/80 backdrop-blur-sm rounded-xl p-2 mb-3 border border-purple-500/50 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+        <div className="relative overflow-hidden">
+          {/* Efeito de brilho animado */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer bg-size-200"></div>
 
-        <div className="relative">
-          <h1 className="text-lg sm:text-xl font-extrabold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient">
-            {t("lottery_title", "Loteria TPF")}
-          </h1>
-          <div className="h-1 w-24 mx-auto bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-full mb-2"></div>
+          <div className="text-center py-1">
+            <h2 className="text-base font-bold text-yellow-300 mb-1 flex items-center justify-center">
+              <span className="text-lg mr-1">🏆</span> {t("big_winner", "GRANDE VENCEDOR")}{" "}
+              <span className="text-lg ml-1">🏆</span>
+            </h2>
+            <div className="text-lg font-extrabold text-white mb-1">
+              {Number(lotteryInfo.contractBalance).toLocaleString()} TPF
+            </div>
+            <p className="text-xs text-purple-200">{t("could_be_yours_in", "Pode ser teu em:")}</p>
+            <div className="text-sm font-mono text-yellow-300 mt-1 bg-purple-900/50 rounded-lg py-1 px-2 inline-block">
+              {countdown === "Draw ready!" ? t("draw_ready", "Sorteio pronto!") : countdown}
+            </div>
 
-          {/* Estrelas animadas */}
-          <div className="absolute -top-4 -left-2 text-yellow-300 animate-pulse text-lg">✨</div>
-          <div className="absolute -top-2 -right-1 text-yellow-300 animate-pulse delay-300 text-lg">✨</div>
-
-          <p className="text-[10px] text-gray-300 max-w-xs mx-auto">
-            {t("enter_now", "Entre agora")} {t("for_chance_to_win", "para ter a chance de ganhar muito!")}
-            <br />
-            {t("more_tpf_higher_chance", "Quanto mais enviares = Maior a chance de ganhares!")}
-          </p>
+            {/* Chance do usuário abaixo do temporizador */}
+            <div className="mt-1 text-xs">
+              <span
+                className={`bg-purple-900/50 rounded-lg py-0.5 px-2 ${
+                  lotteryInfo.userParticipating ? "text-green-300" : "text-gray-300"
+                }`}
+              >
+                {t("chance", "Chance")}:{" "}
+                {lotteryInfo.userParticipating ? calculateTicketPercentage(lotteryInfo.userTickets) : "0%"}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -700,40 +707,6 @@ export function Lottery({ userAddress }: { userAddress: string }) {
           )}
         </div>
       )}
-
-      {/* Seção do Grande Prêmio - reduzir tamanho */}
-      <div className="bg-gradient-to-r from-purple-900/80 to-blue-900/80 backdrop-blur-sm rounded-xl p-2 mb-3 border border-purple-500/50 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
-        <div className="relative overflow-hidden">
-          {/* Efeito de brilho animado */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer bg-size-200"></div>
-
-          <div className="text-center py-1">
-            <h2 className="text-base font-bold text-yellow-300 mb-1 flex items-center justify-center">
-              <span className="text-lg mr-1">🏆</span> {t("big_winner", "GRANDE VENCEDOR")}{" "}
-              <span className="text-lg ml-1">🏆</span>
-            </h2>
-            <div className="text-lg font-extrabold text-white mb-1">
-              {Number(lotteryInfo.contractBalance).toLocaleString()} TPF
-            </div>
-            <p className="text-xs text-purple-200">{t("could_be_yours_in", "Pode ser teu em:")}</p>
-            <div className="text-sm font-mono text-yellow-300 mt-1 bg-purple-900/50 rounded-lg py-1 px-2 inline-block">
-              {countdown === "Draw ready!" ? t("draw_ready", "Sorteio pronto!") : countdown}
-            </div>
-
-            {/* Chance do usuário abaixo do temporizador */}
-            <div className="mt-1 text-xs">
-              <span
-                className={`bg-purple-900/50 rounded-lg py-0.5 px-2 ${
-                  lotteryInfo.userParticipating ? "text-green-300" : "text-gray-300"
-                }`}
-              >
-                {t("chance", "Chance")}:{" "}
-                {lotteryInfo.userParticipating ? calculateTicketPercentage(lotteryInfo.userTickets) : "0%"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Formulário de participação integrado na mesma janela - reduzir tamanho */}
       <div className="bg-gradient-to-r from-blue-900/70 to-purple-900/70 backdrop-blur-sm rounded-lg p-2 mb-2 border border-blue-600/50 shadow-lg transform hover:shadow-purple-500/20 hover:border-purple-500/70 transition-all duration-300">

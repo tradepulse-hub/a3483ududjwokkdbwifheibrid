@@ -226,7 +226,7 @@ export default function Home() {
           {/* Background overlay for better readability when logged in */}
           <div className="fixed inset-0 bg-black/70 -z-5"></div>
 
-          {/* Header - Mais compacto */}
+          {/* Header - Mais compacto e único para toda a aplicação */}
           <div className="text-center pt-1 pb-1 bg-black/80 backdrop-blur-sm rounded-lg shadow-md border border-gray-800 mb-1">
             <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-blue-500 to-purple-600">
               <Image
