@@ -183,7 +183,10 @@ export default function Home() {
   }
 
   return (
-    <main className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white overflow-hidden">
+    <main
+      className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white overflow-hidden"
+      style={{ backgroundColor: "black" }}
+    >
       {/* Animated chart background */}
       <ChartBackground />
 
