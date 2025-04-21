@@ -7,6 +7,7 @@ import type { Post, UserProfile } from "@/types/square"
 import { getProfile, likePost, unlikePost, deletePost } from "@/lib/squareStorage"
 import { getDisplayName, getDefaultProfilePicture, formatDate } from "@/lib/squareService"
 import BanUserModal from "./BanUserModal"
+import UserProfileModal from "./UserProfileModal"
 import { motion } from "framer-motion"
 
 interface PostItemProps {
@@ -22,6 +23,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
   const [showBanModal, setShowBanModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
 
   // Buscar perfil do autor
   useEffect(() => {
@@ -64,7 +66,10 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
     >
       {/* Cabeçalho do post */}
       <div className="flex items-center p-2 border-b border-gray-700/30">
-        <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 mr-2">
+        <div
+          className="w-8 h-8 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 mr-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => setShowProfileModal(true)}
+        >
           <Image
             src={authorProfile?.profilePicture || getDefaultProfilePicture(post.authorAddress)}
             alt="Profile"
@@ -77,7 +82,10 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <div className="truncate">
-              <h4 className="font-medium text-white text-sm truncate">
+              <h4
+                className="font-medium text-white text-sm truncate cursor-pointer hover:underline"
+                onClick={() => setShowProfileModal(true)}
+              >
                 {authorProfile ? getDisplayName(authorProfile) : post.authorAddress.substring(0, 6) + "..."}
               </h4>
               <p className="text-[10px] text-gray-400">{formatDate(post.createdAt)}</p>
@@ -151,12 +159,16 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
           dangerouslySetInnerHTML={{ __html: formatContent(post.content) }}
         ></p>
 
-        {/* Imagens anexadas */}
+        {/* Imagens anexadas - Dimensões maiores */}
         {post.images && post.images.length > 0 && (
-          <div className="mt-2 grid grid-cols-2 gap-1">
+          <div className="mt-2">
             {post.images.map((img, index) => (
-              <div key={index} className="rounded overflow-hidden">
-                <img src={img || "/placeholder.svg"} alt="Post attachment" className="w-full h-auto" />
+              <div key={index} className="rounded-lg overflow-hidden mb-2 max-h-[400px]">
+                <img
+                  src={img || "/placeholder.svg"}
+                  alt="Post attachment"
+                  className="w-full h-auto object-contain max-h-[400px]"
+                />
               </div>
             ))}
           </div>
@@ -287,6 +299,15 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
           userAddress={post.authorAddress}
           adminAddress={currentUserAddress}
           onClose={() => setShowBanModal(false)}
+        />
+      )}
+
+      {/* Modal de perfil do usuário */}
+      {showProfileModal && authorProfile && (
+        <UserProfileModal
+          userProfile={authorProfile}
+          currentUserAddress={currentUserAddress}
+          onClose={() => setShowProfileModal(false)}
         />
       )}
     </motion.div>

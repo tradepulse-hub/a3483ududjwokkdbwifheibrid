@@ -163,8 +163,7 @@ const translations: Record<Language, Record<string, string>> = {
     menu: "Menu",
     select_option: "Select an option to continue",
 
-    // Square
-    square: "FiSquare",
+    // FiSquare
     fisquare: "FiSquare",
     most_recent: "Most Recent",
     popular: "Popular",
@@ -173,6 +172,7 @@ const translations: Record<Language, Record<string, string>> = {
     write_something: "Write something...",
     attach_image: "Attach Image",
     post: "Post",
+    posting: "Posting...",
     trending_up: "Trending Up",
     trending_down: "Trending Down",
     edit_profile: "Edit Profile",
@@ -193,6 +193,7 @@ const translations: Record<Language, Record<string, string>> = {
     ban_expires: "Ban expires on {date}",
     user_since: "User since {date}",
     posts: "Posts",
+    user_posts: "Posts",
     followers: "Followers",
     following: "Following",
     follow: "Follow",
@@ -215,6 +216,8 @@ const translations: Record<Language, Record<string, string>> = {
     banned_users: "Banned Users",
     unban: "Unban",
     no_banned_users: "No banned users",
+    no_posts_for_crypto: "No posts for #{crypto} yet",
+    all: "All",
   },
 
   es: {
@@ -237,150 +240,9 @@ const translations: Record<Language, Record<string, string>> = {
     wait_for_next: "Espera al Próximo Reclamo",
     social_media: "Redes Sociales",
     all_followed: "¡Todos los canales seguidos! Puedes reclamar tu airdrop.",
-    follow_all_channels: "Por favor, sigue todos los canales para desbloquear el airdrop",
-    claim: "Reclamar",
-    social: "Social",
-    twitter_x: "Twitter/X",
-    telegram: "Telegram",
+    follow: "Seguir",
 
-    // Contract Status
-    contract_status_check: "Verificación de Estado del Contrato",
-    checking_contract: "Verificando estado del contrato...",
-    contract_address: "Dirección del Contrato:",
-    contract_accessible: "El contrato es accesible",
-    contract_not_accessible: "El contrato no es accesible en ninguna red",
-    rpc_status: "Estado RPC:",
-    available: "Disponible",
-    unavailable: "No disponible",
-    possible_issues: "Posibles problemas:",
-    not_deployed: "El contrato puede no estar desplegado aún",
-    different_network: "El contrato puede estar desplegado en una red diferente",
-    incorrect_address: "La dirección del contrato puede ser incorrecta",
-    rpc_unavailable: "Los endpoints RPC pueden no estar disponibles",
-    check_contract_status: "Verificar Estado del Contrato",
-    hide_contract_status: "Ocultar Estado del Contrato",
-
-    // Error messages
-    error_connecting: "Error al conectar con el contrato de airdrop:",
-    check_contract_deployed: "Por favor, verifica si el contrato está desplegado y accesible en la red.",
-
-    // Language selector
-    language: "Idioma",
-
-    // Wallet
-    my_tokens: "Mis Tokens",
-    connected: "Conectado",
-    wallet_address: "Dirección de Billetera:",
-    logout: "Cerrar Sesión",
-    refresh: "Actualizar",
-    refreshing: "Actualizando...",
-    send: "Enviar",
-    receive: "Recibir",
-    balance: "Saldo",
-    token_address: "Dirección del Token",
-    copy_address: "Copiar dirección",
-    scan_qr_code: "Escanea este código QR o copia la dirección arriba para recibir",
-    on_worldchain: "en Worldchain",
-    to: "Para",
-    amount: "Cantidad",
-    cancel: "Cancelar",
-    sending: "Enviando...",
-    transaction_sent_success: "¡Transacción enviada con éxito!",
-    recipient_required: "La dirección del destinatario es obligatoria",
-    invalid_eth_address: "Formato de dirección Ethereum inválido",
-    amount_required: "La cantidad es obligatoria",
-    amount_positive: "La cantidad debe ser un número positivo",
-    minikit_not_installed: "MiniKit no está instalado",
-    token_not_supported: "El token {tokenSymbol} no es compatible para envío directo",
-    transaction_failed: "La transacción falló",
-    failed_to_send: "Error al enviar {tokenSymbol}",
-    error_sending_token:
-      "Hubo un error al enviar {tokenSymbol}. Inténtalo de nuevo o usa la aplicación de worldcoin directamente.",
-    failed_to_send_tpf: "Error al enviar TPF",
-    error_sending_tpf: "Hubo un error al enviar TPF. Inténtalo de nuevo o usa la aplicación de worldcoin directamente.",
-    in_development: "En Desarrollo",
-    qr_code_coming_soon:
-      "Funcionalidad de código QR próximamente. Por favor, usa la dirección de billetera a continuación.",
-    copy_address_to_receive: "Copia la dirección de arriba para recibir",
-
-    // Navigation
-    wallet: "Billetera",
-    airdrop_zone: "Zona de Airdrop",
-
-    // Login
-    connect_wallet: "Conectar Billetera",
-    connecting: "Conectando...",
-
-    // Token Wallet
-    no_tokens_found: "No Se Encontraron Tokens",
-    no_tokens_description: 'Aún no tienes tokens en tu billetera. Usa el botón "Recibir" para comenzar.',
-    receive_token: "Recibir",
-    error: "Error:",
-    unavailable_token: "No disponible",
-
-    // Lottery
-    lottery: "Lotería",
-    lottery_title: "LOTERÍA TPF",
-    lottery_description: "Participa en la lotería con tokens TPF para tener la oportunidad de ganar a lo grande!",
-    lottery_status: "Estado de la Lotería",
-    current_prize: "Premio Actual",
-    next_draw: "Próximo Sorteo",
-    time_remaining: "Tiempo Restante",
-    minimum_entry: "Entrada mínima:",
-    total_participants: "Total de Participantes",
-    total_burned: "Total Quemado",
-    your_tickets: "Tus Boletos:",
-    enter_lottery: "Participar en la Lotería",
-    your_tpf_balance: "Tu Saldo de TPF",
-    amount_to_enter: "Cantidad para Participar",
-    how_it_works: "Cómo Funciona",
-    current_participants: "Participantes Actuales",
-    address: "Dirección",
-    tickets: "Boletos",
-    chance: "probabilidad",
-    all_weeks_have_one: "Todas las semanas hay una lotería",
-    how_it_works_info: "Cómo Funciona",
-    big_winner: "GRAN GANADOR",
-    could_be_yours_in: "Podría ser tuyo en:",
-    draw_ready: "¡Sorteo listo!",
-    tokens_removed: "Tokens eliminados permanentemente de circulación",
-    success_entered: "¡Has entrado exitosamente en la lotería!",
-    view_on_worldscan: "Ver en WorldScan",
-    play_now: "¡JUGAR AHORA!",
-    more_tickets_higher_chance: "Más TPF = más boletos = mayor probabilidad de ganar!",
-    enter_now_button: "¡ENTRAR AHORA!",
-    good_luck: "¡Buena Suerte!",
-    close: "Cerrar",
-    enter_now: "Participa ahora",
-    for_chance_to_win: "para tener la oportunidad de ganar a lo grande! Más TPF = mayor probabilidad!",
-    refreshing_data: "Actualizando datos...",
-    how_it_works_point1: "Participa en la lotería enviando tokens TPF (mínimo {minEntry} TPF)",
-    how_it_works_point2: "Cada {minEntry} TPF te da 1 boleto",
-    how_it_works_point3: "Más boletos = mayor probabilidad de ganar",
-    how_it_works_point4: "El ganador se selecciona aleatoriamente cada semana",
-    how_it_works_point5: "El ganador recibe el {winnerPercent}% del pozo, el {burnPercent}% se quema",
-    more_tpf_higher_chance: "¡Cuanto más TPF envíes, mayor será tu probabilidad de ganar!",
-    info: "Info",
-    burned: "Quemado",
-
-    // Adicionar novas traduções para o modal de recebimento
-    your_wallet_address: "Dirección de tu Billetera",
-    how_to_receive: "Cómo Recibir",
-    copy_your_address: "Copia tu dirección",
-    paste_in_sending_wallet: "Pégala en la billetera de envío",
-    confirm_transaction: "Confirma la transacción",
-    wait_for_confirmation: "Espera la confirmación de la red",
-    select_token_to_send: "Selecciona un token para enviar:",
-    select_token_to_receive: "Selecciona un token para recibir:",
-    transaction_id: "ID de Transacción:",
-    tokens_on_way: "¡Tus tokens están en camino!",
-
-    // Novas traduções para o menu
-    menu: "Menú",
-    select_option: "Selecciona una opción para continuar",
-
-    // Square
-    square: "FiSquare",
+    // FiSquare
     fisquare: "FiSquare",
     most_recent: "Más Reciente",
     popular: "Popular",
@@ -389,6 +251,7 @@ const translations: Record<Language, Record<string, string>> = {
     write_something: "Escribe algo...",
     attach_image: "Adjuntar Imagen",
     post: "Publicar",
+    posting: "Publicando...",
     trending_up: "Tendencia Alcista",
     trending_down: "Tendencia Bajista",
     edit_profile: "Editar Perfil",
@@ -409,6 +272,7 @@ const translations: Record<Language, Record<string, string>> = {
     ban_expires: "El ban expira el {date}",
     user_since: "Usuario desde {date}",
     posts: "Publicaciones",
+    user_posts: "Publicaciones",
     followers: "Seguidores",
     following: "Siguiendo",
     follow: "Seguir",
@@ -431,6 +295,8 @@ const translations: Record<Language, Record<string, string>> = {
     banned_users: "Usuarios Baneados",
     unban: "Desbanear",
     no_banned_users: "No hay usuarios baneados",
+    no_posts_for_crypto: "Aún no hay publicaciones para #{crypto}",
+    all: "Todos",
   },
 
   it: {
@@ -594,8 +460,7 @@ const translations: Record<Language, Record<string, string>> = {
     menu: "Menu",
     select_option: "Seleziona un'opzione per continuare",
 
-    // Square
-    square: "FiSquare",
+    // FiSquare
     fisquare: "FiSquare",
     most_recent: "Più Recenti",
     popular: "Popolari",
@@ -604,6 +469,7 @@ const translations: Record<Language, Record<string, string>> = {
     write_something: "Scrivi qualcosa...",
     attach_image: "Allega Immagine",
     post: "Pubblica",
+    posting: "Pubblicando...",
     trending_up: "Tendenza al Rialzo",
     trending_down: "Tendenza al Ribasso",
     edit_profile: "Modifica Profilo",
@@ -624,6 +490,7 @@ const translations: Record<Language, Record<string, string>> = {
     ban_expires: "Il ban scade il {date}",
     user_since: "Utente dal {date}",
     posts: "Post",
+    user_posts: "Post",
     followers: "Follower",
     following: "Seguiti",
     follow: "Segui",
@@ -646,6 +513,8 @@ const translations: Record<Language, Record<string, string>> = {
     banned_users: "Utenti Bannati",
     unban: "Rimuovi Ban",
     no_banned_users: "Nessun utente bannato",
+    no_posts_for_crypto: "Ancora nessun post per #{crypto}",
+    all: "Tutti",
   },
 
   zh: {
@@ -808,8 +677,7 @@ const translations: Record<Language, Record<string, string>> = {
     menu: "菜单",
     select_option: "选择一个选项继续",
 
-    // Square
-    square: "FiSquare",
+    // FiSquare
     fisquare: "FiSquare",
     most_recent: "最新",
     popular: "热门",
@@ -818,6 +686,7 @@ const translations: Record<Language, Record<string, string>> = {
     write_something: "写点什么...",
     attach_image: "附加图片",
     post: "发布",
+    posting: "发布中...",
     trending_up: "上涨趋势",
     trending_down: "下跌趋势",
     edit_profile: "编辑资料",
@@ -838,6 +707,7 @@ const translations: Record<Language, Record<string, string>> = {
     ban_expires: "封禁将于 {date} 到期",
     user_since: "用户自 {date}",
     posts: "帖子",
+    user_posts: "帖子",
     followers: "粉丝",
     following: "关注",
     follow: "关注",
@@ -860,6 +730,8 @@ const translations: Record<Language, Record<string, string>> = {
     banned_users: "被封禁的用户",
     unban: "解除封禁",
     no_banned_users: "没有被封禁的用户",
+    no_posts_for_crypto: "暂无 #{crypto} 相关帖子",
+    all: "全部",
   },
 
   fr: {
@@ -1025,8 +897,7 @@ const translations: Record<Language, Record<string, string>> = {
     menu: "Menu",
     select_option: "Sélectionnez une option pour continuer",
 
-    // Square
-    square: "FiSquare",
+    // FiSquare
     fisquare: "FiSquare",
     most_recent: "Plus Récent",
     popular: "Populaire",
@@ -1035,6 +906,7 @@ const translations: Record<Language, Record<string, string>> = {
     write_something: "Écrivez quelque chose...",
     attach_image: "Joindre une Image",
     post: "Publier",
+    posting: "Publication en cours...",
     trending_up: "Tendance à la Hausse",
     trending_down: "Tendance à la Baisse",
     edit_profile: "Modifier le Profil",
@@ -1055,6 +927,7 @@ const translations: Record<Language, Record<string, string>> = {
     ban_expires: "Le bannissement expire le {date}",
     user_since: "Utilisateur depuis {date}",
     posts: "Posts",
+    user_posts: "Posts",
     followers: "Abonnés",
     following: "Abonnements",
     follow: "Suivre",
@@ -1077,6 +950,8 @@ const translations: Record<Language, Record<string, string>> = {
     banned_users: "Utilisateurs Bannis",
     unban: "Débannir",
     no_banned_users: "Aucun utilisateur banni",
+    no_posts_for_crypto: "Pas encore de posts pour #{crypto}",
+    all: "Tous",
   },
 
   pt: {
@@ -1240,8 +1115,7 @@ const translations: Record<Language, Record<string, string>> = {
     menu: "Menu",
     select_option: "Selecione uma opção para continuar",
 
-    // Square
-    square: "FiSquare",
+    // FiSquare
     fisquare: "FiSquare",
     most_recent: "Mais Recente",
     popular: "Popular",
@@ -1250,6 +1124,7 @@ const translations: Record<Language, Record<string, string>> = {
     write_something: "Escreva algo...",
     attach_image: "Anexar Imagem",
     post: "Publicar",
+    posting: "Publicando...",
     trending_up: "Tendência de Alta",
     trending_down: "Tendência de Baixa",
     edit_profile: "Editar Perfil",
@@ -1270,6 +1145,7 @@ const translations: Record<Language, Record<string, string>> = {
     ban_expires: "O banimento expira em {date}",
     user_since: "Usuário desde {date}",
     posts: "Publicações",
+    user_posts: "Publicações",
     followers: "Seguidores",
     following: "Seguindo",
     follow: "Seguir",
@@ -1292,6 +1168,8 @@ const translations: Record<Language, Record<string, string>> = {
     banned_users: "Usuários Banidos",
     unban: "Desbanir",
     no_banned_users: "Não há usuários banidos",
+    no_posts_for_crypto: "Ainda não há publicações para #{crypto}",
+    all: "Todos",
   },
 }
 
