@@ -227,7 +227,7 @@ export default function Home() {
           <div className="fixed inset-0 bg-black/70 -z-5"></div>
 
           {/* Header - Mais compacto */}
-          <div className="text-center pt-1 pb-1">
+          <div className="text-center pt-1 pb-1 bg-black/80 backdrop-blur-sm rounded-lg shadow-md border border-gray-800 mb-1">
             <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-blue-500 to-purple-600">
               <Image
                 src="/images/tpf-logo.png"
@@ -244,11 +244,31 @@ export default function Home() {
           </div>
 
           {/* Status bar - Mais compacto */}
-          <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg shadow-md p-1 border border-gray-700 mb-1">
+          <div className="bg-black/80 backdrop-blur-sm rounded-lg shadow-md p-1 border border-gray-700 mb-1">
             <div className="flex justify-end">
               <div className="flex items-center">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block mr-1"></span>
-                <span className="text-xs text-gray-300">{t("connected", "Connected")}</span>
+                <span className="text-xs text-gray-300 mr-2">{t("connected", "Connected")}</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-xxs bg-red-900/80 hover:bg-red-800 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-2.5 w-2.5 mr-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                  {t("logout", "Logout")}
+                </button>
               </div>
             </div>
           </div>
@@ -275,7 +295,7 @@ export default function Home() {
           </div>
 
           {/* Espaço para o menu inferior */}
-          <div className="h-16"></div>
+          <div className="h-14"></div>
 
           {/* Bottom Menu com a prop de visibilidade */}
           <BottomMenu activeTab={activeTab} onTabChange={handleTabChange} isVisible={isMenuVisible} />

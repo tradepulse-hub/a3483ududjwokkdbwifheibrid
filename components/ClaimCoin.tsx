@@ -200,7 +200,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-gray-800">
+    <div className="bg-black/80 backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-gray-800 -mt-1">
       <div className="text-center mb-4">
         <h1 className="text-lg sm:text-xl font-bold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 animate-gradient">
           {t("daily_airdrop", "Daily Airdrop")}
@@ -654,27 +654,6 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             <div className="flex justify-center space-x-6 mt-6">
               <a
                 href="https://x.com/TradePulseToken?t=pVsX5va6z7eOJj70W9pSog&s=09"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 transition-all duration-300 group"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-gray-400 group-hover:text-blue-400 transition-colors duration-300"
-                >
-                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-                </svg>
-              </a>
-              <a
-                href="https://t.me/tpulsefi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 transition-all duration-300 group"

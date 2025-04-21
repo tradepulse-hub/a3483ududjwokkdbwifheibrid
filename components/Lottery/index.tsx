@@ -643,7 +643,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-900/90 to-purple-950/90 backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-purple-700/50 animate-fadeIn">
+    <div className="bg-black/80 backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-purple-700/50 animate-fadeIn -mt-1">
       {/* Cabeçalho com título e subtítulo */}
       <div className="text-center mb-4 relative">
         {/* Fundo de brilho animado */}

@@ -242,7 +242,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Cabeçalho da wallet mais compacto */}
-      <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm rounded-lg shadow-md p-2 border border-gray-700/50 mb-1">
+      <div className="bg-black/80 backdrop-blur-sm rounded-lg shadow-md p-2 border border-gray-700/50 mb-1 -mt-1">
         <div className="flex justify-between items-center mb-1">
           <h3 className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
             {t("my_tokens", "My Tokens")}
@@ -292,7 +292,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         </div>
 
         {/* Lista de tokens mais compacta */}
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {isLoading ? (
             <div className="space-y-1">
               {[1, 2].map((i) => (
