@@ -22,6 +22,7 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
+  // Modificar o useEffect para garantir que o estado de carregamento seja atualizado corretamente
   useEffect(() => {
     async function loadPosts() {
       console.log(`Loading market posts for crypto: ${selectedCrypto}`)
