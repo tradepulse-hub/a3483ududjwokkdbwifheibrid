@@ -643,23 +643,23 @@ export function Lottery({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-900/90 to-purple-950/90 backdrop-blur-sm rounded-2xl p-3 max-w-md mx-auto shadow-xl border border-purple-700/50 animate-fadeIn">
+    <div className="bg-gradient-to-b from-gray-900/90 to-purple-950/90 backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-purple-700/50 animate-fadeIn">
       {/* Cabeçalho com título e subtítulo */}
-      <div className="text-center mb-6 relative">
+      <div className="text-center mb-4 relative">
         {/* Fundo de brilho animado */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-xl blur-xl animate-pulse"></div>
 
         <div className="relative">
-          <h1 className="text-xl sm:text-2xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient">
+          <h1 className="text-lg sm:text-xl font-extrabold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient">
             {t("lottery_title", "Loteria TPF")}
           </h1>
-          <div className="h-1 w-32 mx-auto bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-full mb-3"></div>
+          <div className="h-1 w-24 mx-auto bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 rounded-full mb-2"></div>
 
           {/* Estrelas animadas */}
-          <div className="absolute -top-4 -left-2 text-yellow-300 animate-pulse text-xl">✨</div>
-          <div className="absolute -top-2 -right-1 text-yellow-300 animate-pulse delay-300 text-xl">✨</div>
+          <div className="absolute -top-4 -left-2 text-yellow-300 animate-pulse text-lg">✨</div>
+          <div className="absolute -top-2 -right-1 text-yellow-300 animate-pulse delay-300 text-lg">✨</div>
 
-          <p className="text-xs text-gray-300 max-w-xs mx-auto">
+          <p className="text-[10px] text-gray-300 max-w-xs mx-auto">
             {t("enter_now", "Entre agora")} {t("for_chance_to_win", "para ter a chance de ganhar muito!")}
             <br />
             {t("more_tpf_higher_chance", "Quanto mais enviares = Maior a chance de ganhares!")}
@@ -667,28 +667,28 @@ export function Lottery({ userAddress }: { userAddress: string }) {
         </div>
       </div>
 
-      {/* Mensagens de erro e sucesso */}
+      {/* Mensagens de erro e sucesso - reduzir tamanho */}
       {error && (
-        <div className="bg-red-900/30 text-red-300 text-sm p-3 rounded-lg mb-4 border border-red-800/50 animate-fadeIn">
+        <div className="bg-red-900/30 text-red-300 text-xs p-2 rounded-lg mb-3 border border-red-800/50 animate-fadeIn">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-gradient-to-r from-green-900/40 to-blue-900/40 text-green-300 text-sm p-4 rounded-lg mb-4 border border-green-500/50 animate-fadeIn">
+        <div className="bg-gradient-to-r from-green-900/40 to-blue-900/40 text-green-300 text-xs p-3 rounded-lg mb-3 border border-green-500/50 animate-fadeIn">
           {success.includes("Successfully entered") ? (
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-300 mb-2 animate-pulse">
+              <div className="text-lg font-bold text-yellow-300 mb-1 animate-pulse">
                 🍀 {t("good_luck", "Boa Sorte!")} 🍀
               </div>
-              <p className="text-green-300">{t("success_entered", "Entraste com sucesso na loteria!")}</p>
+              <p className="text-green-300 text-xs">{t("success_entered", "Entraste com sucesso na loteria!")}</p>
               {txHash && (
-                <div className="mt-3">
+                <div className="mt-2">
                   <a
                     href={`https://worldscan.org/tx/${txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs bg-blue-900/50 hover:bg-blue-800/70 text-blue-300 px-3 py-1.5 rounded transition-colors"
+                    className="text-[10px] bg-blue-900/50 hover:bg-blue-800/70 text-blue-300 px-2 py-1 rounded transition-colors"
                   >
                     {t("view_on_worldscan", "Ver no WorldScan")}
                   </a>
@@ -701,29 +701,29 @@ export function Lottery({ userAddress }: { userAddress: string }) {
         </div>
       )}
 
-      {/* Seção do Grande Prêmio */}
-      <div className="bg-gradient-to-r from-purple-900/80 to-blue-900/80 backdrop-blur-sm rounded-xl p-3 mb-4 border border-purple-500/50 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+      {/* Seção do Grande Prêmio - reduzir tamanho */}
+      <div className="bg-gradient-to-r from-purple-900/80 to-blue-900/80 backdrop-blur-sm rounded-xl p-2 mb-3 border border-purple-500/50 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
         <div className="relative overflow-hidden">
           {/* Efeito de brilho animado */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer bg-size-200"></div>
 
-          <div className="text-center py-2">
-            <h2 className="text-lg font-bold text-yellow-300 mb-1 flex items-center justify-center">
-              <span className="text-2xl mr-1">🏆</span> {t("big_winner", "GRANDE VENCEDOR")}{" "}
-              <span className="text-2xl ml-1">🏆</span>
+          <div className="text-center py-1">
+            <h2 className="text-base font-bold text-yellow-300 mb-1 flex items-center justify-center">
+              <span className="text-lg mr-1">🏆</span> {t("big_winner", "GRANDE VENCEDOR")}{" "}
+              <span className="text-lg ml-1">🏆</span>
             </h2>
-            <div className="text-xl font-extrabold text-white mb-2">
+            <div className="text-lg font-extrabold text-white mb-1">
               {Number(lotteryInfo.contractBalance).toLocaleString()} TPF
             </div>
-            <p className="text-sm text-purple-200">{t("could_be_yours_in", "Pode ser teu em:")}</p>
-            <div className="text-base font-mono text-yellow-300 mt-1 bg-purple-900/50 rounded-lg py-1 px-3 inline-block">
+            <p className="text-xs text-purple-200">{t("could_be_yours_in", "Pode ser teu em:")}</p>
+            <div className="text-sm font-mono text-yellow-300 mt-1 bg-purple-900/50 rounded-lg py-1 px-2 inline-block">
               {countdown === "Draw ready!" ? t("draw_ready", "Sorteio pronto!") : countdown}
             </div>
 
             {/* Chance do usuário abaixo do temporizador */}
-            <div className="mt-2 text-sm">
+            <div className="mt-1 text-xs">
               <span
-                className={`bg-purple-900/50 rounded-lg py-1 px-3 ${
+                className={`bg-purple-900/50 rounded-lg py-0.5 px-2 ${
                   lotteryInfo.userParticipating ? "text-green-300" : "text-gray-300"
                 }`}
               >
@@ -735,20 +735,20 @@ export function Lottery({ userAddress }: { userAddress: string }) {
         </div>
       </div>
 
-      {/* Formulário de participação integrado na mesma janela */}
-      <div className="bg-gradient-to-r from-blue-900/70 to-purple-900/70 backdrop-blur-sm rounded-lg p-3 mb-3 border border-blue-600/50 shadow-lg transform hover:shadow-purple-500/20 hover:border-purple-500/70 transition-all duration-300">
-        <div className="space-y-3">
+      {/* Formulário de participação integrado na mesma janela - reduzir tamanho */}
+      <div className="bg-gradient-to-r from-blue-900/70 to-purple-900/70 backdrop-blur-sm rounded-lg p-2 mb-2 border border-blue-600/50 shadow-lg transform hover:shadow-purple-500/20 hover:border-purple-500/70 transition-all duration-300">
+        <div className="space-y-2">
           <div>
-            <label className="block text-sm font-medium text-purple-300 mb-1">
+            <label className="block text-xs font-medium text-purple-300 mb-0.5">
               {t("your_tpf_balance", "Saldo TPF")}
             </label>
-            <div className="w-full px-3 py-2 bg-gray-800/80 border border-purple-700/50 rounded-lg text-white font-bold">
+            <div className="w-full px-2 py-1 bg-gray-800/80 border border-purple-700/50 rounded-lg text-white font-bold text-xs">
               {Number(tpfBalance).toLocaleString()} TPF
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-purple-300 mb-1">
+            <label className="block text-xs font-medium text-purple-300 mb-0.5">
               {t("amount_to_enter", "Quantidade para entrar")}
             </label>
             <input
@@ -756,9 +756,9 @@ export function Lottery({ userAddress }: { userAddress: string }) {
               value={participationAmount}
               onChange={(e) => setParticipationAmount(e.target.value)}
               placeholder="0.0"
-              className="w-full px-3 py-2 bg-gray-800/80 border border-purple-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-2 py-1 bg-gray-800/80 border border-purple-700/50 rounded-lg text-white text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
             />
-            <p className="text-xs text-purple-300 mt-1">
+            <p className="text-[10px] text-purple-300 mt-0.5">
               {t("minimum_entry", "Entrada mínima")} - {lotteryInfo.minEntryTPF} TPF
             </p>
           </div>
@@ -771,21 +771,21 @@ export function Lottery({ userAddress }: { userAddress: string }) {
               Number(participationAmount) < Number(lotteryInfo.minEntryTPF) ||
               Number(participationAmount) > Number(tpfBalance)
             }
-            className={`w-full py-2 px-3 rounded-lg font-bold text-base transition-all duration-300 flex items-center justify-center
-            ${
-              isProcessing
-                ? "bg-purple-700 text-white cursor-wait"
-                : Number(participationAmount) <= 0 ||
-                    Number(participationAmount) < Number(lotteryInfo.minEntryTPF) ||
-                    Number(participationAmount) > Number(tpfBalance)
-                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-600/30 hover:scale-[1.02] transform"
-            }`}
+            className={`w-full py-1.5 px-2 rounded-lg font-bold text-sm transition-all duration-300 flex items-center justify-center
+        ${
+          isProcessing
+            ? "bg-purple-700 text-white cursor-wait"
+            : Number(participationAmount) <= 0 ||
+                Number(participationAmount) < Number(lotteryInfo.minEntryTPF) ||
+                Number(participationAmount) > Number(tpfBalance)
+              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-600/30 hover:scale-[1.02] transform"
+        }`}
           >
             {isProcessing ? (
               <div className="flex items-center">
                 <svg
-                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  className="animate-spin h-4 w-4 mr-1 text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -803,7 +803,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
               <>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 mr-2"
+                  className="h-4 w-4 mr-1"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -822,17 +822,17 @@ export function Lottery({ userAddress }: { userAddress: string }) {
         </div>
       </div>
 
-      {/* Ícones de Info e Total Queimado */}
-      <div className="flex justify-center space-x-6 mt-4">
+      {/* Ícones de Info e Total Queimado - reduzir tamanho */}
+      <div className="flex justify-center space-x-6 mt-2">
         {/* Ícone de Info */}
         <button
           onClick={() => setShowInfoModal(!showInfoModal)}
-          className="flex flex-col items-center justify-center space-y-1"
+          className="flex flex-col items-center justify-center space-y-0.5"
         >
-          <div className="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center hover:bg-blue-800/70 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center hover:bg-blue-800/70 transition-colors">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-blue-300"
+              className="h-4 w-4 text-blue-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -845,18 +845,18 @@ export function Lottery({ userAddress }: { userAddress: string }) {
               />
             </svg>
           </div>
-          <span className="text-xs text-gray-400">{t("info", "Info")}</span>
+          <span className="text-[10px] text-gray-400">{t("info", "Info")}</span>
         </button>
 
         {/* Ícone de Total Queimado */}
         <button
           onClick={() => setShowBurnedModal(!showBurnedModal)}
-          className="flex flex-col items-center justify-center space-y-1"
+          className="flex flex-col items-center justify-center space-y-0.5"
         >
-          <div className="w-10 h-10 rounded-full bg-orange-900/50 flex items-center justify-center hover:bg-orange-800/70 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-orange-900/50 flex items-center justify-center hover:bg-orange-800/70 transition-colors">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-orange-300"
+              className="h-4 w-4 text-orange-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -875,7 +875,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
               />
             </svg>
           </div>
-          <span className="text-xs text-gray-400">{t("burned", "Burned")}</span>
+          <span className="text-[10px] text-gray-400">{t("burned", "Burned")}</span>
         </button>
       </div>
 
@@ -890,13 +890,13 @@ export function Lottery({ userAddress }: { userAddress: string }) {
             onClick={() => setShowInfoModal(false)}
           >
             <motion.div
-              className="bg-gradient-to-r from-blue-900/90 to-purple-900/90 backdrop-blur-sm rounded-lg p-5 border border-blue-600/50 shadow-lg max-w-md w-full m-4"
+              className="bg-gradient-to-r from-blue-900/90 to-purple-900/90 backdrop-blur-sm rounded-lg p-3 border border-blue-600/50 shadow-lg max-w-md w-full m-2"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center justify-center">
+              <h3 className="text-lg font-bold text-white mb-3 flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2 text-blue-400"
+                  className="h-4 w-4 mr-1 text-blue-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -911,9 +911,9 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                 {t("how_it_works_info", "Como Funciona")}
               </h3>
 
-              <div className="space-y-4 text-sm text-gray-300">
-                <div className="flex items-start bg-gray-800/50 p-3 rounded-lg">
-                  <div className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
+              <div className="space-y-3 text-xs text-gray-300">
+                <div className="flex items-start bg-gray-800/50 p-2 rounded-lg">
+                  <div className="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold mr-2 flex-shrink-0">
                     1
                   </div>
                   <p>
@@ -924,8 +924,8 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                   </p>
                 </div>
 
-                <div className="flex items-start bg-gray-800/50 p-3 rounded-lg">
-                  <div className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                <div className="flex items-start bg-gray-800/50 p-2 rounded-lg">
+                  <div className="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold mr-2 flex-shrink-0">
                     2
                   </div>
                   <p>
@@ -936,22 +936,22 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                   </p>
                 </div>
 
-                <div className="flex items-start bg-gray-800/50 p-3 rounded-lg">
-                  <div className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                <div className="flex items-start bg-gray-800/50 p-2 rounded-lg">
+                  <div className="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold mr-2 flex-shrink-0">
                     3
                   </div>
                   <p>{t("how_it_works_point3", "Mais bilhetes = maior chance de ganhar")}</p>
                 </div>
 
-                <div className="flex items-start bg-gray-800/50 p-3 rounded-lg">
-                  <div className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                <div className="flex items-start bg-gray-800/50 p-2 rounded-lg">
+                  <div className="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold mr-2 flex-shrink-0">
                     4
                   </div>
                   <p>{t("how_it_works_point4", "O vencedor é selecionado aleatoriamente todas as semanas")}</p>
                 </div>
 
-                <div className="flex items-start bg-gray-800/50 p-3 rounded-lg">
-                  <div className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                <div className="flex items-start bg-gray-800/50 p-2 rounded-lg">
+                  <div className="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold mr-2 flex-shrink-0">
                     5
                   </div>
                   <p>
@@ -961,18 +961,18 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                   </p>
                 </div>
 
-                <div className="flex items-start bg-gray-800/50 p-3 rounded-lg">
-                  <div className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                <div className="flex items-start bg-gray-800/50 p-2 rounded-lg">
+                  <div className="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold mr-2 flex-shrink-0">
                     6
                   </div>
                   <p>{t("all_weeks_have_one", "Todas as semanas têm uma loteria")}</p>
                 </div>
               </div>
 
-              <div className="mt-4 flex justify-center">
+              <div className="mt-3 flex justify-center">
                 <button
                   onClick={() => setShowInfoModal(false)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs"
                 >
                   {t("close", "Fechar")}
                 </button>
@@ -993,24 +993,24 @@ export function Lottery({ userAddress }: { userAddress: string }) {
             onClick={() => setShowBurnedModal(false)}
           >
             <motion.div
-              className="bg-gradient-to-b from-gray-900/90 via-red-900/40 to-orange-900/30 backdrop-blur-sm rounded-lg p-5 border border-orange-600/50 shadow-lg max-w-md w-full m-4 overflow-hidden relative"
+              className="bg-gradient-to-b from-gray-900/90 via-red-900/40 to-orange-900/30 backdrop-blur-sm rounded-lg p-3 border border-orange-600/50 shadow-lg max-w-md w-full m-2 overflow-hidden relative"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Elementos de animação de fogo */}
               <div className="absolute bottom-0 left-0 w-full h-1/2 overflow-hidden">
-                <div className="absolute bottom-0 left-1/4 w-2 h-8 bg-orange-500 rounded-t-lg animate-pulse opacity-70"></div>
-                <div className="absolute bottom-0 left-1/3 w-3 h-12 bg-orange-400 rounded-t-lg animate-pulse delay-100 opacity-60"></div>
-                <div className="absolute bottom-0 left-1/2 w-4 h-16 bg-yellow-500 rounded-t-lg animate-pulse delay-200 opacity-80"></div>
-                <div className="absolute bottom-0 left-2/3 w-3 h-10 bg-red-500 rounded-t-lg animate-pulse delay-300 opacity-70"></div>
-                <div className="absolute bottom-0 left-3/4 w-2 h-6 bg-orange-600 rounded-t-lg animate-pulse delay-150 opacity-60"></div>
+                <div className="absolute bottom-0 left-1/4 w-1 h-4 bg-orange-500 rounded-t-lg animate-pulse opacity-70"></div>
+                <div className="absolute bottom-0 left-1/3 w-1.5 h-6 bg-orange-400 rounded-t-lg animate-pulse delay-100 opacity-60"></div>
+                <div className="absolute bottom-0 left-1/2 w-2 h-8 bg-yellow-500 rounded-t-lg animate-pulse delay-200 opacity-80"></div>
+                <div className="absolute bottom-0 left-2/3 w-1.5 h-5 bg-red-500 rounded-t-lg animate-pulse delay-300 opacity-70"></div>
+                <div className="absolute bottom-0 left-3/4 w-1 h-3 bg-orange-600 rounded-t-lg animate-pulse delay-150 opacity-60"></div>
               </div>
 
               <div className="relative z-10">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-xl font-bold text-white flex items-center">
-                    <span className="text-orange-500 mr-2">🔥</span>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-bold text-white flex items-center">
+                    <span className="text-orange-500 mr-1">🔥</span>
                     {t("total_burned", "Total Queimado")}
-                    <span className="text-orange-500 ml-2">🔥</span>
+                    <span className="text-orange-500 ml-1">🔥</span>
                   </h3>
                   <button
                     onClick={() => {
@@ -1019,11 +1019,11 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                         setSuccess(null)
                       })
                     }}
-                    className="text-xs bg-orange-700 hover:bg-orange-600 text-white px-2 py-1 rounded-full transition-colors flex items-center shadow-md hover:shadow-orange-500/30"
+                    className="text-[9px] bg-orange-700 hover:bg-orange-600 text-white px-1.5 py-0.5 rounded-full transition-colors flex items-center shadow-md hover:shadow-orange-500/30"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-3 w-3 mr-1"
+                      className="h-2 w-2 mr-0.5"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -1039,23 +1039,23 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                   </button>
                 </div>
 
-                <div className="text-center py-4">
-                  <div className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 via-orange-500 to-red-600 animate-pulse">
+                <div className="text-center py-2">
+                  <div className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 via-orange-500 to-red-600 animate-pulse">
                     {Number(lotteryInfo.totalBurned).toLocaleString()} TPF
                   </div>
-                  <p className="text-orange-300 mt-2">
+                  <p className="text-orange-300 mt-1 text-xs">
                     {t("tokens_removed", "Tokens removidos permanentemente da circulação")}
                   </p>
                 </div>
 
                 {/* Chamas animadas na parte inferior */}
-                <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-orange-600/40 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-orange-600/40 to-transparent"></div>
               </div>
 
-              <div className="mt-4 flex justify-center relative z-10">
+              <div className="mt-3 flex justify-center relative z-10">
                 <button
                   onClick={() => setShowBurnedModal(false)}
-                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
+                  className="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors text-xs"
                 >
                   {t("close", "Fechar")}
                 </button>
