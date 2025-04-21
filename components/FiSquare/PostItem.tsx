@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getProfile, likePost, unlikePost, deletePost, addComment } from "@/lib/squareStorage"
+import { getProfile, likePost, unlikePost, deletePost, addComment } from "@/lib/localStorageService"
 import { getDisplayName, getDefaultProfilePicture, formatDate } from "@/lib/squareService"
 import BanUserModal from "./BanUserModal"
 import UserProfileModal from "./UserProfileModal"
@@ -35,7 +35,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
   useEffect(() => {
     async function loadAuthorProfile() {
       try {
-        const profile = await getProfile(post.authorAddress)
+        const profile = getProfile(post.authorAddress)
         setAuthorProfile(profile)
       } catch (error) {
         console.error("Error loading author profile:", error)
@@ -82,13 +82,13 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
         updatedPost.likes = updatedPost.likes.filter((addr) => addr !== currentUserAddress)
         setLocalPost(updatedPost)
         // Persistir a mudança
-        await unlikePost(localPost.id, currentUserAddress)
+        unlikePost(localPost.id, currentUserAddress)
       } else {
         // Adicionar o like imediatamente na UI
         updatedPost.likes = [...updatedPost.likes, currentUserAddress]
         setLocalPost(updatedPost)
         // Persistir a mudança
-        await likePost(localPost.id, currentUserAddress)
+        likePost(localPost.id, currentUserAddress)
       }
     } catch (err) {
       console.error("Error toggling like:", err)
@@ -121,7 +121,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
       setLocalPost(updatedPost)
 
       // Persistir a mudança
-      await addComment(localPost.id, {
+      addComment(localPost.id, {
         authorAddress: currentUserAddress,
         content: commentText.trim(),
       })
@@ -149,7 +149,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
       setIsSubmitting(true)
       setError(null)
 
-      await deletePost(post.id)
+      deletePost(post.id)
       setShowDeleteConfirm(false)
 
       if (onPostDeleted) {
@@ -324,20 +324,20 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
             </span>
           </div>
         )}
+
+        {/* Mensagens de erro ou sucesso */}
+        {error && (
+          <div className="mx-2 mb-2 p-2 bg-red-900/30 border border-red-800/50 rounded-md text-red-300 text-xs">
+            {error}
+          </div>
+        )}
+
+        {actionSuccess && (
+          <div className="mx-2 mb-2 p-2 bg-green-900/30 border border-green-800/50 rounded-md text-green-300 text-xs">
+            {actionSuccess}
+          </div>
+        )}
       </div>
-
-      {/* Mensagens de erro ou sucesso */}
-      {error && (
-        <div className="mx-2 mb-2 p-2 bg-red-900/30 border border-red-800/50 rounded-md text-red-300 text-xs">
-          {error}
-        </div>
-      )}
-
-      {actionSuccess && (
-        <div className="mx-2 mb-2 p-2 bg-green-900/30 border border-green-800/50 rounded-md text-green-300 text-xs">
-          {actionSuccess}
-        </div>
-      )}
 
       {/* Rodapé do post */}
       <div className="flex flex-col text-xs text-gray-400 border-t border-gray-700/30">

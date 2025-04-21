@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getPosts } from "@/lib/squareStorage"
-import { sortPostsByPopularity } from "@/lib/squareService"
+import { getPopularPosts } from "@/lib/localStorageService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
 
@@ -21,48 +20,50 @@ export default function PopularPosts({ userAddress, userProfile, isBanned, onRef
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const isMountedRef = useRef(true)
 
-  // Modificar o useEffect para garantir que o estado de carregamento seja atualizado corretamente
+  // Limpar referências quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  // Carregar posts
   useEffect(() => {
     async function loadPosts() {
+      if (!isMountedRef.current) return
+
       console.log("Loading popular posts")
       setIsLoading(true)
       setError(null)
 
       try {
-        // Buscar posts e ordenar por popularidade (mais curtidos primeiro)
-        console.log("Fetching posts")
-        const allPosts = await getPosts()
-        console.log(`Fetched ${allPosts.length} posts`)
+        // Buscar posts populares do localStorage (instantâneo)
+        const popularPosts = getPopularPosts()
+        console.log(`Loaded ${popularPosts.length} popular posts from localStorage`)
 
-        const sortedPosts = sortPostsByPopularity(allPosts)
-        console.log("Posts sorted by popularity")
-
-        setPosts(sortedPosts)
+        if (isMountedRef.current) {
+          setPosts(popularPosts)
+        }
       } catch (error) {
         console.error("Error loading popular posts:", error)
-        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
+        if (isMountedRef.current) {
+          setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
+        }
       } finally {
-        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
-        setIsLoading(false)
-        console.log("Popular posts loading complete")
+        if (isMountedRef.current) {
+          setIsLoading(false)
+          console.log("Popular posts loading complete")
+        }
       }
     }
 
-    // Adicionar um timeout para garantir que o carregamento termine mesmo se algo der errado
-    const loadingTimeout = setTimeout(() => {
-      if (isLoading) {
-        console.log("Loading timeout reached, forcing render with empty posts")
-        setIsLoading(false)
-      }
-    }, 3000) // 3 segundos de timeout
-
+    // Carregar posts imediatamente
     loadPosts()
-
-    // Limpar timeout quando o componente for desmontado
-    return () => clearTimeout(loadingTimeout)
   }, [refreshTrigger, t])
 
+  // Função para lidar com a criação de posts
   const handlePostCreated = () => {
     console.log("Post created, refreshing")
     setRefreshTrigger((prev) => prev + 1)

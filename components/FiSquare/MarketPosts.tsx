@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getPosts } from "@/lib/squareStorage"
-import { SUPPORTED_CRYPTOS, filterPostsByCrypto } from "@/lib/squareService"
+import { getMarketPosts } from "@/lib/localStorageService"
+import { SUPPORTED_CRYPTOS } from "@/lib/squareService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
 
@@ -22,54 +22,50 @@ export default function MarketPosts({ userAddress, userProfile, isBanned, onRefr
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const isMountedRef = useRef(true)
 
-  // Modificar o useEffect para garantir que o estado de carregamento seja atualizado corretamente
+  // Limpar referências quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  // Carregar posts
   useEffect(() => {
     async function loadPosts() {
+      if (!isMountedRef.current) return
+
       console.log(`Loading market posts for crypto: ${selectedCrypto}`)
       setIsLoading(true)
       setError(null)
 
       try {
-        // Buscar todos os posts
-        console.log("Fetching posts")
-        const allPosts = await getPosts()
-        console.log(`Fetched ${allPosts.length} posts`)
+        // Buscar posts do mercado do localStorage (instantâneo)
+        const marketPosts = getMarketPosts(selectedCrypto)
+        console.log(`Loaded ${marketPosts.length} market posts from localStorage for ${selectedCrypto}`)
 
-        // Filtrar por criptomoeda selecionada (se não for "ALL")
-        if (selectedCrypto === "ALL") {
-          console.log("Showing all posts")
-          setPosts(allPosts)
-        } else {
-          console.log(`Filtering posts for crypto: ${selectedCrypto}`)
-          const filteredPosts = filterPostsByCrypto(allPosts, selectedCrypto)
-          console.log(`Found ${filteredPosts.length} posts for ${selectedCrypto}`)
-          setPosts(filteredPosts)
+        if (isMountedRef.current) {
+          setPosts(marketPosts)
         }
       } catch (error) {
         console.error("Error loading market posts:", error)
-        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
+        if (isMountedRef.current) {
+          setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
+        }
       } finally {
-        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
-        setIsLoading(false)
-        console.log("Market posts loading complete")
+        if (isMountedRef.current) {
+          setIsLoading(false)
+          console.log("Market posts loading complete")
+        }
       }
     }
 
-    // Adicionar um timeout para garantir que o carregamento termine mesmo se algo der errado
-    const loadingTimeout = setTimeout(() => {
-      if (isLoading) {
-        console.log("Loading timeout reached, forcing render with empty posts")
-        setIsLoading(false)
-      }
-    }, 3000) // 3 segundos de timeout
-
+    // Carregar posts imediatamente
     loadPosts()
-
-    // Limpar timeout quando o componente for desmontado
-    return () => clearTimeout(loadingTimeout)
   }, [selectedCrypto, refreshTrigger, t])
 
+  // Função para lidar com a criação de posts
   const handlePostCreated = () => {
     console.log("Post created, refreshing")
     setRefreshTrigger((prev) => prev + 1)

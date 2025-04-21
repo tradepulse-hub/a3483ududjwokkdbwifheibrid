@@ -3,12 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { SquareTab, UserProfile } from "@/types/square"
-import {
-  getProfiles,
-  getOrCreateProfile,
-  initializeRealTimeListeners,
-  removeRealTimeListeners,
-} from "@/lib/squareStorage"
+import { getProfiles, getOrCreateProfile, initializeExampleData } from "@/lib/localStorageService"
 import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
 import RecentPosts from "./RecentPosts"
@@ -33,52 +28,14 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     registeredUsers: 1,
   })
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const listenersInitializedRef = useRef(false)
-  const isUpdatingRef = useRef(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const initialized = useRef(false)
 
-  // Inicializar listeners em tempo real com tratamento de erros melhorado
+  // Inicializar dados de exemplo apenas uma vez
   useEffect(() => {
-    // Evitar inicialização duplicada de listeners
-    if (listenersInitializedRef.current) return
-
-    console.log("Initializing real-time listeners")
-
-    try {
-      // Função de callback com debounce para evitar múltiplas atualizações em sequência
-      const onPostsUpdate = () => {
-        if (isUpdatingRef.current) return
-
-        isUpdatingRef.current = true
-        console.log("Posts updated, triggering refresh with debounce")
-
-        // Limpar timeout anterior se existir
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
-        }
-
-        // Definir novo timeout para debounce
-        timeoutRef.current = setTimeout(() => {
-          console.log("Executing debounced refresh")
-          setRefreshTrigger((prev) => prev + 1)
-          isUpdatingRef.current = false
-        }, 500) // 500ms de debounce
-      }
-
-      initializeRealTimeListeners(onPostsUpdate)
-      listenersInitializedRef.current = true
-    } catch (err) {
-      console.error("Error initializing listeners:", err)
-    }
-
-    // Limpar listeners quando o componente for desmontado
-    return () => {
-      console.log("Cleaning up listeners")
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-      removeRealTimeListeners()
-      listenersInitializedRef.current = false
+    if (!initialized.current) {
+      // Inicializar dados de exemplo
+      initializeExampleData()
+      initialized.current = true
     }
   }, [])
 
@@ -90,7 +47,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         console.log("Loading timeout reached, forcing render")
         setIsLoading(false)
       }
-    }, 5000)
+    }, 2000) // Reduzido para 2 segundos para melhor experiência do usuário
 
     async function loadData() {
       if (!userAddress || !isMounted) return
@@ -104,7 +61,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         let profile = null
         try {
           console.log("Getting or creating user profile")
-          profile = await getOrCreateProfile(userAddress)
+          profile = getOrCreateProfile(userAddress)
           if (isMounted) {
             setUserProfile(profile)
           }
@@ -130,7 +87,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         // Calcular estatísticas da comunidade
         try {
           console.log("Fetching all profiles for community stats")
-          const allProfiles = await getProfiles()
+          const allProfiles = getProfiles()
           console.log(`Fetched ${allProfiles.length} profiles`)
 
           // Usuários ativos (todos os perfis)
@@ -237,7 +194,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   // Função para lidar com a criação de posts
   const handlePostCreated = () => {
     console.log("Post created in parent component")
-    // Não atualizar o estado aqui para evitar ciclos
+    setRefreshTrigger((prev) => prev + 1)
   }
 
   return (
@@ -294,7 +251,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             userAddress={userAddress}
             userProfile={userProfile}
             isBanned={isBanned}
-            onPostCreated={handlePostCreated}
+            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
           />
         )}
 
@@ -303,7 +260,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             userAddress={userAddress}
             userProfile={userProfile}
             isBanned={isBanned}
-            onPostCreated={handlePostCreated}
+            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
           />
         )}
       </motion.div>

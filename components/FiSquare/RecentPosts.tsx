@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getPosts } from "@/lib/squareStorage"
-import { sortPostsByDate } from "@/lib/squareService"
+import { getRecentPosts } from "@/lib/localStorageService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
 
@@ -22,15 +21,11 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const isMountedRef = useRef(true)
-  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Limpar referências quando o componente for desmontado
   useEffect(() => {
     return () => {
       isMountedRef.current = false
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current)
-      }
     }
   }, [])
 
@@ -43,59 +38,20 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
       setIsLoading(true)
       setError(null)
 
-      // Definir timeout para garantir que o carregamento termine
-      loadingTimeoutRef.current = setTimeout(() => {
-        if (isMountedRef.current && isLoading) {
-          console.log("Loading timeout reached, forcing render with empty posts")
-          setIsLoading(false)
-        }
-      }, 3000)
-
       try {
-        // Verificar se há posts no localStorage primeiro
-        const localPosts = JSON.parse(localStorage.getItem("fisquare_posts") || "[]")
+        // Buscar posts recentes do localStorage (instantâneo)
+        const recentPosts = getRecentPosts()
+        console.log(`Loaded ${recentPosts.length} posts from localStorage`)
 
-        // Buscar posts do Firebase
-        let allPosts: Post[] = []
-        try {
-          allPosts = await getPosts()
-          console.log(`Fetched ${allPosts.length} posts from Firebase`)
-
-          // Mesclar posts locais com posts do Firebase, removendo duplicatas
-          const mergedPosts = [...localPosts]
-
-          // Adicionar posts do Firebase que não estão no localStorage
-          allPosts.forEach((firebasePost) => {
-            if (!mergedPosts.some((localPost) => localPost.id === firebasePost.id)) {
-              mergedPosts.push(firebasePost)
-            }
-          })
-
-          allPosts = mergedPosts
-        } catch (firebaseError) {
-          console.warn("Error fetching posts from Firebase, using local posts:", firebaseError)
-          allPosts = localPosts
+        if (isMountedRef.current) {
+          setPosts(recentPosts)
         }
-
-        if (!isMountedRef.current) return
-
-        const sortedPosts = sortPostsByDate(allPosts)
-        console.log("Posts sorted by date")
-
-        setPosts(sortedPosts)
       } catch (error) {
         console.error("Error loading recent posts:", error)
         if (isMountedRef.current) {
           setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
         }
       } finally {
-        // Limpar timeout
-        if (loadingTimeoutRef.current) {
-          clearTimeout(loadingTimeoutRef.current)
-          loadingTimeoutRef.current = null
-        }
-
-        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
         if (isMountedRef.current) {
           setIsLoading(false)
           console.log("Recent posts loading complete")
@@ -103,6 +59,7 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
       }
     }
 
+    // Carregar posts imediatamente
     loadPosts()
   }, [refreshTrigger, t])
 
@@ -111,6 +68,11 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
     console.log("Post created, refreshing posts")
     // Forçar atualização imediata
     setRefreshTrigger((prev) => prev + 1)
+
+    // Notificar o componente pai
+    if (onPostCreated) {
+      onPostCreated()
+    }
   }
 
   const handlePostDeleted = () => {
