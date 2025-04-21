@@ -24,6 +24,10 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
+  // Adicionar um novo estado para controlar a visibilidade da caixa de comentários
+  const [showCommentBox, setShowCommentBox] = useState(false)
+  const [commentText, setCommentText] = useState("")
+  const [localPost, setLocalPost] = useState<Post>(post)
 
   // Buscar perfil do autor
   useEffect(() => {
@@ -31,26 +35,79 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
     setAuthorProfile(profile)
   }, [post.authorAddress])
 
+  // Atualizar o useEffect para sincronizar o post local quando o post prop mudar
+  useEffect(() => {
+    setLocalPost(post)
+  }, [post])
+
   // Verificar se o usuário atual curtiu o post
-  const isLiked = post.likes.includes(currentUserAddress)
+  const isLiked = localPost.likes.includes(currentUserAddress)
 
   // Verificar se o usuário atual é o autor ou admin
   const isAuthor = post.authorAddress === currentUserAddress
   const isUserAdmin = currentUserProfile?.isAdmin || false
   const canModerate = isAuthor || isUserAdmin
 
+  // Substituir a função handleLikeToggle por esta versão otimista
   const handleLikeToggle = () => {
+    // Criar uma cópia do post para manipulação local
+    const updatedPost = { ...localPost }
+
     if (isLiked) {
-      unlikePost(post.id, currentUserAddress)
+      // Remover o like imediatamente na UI
+      updatedPost.likes = updatedPost.likes.filter((addr) => addr !== currentUserAddress)
+      setLocalPost(updatedPost)
+      // Persistir a mudança
+      unlikePost(localPost.id, currentUserAddress)
     } else {
-      likePost(post.id, currentUserAddress)
+      // Adicionar o like imediatamente na UI
+      updatedPost.likes = [...updatedPost.likes, currentUserAddress]
+      setLocalPost(updatedPost)
+      // Persistir a mudança
+      likePost(localPost.id, currentUserAddress)
     }
   }
 
-  const handleDeletePost = () => {
-    deletePost(post.id)
-    setShowDeleteConfirm(false)
-    if (onPostDeleted) onPostDeleted()
+  // Adicionar função para lidar com o envio de comentários
+  const handleAddComment = () => {
+    if (!commentText.trim()) return
+
+    // Criar um novo comentário
+    const newComment = {
+      id: Date.now().toString(),
+      authorAddress: currentUserAddress,
+      content: commentText.trim(),
+      createdAt: Date.now(),
+      likes: [],
+    }
+
+    // Atualizar o post local imediatamente
+    const updatedPost = { ...localPost }
+    updatedPost.comments = [...updatedPost.comments, newComment]
+    setLocalPost(updatedPost)
+
+    // Persistir a mudança
+    import("@/lib/squareStorage").then(({ addComment }) => {
+      addComment(localPost.id, {
+        authorAddress: currentUserAddress,
+        content: commentText.trim(),
+      })
+    })
+
+    // Limpar o campo de comentário
+    setCommentText("")
+  }
+
+  const handleDeletePost = async () => {
+    try {
+      await deletePost(post.id)
+      setShowDeleteConfirm(false)
+      if (onPostDeleted) {
+        onPostDeleted()
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error)
+    }
   }
 
   // Formatar conteúdo para destacar hashtags
@@ -217,55 +274,118 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
       </div>
 
       {/* Rodapé do post */}
-      <div className="flex items-center justify-between text-xs text-gray-400 p-2 border-t border-gray-700/30">
-        <div className="flex space-x-3">
-          <button
-            onClick={handleLikeToggle}
-            className={`flex items-center space-x-1 ${isLiked ? "text-red-400" : "hover:text-gray-300"}`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5"
-              fill={isLiked ? "currentColor" : "none"}
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      <div className="flex flex-col text-xs text-gray-400 border-t border-gray-700/30">
+        <div className="flex items-center justify-between p-2">
+          <div className="flex space-x-3">
+            <button
+              onClick={handleLikeToggle}
+              className={`flex items-center space-x-1 ${isLiked ? "text-red-400" : "hover:text-gray-300"}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-            <span>{post.likes.length}</span>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3.5 w-3.5"
+                fill={isLiked ? "currentColor" : "none"}
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              <span>{localPost.likes.length}</span>
+            </button>
 
-          <button className="flex items-center space-x-1 hover:text-gray-300">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            <button
+              className={`flex items-center space-x-1 ${showCommentBox ? "text-blue-400" : "hover:text-gray-300"}`}
+              onClick={() => setShowCommentBox(!showCommentBox)}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-            <span>{post.comments.length}</span>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+              <span>{localPost.comments.length}</span>
+            </button>
+          </div>
+
+          <div className="flex space-x-1 overflow-x-auto max-w-[50%]">
+            {localPost.cryptoTags.map((tag) => (
+              <span key={tag} className="text-blue-400 text-[10px] whitespace-nowrap">
+                #{tag}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div className="flex space-x-1 overflow-x-auto max-w-[50%]">
-          {post.cryptoTags.map((tag) => (
-            <span key={tag} className="text-blue-400 text-[10px] whitespace-nowrap">
-              #{tag}
-            </span>
-          ))}
-        </div>
+        {/* Caixa de comentários */}
+        {showCommentBox && (
+          <div className="p-2 border-t border-gray-700/30 bg-gray-800/50">
+            {/* Formulário de comentário */}
+            <div className="flex space-x-2 mb-2">
+              <input
+                type="text"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={t("write_comment", "Write a comment...")}
+                className="flex-1 px-2 py-1 bg-gray-900/80 border border-gray-700 rounded-md text-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleAddComment}
+                disabled={!commentText.trim()}
+                className={`px-2 py-1 rounded-md text-white text-xs transition-colors ${
+                  !commentText.trim() ? "bg-gray-700 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                {t("post", "Post")}
+              </button>
+            </div>
+
+            {/* Lista de comentários */}
+            {localPost.comments.length > 0 && (
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {localPost.comments.map((comment) => (
+                  <div key={comment.id} className="bg-gray-900/50 rounded-md p-2">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center">
+                        <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 mr-1.5">
+                          <Image
+                            src={
+                              getProfile(comment.authorAddress)?.profilePicture ||
+                              getDefaultProfilePicture(comment.authorAddress)
+                            }
+                            alt="Profile"
+                            width={20}
+                            height={20}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span className="font-medium text-[10px] text-white">
+                          {getProfile(comment.authorAddress)
+                            ? getDisplayName(getProfile(comment.authorAddress)!)
+                            : comment.authorAddress.substring(0, 6) + "..."}
+                        </span>
+                      </div>
+                      <span className="text-[8px] text-gray-400">{formatDate(comment.createdAt)}</span>
+                    </div>
+                    <p className="text-[11px] text-gray-300 mt-1">{comment.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Modal de confirmação de exclusão */}
