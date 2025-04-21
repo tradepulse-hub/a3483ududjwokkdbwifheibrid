@@ -3,13 +3,13 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
-import { createPost } from "@/lib/squareStorage"
-import { extractHashtags, SUPPORTED_CRYPTOS, isCryptoSupported } from "@/lib/squareService"
+import { extractHashtags, SUPPORTED_CRYPTOS, isCryptoSupported, generateId } from "@/lib/squareService"
 import { motion } from "framer-motion"
+import type { Post } from "@/types/square"
 
 interface CreatePostFormProps {
   userAddress: string
-  onPostCreated: () => void
+  onPostCreated: (post: Post) => void
 }
 
 export default function CreatePostForm({ userAddress, onPostCreated }: CreatePostFormProps) {
@@ -79,23 +79,27 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
       const allTags = extractHashtags(content)
       const cryptoTags = allTags.filter((tag) => isCryptoSupported(tag))
 
-      // Criar o post
-      await createPost({
+      // Criar o post localmente (sem Firebase)
+      const newPost: Post = {
+        id: generateId(),
         authorAddress: userAddress,
         content: content.trim(),
         images: images.length > 0 ? images : undefined,
         cryptoTags,
         trend,
-      })
+        createdAt: Date.now(),
+        likes: [],
+        comments: [],
+      }
+
+      // Notificar que um post foi criado
+      onPostCreated(newPost)
 
       // Limpar o formulário
       setContent("")
       setImages([])
       setTrend(null)
       setIsExpanded(false)
-
-      // Notificar que um post foi criado
-      onPostCreated()
     } catch (error) {
       console.error("Error creating post:", error)
       alert(t("error_creating_post", "Error creating post. Please try again."))

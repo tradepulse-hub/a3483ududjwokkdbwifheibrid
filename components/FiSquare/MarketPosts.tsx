@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getPosts } from "@/lib/squareStorage"
 import { SUPPORTED_CRYPTOS, filterPostsByCrypto } from "@/lib/squareService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
@@ -12,60 +11,40 @@ interface MarketPostsProps {
   userAddress: string
   userProfile: UserProfile | null
   isBanned: boolean
+  initialPosts?: Post[] // Adicionado para aceitar posts iniciais
 }
 
-export default function MarketPosts({ userAddress, userProfile, isBanned }: MarketPostsProps) {
+export default function MarketPosts({ userAddress, userProfile, isBanned, initialPosts = [] }: MarketPostsProps) {
   const { t } = useLanguage()
-  const [posts, setPosts] = useState<Post[]>([])
+  const [posts, setPosts] = useState<Post[]>(initialPosts)
   const [selectedCrypto, setSelectedCrypto] = useState<string>("ALL")
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false) // Começar como false já que temos posts iniciais
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Modificar o useEffect para garantir que o estado de carregamento seja atualizado corretamente
+  // Filtrar posts por criptomoeda selecionada quando os posts iniciais ou a criptomoeda selecionada mudarem
   useEffect(() => {
-    async function loadPosts() {
-      console.log(`Loading market posts for crypto: ${selectedCrypto}`)
-      setIsLoading(true)
-      setError(null)
-
-      try {
-        // Buscar todos os posts
-        console.log("Fetching posts")
-        const allPosts = await getPosts()
-        console.log(`Fetched ${allPosts.length} posts`)
-
-        // Filtrar por criptomoeda selecionada (se não for "ALL")
-        if (selectedCrypto === "ALL") {
-          console.log("Showing all posts")
-          setPosts(allPosts)
-        } else {
-          console.log(`Filtering posts for crypto: ${selectedCrypto}`)
-          const filteredPosts = filterPostsByCrypto(allPosts, selectedCrypto)
-          console.log(`Found ${filteredPosts.length} posts for ${selectedCrypto}`)
-          setPosts(filteredPosts)
-        }
-      } catch (error) {
-        console.error("Error loading market posts:", error)
-        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
-      } finally {
-        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
-        setIsLoading(false)
-        console.log("Market posts loading complete")
+    if (initialPosts.length > 0) {
+      if (selectedCrypto === "ALL") {
+        setPosts(initialPosts)
+      } else {
+        const filteredPosts = filterPostsByCrypto(initialPosts, selectedCrypto)
+        setPosts(filteredPosts)
       }
     }
+  }, [initialPosts, selectedCrypto])
 
-    loadPosts()
-  }, [selectedCrypto, refreshTrigger, t])
-
-  const handlePostCreated = () => {
-    console.log("Post created, refreshing")
-    setRefreshTrigger((prev) => prev + 1)
+  const handlePostCreated = (newPost: Post) => {
+    console.log("Post created, adding to list")
+    // Adicionar o novo post apenas se corresponder ao filtro atual
+    if (selectedCrypto === "ALL" || newPost.cryptoTags.includes(selectedCrypto)) {
+      setPosts((prevPosts) => [newPost, ...prevPosts])
+    }
   }
 
-  const handlePostDeleted = () => {
-    console.log("Post deleted, refreshing")
-    setRefreshTrigger((prev) => prev + 1)
+  const handlePostDeleted = (postId: string) => {
+    console.log("Post deleted, removing from list")
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId))
   }
 
   if (error) {
@@ -133,7 +112,7 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
               post={post}
               currentUserAddress={userAddress}
               currentUserProfile={userProfile}
-              onPostDeleted={handlePostDeleted}
+              onPostDeleted={() => handlePostDeleted(post.id)}
             />
           ))}
         </div>

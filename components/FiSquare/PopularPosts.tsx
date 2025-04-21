@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getPosts } from "@/lib/squareStorage"
 import { sortPostsByPopularity } from "@/lib/squareService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
@@ -12,53 +11,32 @@ interface PopularPostsProps {
   userAddress: string
   userProfile: UserProfile | null
   isBanned: boolean
+  initialPosts?: Post[] // Adicionado para aceitar posts iniciais
 }
 
-export default function PopularPosts({ userAddress, userProfile, isBanned }: PopularPostsProps) {
+export default function PopularPosts({ userAddress, userProfile, isBanned, initialPosts = [] }: PopularPostsProps) {
   const { t } = useLanguage()
-  const [posts, setPosts] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [isLoading, setIsLoading] = useState(false) // Começar como false já que temos posts iniciais
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Modificar o useEffect para garantir que o estado de carregamento seja atualizado corretamente
+  // Ordenar posts por popularidade quando os posts iniciais mudarem
   useEffect(() => {
-    async function loadPosts() {
-      console.log("Loading popular posts")
-      setIsLoading(true)
-      setError(null)
-
-      try {
-        // Buscar posts e ordenar por popularidade (mais curtidos primeiro)
-        console.log("Fetching posts")
-        const allPosts = await getPosts()
-        console.log(`Fetched ${allPosts.length} posts`)
-
-        const sortedPosts = sortPostsByPopularity(allPosts)
-        console.log("Posts sorted by popularity")
-
-        setPosts(sortedPosts)
-      } catch (error) {
-        console.error("Error loading popular posts:", error)
-        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
-      } finally {
-        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
-        setIsLoading(false)
-        console.log("Popular posts loading complete")
-      }
+    if (initialPosts.length > 0) {
+      const sortedPosts = sortPostsByPopularity(initialPosts)
+      setPosts(sortedPosts)
     }
+  }, [initialPosts])
 
-    loadPosts()
-  }, [refreshTrigger, t])
-
-  const handlePostCreated = () => {
-    console.log("Post created, refreshing")
-    setRefreshTrigger((prev) => prev + 1)
+  const handlePostCreated = (newPost: Post) => {
+    console.log("Post created, adding to list")
+    setPosts((prevPosts) => sortPostsByPopularity([newPost, ...prevPosts]))
   }
 
-  const handlePostDeleted = () => {
-    console.log("Post deleted, refreshing")
-    setRefreshTrigger((prev) => prev + 1)
+  const handlePostDeleted = (postId: string) => {
+    console.log("Post deleted, removing from list")
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId))
   }
 
   if (error) {
@@ -100,7 +78,7 @@ export default function PopularPosts({ userAddress, userProfile, isBanned }: Pop
               post={post}
               currentUserAddress={userAddress}
               currentUserProfile={userProfile}
-              onPostDeleted={handlePostDeleted}
+              onPostDeleted={() => handlePostDeleted(post.id)}
             />
           ))}
         </div>
