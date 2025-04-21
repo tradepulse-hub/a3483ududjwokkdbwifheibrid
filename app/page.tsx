@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { MiniKit } from "@worldcoin/minikit-js"
 import Login from "@/components/Login"
 import Image from "next/image"
@@ -26,10 +26,34 @@ export default function Home() {
   const [loginError, setLoginError] = useState("")
   const [activeTab, setActiveTab] = useState("wallet")
   const [copySuccess, setCopySuccess] = useState(false)
-  // Adicionar estado para controlar a visibilidade do menu
+  // Sempre manter o menu visível por padrão
   const [isMenuVisible, setIsMenuVisible] = useState(true)
 
+  // Referência para rastrear se o componente está montado
+  const isMounted = useRef(true)
+
   const deviceInfo = useDeviceDetect()
+
+  // Garantir que o menu esteja sempre visível quando mudar de aba
+  useEffect(() => {
+    if (isMounted.current) {
+      setIsMenuVisible(true)
+    }
+  }, [activeTab])
+
+  // Efeito para restaurar a visibilidade do menu periodicamente
+  useEffect(() => {
+    const menuVisibilityInterval = setInterval(() => {
+      if (isMounted.current && !isMenuVisible) {
+        setIsMenuVisible(true)
+      }
+    }, 1000) // Verificar a cada segundo
+
+    return () => {
+      clearInterval(menuVisibilityInterval)
+      isMounted.current = false
+    }
+  }, [isMenuVisible])
 
   const truncateAddress = (address: string) => {
     if (!address) return ""
@@ -100,10 +124,18 @@ export default function Home() {
     }
   }
 
-  useEffect(() => {
-    // Garante que o menu esteja sempre visível quando mudar de aba
-    setIsMenuVisible(true)
-  }, [activeTab])
+  // Função para garantir que o menu esteja visível
+  const ensureMenuVisible = () => {
+    if (!isMenuVisible) {
+      setIsMenuVisible(true)
+    }
+  }
+
+  // Manipulador de mudança de aba que garante que o menu esteja visível
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    ensureMenuVisible()
+  }
 
   if (isLoading) {
     return (
@@ -129,7 +161,6 @@ export default function Home() {
     )
   }
 
-  // No retorno da função, passar o estado para o BottomMenu
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-0 bg-black text-white overflow-hidden">
       <SafeArea top bottom>
@@ -209,6 +240,7 @@ export default function Home() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
                 className="min-h-[300px]"
+                onAnimationComplete={ensureMenuVisible}
               >
                 {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
 
@@ -219,7 +251,7 @@ export default function Home() {
             </AnimatePresence>
 
             {/* Bottom Menu com a prop de visibilidade */}
-            <BottomMenu activeTab={activeTab} onTabChange={setActiveTab} isVisible={isMenuVisible} />
+            <BottomMenu activeTab={activeTab} onTabChange={handleTabChange} isVisible={isMenuVisible} />
           </div>
         )}
       </SafeArea>

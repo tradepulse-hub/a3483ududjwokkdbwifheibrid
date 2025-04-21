@@ -21,6 +21,25 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
   const deviceInfo = useDeviceDetect()
 
+  // Estado local para garantir visibilidade
+  const [localIsVisible, setLocalIsVisible] = useState(true)
+
+  // Sincronizar o estado local com a prop
+  useEffect(() => {
+    setLocalIsVisible(isVisible)
+  }, [isVisible])
+
+  // Garantir que o menu esteja sempre visível
+  useEffect(() => {
+    const visibilityTimer = setTimeout(() => {
+      if (!localIsVisible) {
+        setLocalIsVisible(true)
+      }
+    }, 500)
+
+    return () => clearTimeout(visibilityTimer)
+  }, [localIsVisible])
+
   // Fechar o menu ao clicar fora dele
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -104,19 +123,32 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
     },
   ]
 
-  // Mantenha os modais, mas não retorne prematuramente
-  const renderModals = () => (
-    <>
-      {/* Modal de Send */}
-      <SendTokensModal isOpen={isSendModalOpen} onClose={() => setIsSendModalOpen(false)} />
+  // Se não estiver visível, verificar se deveria estar e forçar a visibilidade
+  if (!localIsVisible) {
+    // Forçar a visibilidade após um curto período
+    setTimeout(() => setLocalIsVisible(true), 100)
 
-      {/* Modal de Receive */}
-      <ReceiveTokensModal isOpen={isReceiveModalOpen} onClose={() => setIsReceiveModalOpen(false)} />
-    </>
-  )
+    return (
+      <>
+        {/* Modal de Send */}
+        <SendTokensModal
+          isOpen={isSendModalOpen}
+          onClose={() => {
+            setIsSendModalOpen(false)
+            setLocalIsVisible(true) // Garantir que o menu fique visível ao fechar o modal
+          }}
+        />
 
-  if (!isVisible) {
-    return renderModals()
+        {/* Modal de Receive */}
+        <ReceiveTokensModal
+          isOpen={isReceiveModalOpen}
+          onClose={() => {
+            setIsReceiveModalOpen(false)
+            setLocalIsVisible(true) // Garantir que o menu fique visível ao fechar o modal
+          }}
+        />
+      </>
+    )
   }
 
   return (
@@ -241,7 +273,23 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
         )}
       </AnimatePresence>
 
-      {renderModals()}
+      {/* Modal de Send */}
+      <SendTokensModal
+        isOpen={isSendModalOpen}
+        onClose={() => {
+          setIsSendModalOpen(false)
+          setLocalIsVisible(true) // Garantir que o menu fique visível ao fechar o modal
+        }}
+      />
+
+      {/* Modal de Receive */}
+      <ReceiveTokensModal
+        isOpen={isReceiveModalOpen}
+        onClose={() => {
+          setIsReceiveModalOpen(false)
+          setLocalIsVisible(true) // Garantir que o menu fique visível ao fechar o modal
+        }}
+      />
       <style jsx>{`
         .bottom-safe {
           bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));

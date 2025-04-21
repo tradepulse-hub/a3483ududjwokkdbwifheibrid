@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 export default function OrientationDetector() {
   const [isLandscape, setIsLandscape] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
+  const [initialOrientation, setInitialOrientation] = useState<boolean | null>(null)
 
   useEffect(() => {
     // Verificar se estamos em um dispositivo móvel
@@ -12,24 +13,48 @@ export default function OrientationDetector() {
 
     if (!isMobile) return
 
-    const checkOrientation = () => {
-      const isLandscapeNow = window.innerWidth > window.innerHeight
-      setIsLandscape(isLandscapeNow)
-      setShowWarning(isLandscapeNow)
+    // Capturar a orientação inicial
+    const initialIsLandscape = window.innerWidth > window.innerHeight
+    setInitialOrientation(initialIsLandscape)
+
+    // Só mostrar o aviso se realmente estiver em modo paisagem
+    if (initialIsLandscape) {
+      setIsLandscape(true)
+      setShowWarning(true)
     }
 
-    // Verificar orientação inicial
-    checkOrientation()
+    // Função para verificar a orientação real do dispositivo, não apenas as dimensões da janela
+    const checkOrientation = () => {
+      // Usar a API de orientação do dispositivo quando disponível
+      if (window.screen && window.screen.orientation) {
+        const type = window.screen.orientation.type
+        const isLandscapeNow = type.includes("landscape")
 
-    // Adicionar listener para mudanças de orientação
-    window.addEventListener("resize", checkOrientation)
+        // Só atualizar se a orientação realmente mudou
+        if (isLandscapeNow !== isLandscape) {
+          setIsLandscape(isLandscapeNow)
+          setShowWarning(isLandscapeNow)
+        }
+      } else {
+        // Fallback para dispositivos que não suportam a API de orientação
+        // Ignorar mudanças pequenas que podem ser causadas pelo teclado virtual
+        const currentIsLandscape = window.innerWidth > window.innerHeight
+
+        // Só mostrar o aviso se a orientação realmente mudou em relação à inicial
+        if (currentIsLandscape !== initialOrientation) {
+          setIsLandscape(currentIsLandscape)
+          setShowWarning(currentIsLandscape)
+        }
+      }
+    }
+
+    // Verificar orientação apenas em eventos de orientationchange, não em resize
     window.addEventListener("orientationchange", checkOrientation)
 
     return () => {
-      window.removeEventListener("resize", checkOrientation)
       window.removeEventListener("orientationchange", checkOrientation)
     }
-  }, [])
+  }, [isLandscape, initialOrientation])
 
   // Esconder o aviso após 5 segundos
   useEffect(() => {
