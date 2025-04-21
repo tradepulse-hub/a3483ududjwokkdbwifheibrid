@@ -2,6 +2,14 @@ import { NextResponse } from "next/server"
 import { ethers } from "ethers"
 import { airdropContractABI, AIRDROP_CONTRACT_ADDRESS } from "@/lib/airdropContractABI"
 
+// Lista de RPCs para tentar
+const RPC_ENDPOINTS = [
+  "https://rpc-testnet.worldcoin.org",
+  "https://worldchain-testnet.g.alchemy.com/public",
+  "https://worldchain-mainnet.g.alchemy.com/public",
+  "https://rpc.worldcoin.org",
+]
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -17,31 +25,78 @@ export async function GET(request: Request) {
       )
     }
 
-    const provider = new ethers.JsonRpcProvider("https://rpc-testnet.worldcoin.org")
-    const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
+    console.log(`Checking airdrop status for address: ${address}`)
+    console.log(`Using contract address: ${AIRDROP_CONTRACT_ADDRESS}`)
 
-    const lastClaimTime = await contract.lastClaimTime(address)
-    const claimInterval = await contract.CLAIM_INTERVAL()
-    const dailyAirdrop = await contract.DAILY_AIRDROP()
+    // Tentar cada RPC até encontrar um que funcione
+    let lastError = null
 
-    const now = Math.floor(Date.now() / 1000)
-    const nextClaimTime = Number(lastClaimTime) + Number(claimInterval)
-    const canClaim = Number(lastClaimTime) === 0 || now >= nextClaimTime
+    for (const rpcUrl of RPC_ENDPOINTS) {
+      try {
+        console.log(`Trying RPC endpoint: ${rpcUrl}`)
 
-    return NextResponse.json({
-      success: true,
-      lastClaimTime: Number(lastClaimTime),
-      nextClaimTime: nextClaimTime,
-      canClaim: canClaim,
-      timeRemaining: canClaim ? 0 : nextClaimTime - now,
-      airdropAmount: ethers.formatUnits(dailyAirdrop, 18),
-    })
+        const provider = new ethers.JsonRpcProvider(rpcUrl)
+
+        // Verificar se o contrato existe
+        const code = await provider.getCode(AIRDROP_CONTRACT_ADDRESS)
+        if (code === "0x") {
+          console.log(`Contract not found at ${AIRDROP_CONTRACT_ADDRESS} using RPC ${rpcUrl}`)
+          continue // Tentar próximo RPC
+        }
+
+        console.log(`Contract found at ${AIRDROP_CONTRACT_ADDRESS} using RPC ${rpcUrl}`)
+
+        const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
+
+        // Buscar dados do contrato
+        const [lastClaimTime, claimInterval, dailyAirdrop] = await Promise.all([
+          contract.lastClaimTime(address),
+          contract.CLAIM_INTERVAL(),
+          contract.DAILY_AIRDROP(),
+        ])
+
+        console.log("Contract data retrieved:", {
+          lastClaimTime: Number(lastClaimTime),
+          claimInterval: Number(claimInterval),
+          dailyAirdrop: dailyAirdrop.toString(),
+        })
+
+        const now = Math.floor(Date.now() / 1000)
+        const nextClaimTime = Number(lastClaimTime) + Number(claimInterval)
+        const canClaim = Number(lastClaimTime) === 0 || now >= nextClaimTime
+
+        return NextResponse.json({
+          success: true,
+          lastClaimTime: Number(lastClaimTime),
+          nextClaimTime: nextClaimTime,
+          canClaim: canClaim,
+          timeRemaining: canClaim ? 0 : nextClaimTime - now,
+          airdropAmount: ethers.formatUnits(dailyAirdrop, 18),
+          rpcUsed: rpcUrl,
+        })
+      } catch (error) {
+        console.error(`Error with RPC ${rpcUrl}:`, error)
+        lastError = error
+        // Continuar para o próximo RPC
+      }
+    }
+
+    // Se chegamos aqui, nenhum RPC funcionou
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch airdrop status from any RPC endpoint",
+        details: lastError instanceof Error ? lastError.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   } catch (error) {
     console.error("Error fetching airdrop status:", error)
     return NextResponse.json(
       {
         success: false,
         error: "Failed to fetch airdrop status",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     )

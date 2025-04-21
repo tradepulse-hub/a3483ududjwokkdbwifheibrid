@@ -4,6 +4,8 @@ import { Sora } from "next/font/google"
 import "./globals.css"
 import MiniKitProvider from "@/components/minikit-provider"
 import NextAuthProvider from "@/components/next-auth-provider"
+import LanguageProvider from "@/components/LanguageProvider"
+import LanguageSelector from "@/components/LanguageSelector"
 import "@worldcoin/mini-apps-ui-kit-react/styles.css"
 
 const sora = Sora({ subsets: ["latin"] })
@@ -11,7 +13,7 @@ const sora = Sora({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "WLD101",
   description: "Template mini app for Worldcoin",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -27,7 +29,12 @@ export default function RootLayout({
       </head>
       <body className={sora.className}>
         <NextAuthProvider>
-          <MiniKitProvider>{children}</MiniKitProvider>
+          <MiniKitProvider>
+            <LanguageProvider>
+              <LanguageSelector />
+              {children}
+            </LanguageProvider>
+          </MiniKitProvider>
         </NextAuthProvider>
       </body>
     </html>

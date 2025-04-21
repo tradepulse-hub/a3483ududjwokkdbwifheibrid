@@ -1,8 +1,8 @@
 "use client"
 
 import { MiniKit, type WalletAuthInput } from "@worldcoin/minikit-js"
-import { Button } from "@worldcoin/mini-apps-ui-kit-react"
 import { useCallback, useEffect, useState } from "react"
+import { useLanguage } from "@/lib/languageContext"
 
 const walletAuthInput = (nonce: string): WalletAuthInput => {
   return {
@@ -19,6 +19,7 @@ type LoginProps = {
 }
 
 const Login = ({ onLoginSuccess }: LoginProps) => {
+  const { t } = useLanguage()
   const [loading, setLoading] = useState(false)
 
   const refreshUserData = useCallback(async () => {
@@ -80,15 +81,21 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
 
   return (
     <div className="flex flex-col items-center">
-      <Button
+      <button
         onClick={handleLogin}
         disabled={loading}
-        className="w-full py-2.5 sm:py-3 text-sm sm:text-base transition-all duration-300 hover:opacity-90 hover:shadow-lg hover:translate-y-[-2px] bg-gradient-to-r from-blue-500 to-purple-600"
+        className="w-full py-4 px-8 text-lg font-bold rounded-full transition-all duration-500 
+                  bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-size-200 
+                  hover:bg-pos-100 text-white shadow-lg hover:shadow-blue-500/30 
+                  transform hover:scale-105 relative overflow-hidden"
       >
+        {/* Animated glow effect */}
+        <span className="absolute inset-0 w-full h-full bg-white/20 animate-shimmer"></span>
+
         {loading ? (
           <div className="flex items-center justify-center">
             <svg
-              className="animate-spin -ml-1 mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white"
+              className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -100,15 +107,12 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Connecting...
+            {t("connecting", "Connecting...")}
           </div>
         ) : (
-          <span className="relative inline-block">
-            Connect Wallet
-            <span className="absolute inset-0 bg-white opacity-20 rounded-full animate-ping"></span>
-          </span>
+          <span className="relative z-10">{t("connect_wallet", "Connect Wallet")}</span>
         )}
-      </Button>
+      </button>
     </div>
   )
 }

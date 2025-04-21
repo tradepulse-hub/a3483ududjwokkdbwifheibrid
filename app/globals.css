@@ -39,6 +39,18 @@ body {
     animation: shimmer 2s infinite;
   }
 
+  .bg-size-200 {
+    background-size: 200% 100%;
+  }
+
+  .bg-pos-0 {
+    background-position: 0% 0%;
+  }
+
+  .bg-pos-100 {
+    background-position: 100% 0%;
+  }
+
   @keyframes gradient {
     0% {
       background-position: 0% 50%;
@@ -58,5 +70,18 @@ body {
     to {
       transform: translateX(100%);
     }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
   }
 }

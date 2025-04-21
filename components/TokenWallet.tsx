@@ -2,25 +2,35 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import SendTokenModal from "./SendTokenModal"
+import SendTPFModal from "./SendTPFModal"
+import ReceiveTokenModal from "./ReceiveTokenModal"
+import TokenDetailModal from "./TokenDetailModal"
+import { useLanguage } from "@/lib/languageContext"
 
 type TokenWalletProps = {
   walletAddress: string
 }
 
+// Adicionar a propriedade verified ao tipo TokenInfo
 type TokenInfo = {
   symbol: string
   name: string
   quantity: string | null
   gradient: string
-  contract?: string
   logo: string
   loading?: boolean
   error?: string
   details?: string
-  network?: string
+  address: string
+  price?: number
+  priceSource?: string
+  verified?: boolean // Nova propriedade para indicar se o token é verificado
 }
 
 export default function TokenWallet({ walletAddress }: TokenWalletProps) {
+  const { t } = useLanguage()
+  // Atualizar o estado inicial dos tokens para incluir a propriedade verified
   const [tokens, setTokens] = useState<TokenInfo[]>([
     {
       symbol: "TPF",
@@ -29,21 +39,28 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
       gradient: "from-blue-500 to-purple-600",
       logo: "/images/tpf-logo.png",
       loading: true,
-      network: "World Chain",
+      address: "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45",
+      verified: true, // Token verificado
     },
     {
       symbol: "WLD",
       name: "WorldCoin",
       quantity: null,
       gradient: "from-green-500 to-blue-600",
-      contract: "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
       logo: "/images/worldcoin-logo.jpeg",
       loading: true,
-      network: "World Chain",
+      address: "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+      verified: true, // Token verificado
     },
   ])
   const [isLoading, setIsLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false)
+  const [isSendTPFModalOpen, setIsSendTPFModalOpen] = useState(false)
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchTokenBalances = async () => {
@@ -59,6 +76,8 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
           error: undefined,
           details: undefined,
           quantity: null,
+          price: undefined,
+          priceSource: undefined,
         })),
       )
 
@@ -86,11 +105,16 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
             maximumFractionDigits: 2,
           })
 
+          // Fetch TPF price from API
+          const priceResponse = await fetch(`/api/token-price?symbol=TPF`)
+          const priceData = await priceResponse.json()
+
           return {
             quantity: formattedBalance,
             error: undefined,
             loading: false,
-            network: data.source || "World Chain",
+            price: priceData.price,
+            priceSource: priceData.source,
           }
         } catch (error) {
           console.error(`Error fetching TPF balance:`, error)
@@ -117,7 +141,6 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
               error: data.error,
               details: data.details,
               loading: false,
-              network: "World Chain",
             }
           }
 
@@ -127,12 +150,17 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
             maximumFractionDigits: 2,
           })
 
+          // Fetch WLD price from API
+          const priceResponse = await fetch(`/api/token-price?symbol=WLD`)
+          const priceData = await priceResponse.json()
+
           return {
             quantity: formattedBalance,
             error: undefined,
             details: undefined,
             loading: false,
-            network: data.source || "World Chain",
+            price: priceData.price,
+            priceSource: priceData.source,
           }
         } catch (error) {
           console.error(`Error fetching WLD balance:`, error)
@@ -169,37 +197,197 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
     setRefreshTrigger((prev) => prev + 1)
   }
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (err) {
+      console.error("Failed to copy: ", err)
+    }
+  }
+
+  const handleSendClick = (token: TokenInfo) => {
+    setSelectedToken(token)
+    if (token.symbol === "TPF") {
+      setIsSendTPFModalOpen(true)
+    } else {
+      setIsSendModalOpen(true)
+    }
+  }
+
+  const handleReceiveClick = (token: TokenInfo) => {
+    setSelectedToken(token)
+    setIsReceiveModalOpen(true)
+  }
+
+  const handleTokenClick = (token: TokenInfo) => {
+    setSelectedToken(token)
+    setIsDetailModalOpen(true)
+  }
+
+  const handleTransactionSuccess = () => {
+    // Refresh token balances after successful transaction
+    setTimeout(() => {
+      handleRefresh()
+    }, 5000) // Wait 5 seconds before refreshing to allow transaction to be processed
+  }
+
+  // Filter tokens to only show those with a balance
+  const tokensWithBalance = tokens.filter((token) => token.quantity !== null && Number.parseFloat(token.quantity) > 0)
+  const tokensWithoutBalance = tokens.filter(
+    (token) => token.quantity === null || Number.parseFloat(token.quantity) === 0,
+  )
+
   return (
-    <div className="bg-gray-900 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-700">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-base sm:text-lg font-medium text-gray-300">My Tokens</h3>
-        <button
-          onClick={handleRefresh}
-          className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded transition-colors flex items-center"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <svg
-                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
+    <>
+      {/* Atualizar o cabeçalho da wallet para um design mais elegante */}
+      <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-5 sm:p-6 border border-gray-700/50">
+        <div className="flex justify-between items-center mb-5">
+          <h3 className="text-lg sm:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+            {t("my_tokens", "My Tokens")}
+          </h3>
+          <button
+            onClick={handleRefresh}
+            className="text-xs bg-gradient-to-r from-blue-600/90 to-purple-600/90 hover:from-blue-500 hover:to-purple-500 text-white px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-blue-600/20"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                {t("refreshing", "Refreshing...")}
+              </>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                {t("refresh", "Refresh")}
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Substituir a renderização dos tokens com um design mais elegante */}
+        {isLoading ? (
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="p-3 sm:p-4 rounded-lg bg-gray-800/80 backdrop-blur-sm animate-pulse">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 sm:mr-4 bg-gray-700"></div>
+                    <div>
+                      <div className="h-4 bg-gray-700 rounded w-16 mb-2"></div>
+                      <div className="h-3 bg-gray-700 rounded w-24"></div>
+                    </div>
+                  </div>
+                  <div className="h-6 w-16 bg-gray-700 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : tokensWithBalance.length > 0 ? (
+          <div className="space-y-4">
+            {tokensWithBalance.map((token) => (
+              <div
+                key={token.symbol}
+                className="relative overflow-hidden p-4 sm:p-5 rounded-xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer border border-gray-700/50 hover:border-gray-600/80 shadow-lg hover:shadow-xl group"
+                onClick={() => handleTokenClick(token)}
               >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Updating...
-            </>
-          ) : (
-            <>
+                {/* Efeito de brilho no hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600/10 to-transparent opacity-0 group-hover:opacity-100 animate-shimmer bg-size-200 transition-opacity duration-700"></div>
+
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center">
+                    <div className="relative">
+                      <div
+                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-gradient-to-br ${token.gradient} p-0.5 shadow-lg`}
+                      >
+                        <div className="w-full h-full rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+                          <Image
+                            src={token.logo || "/placeholder.svg"}
+                            alt={`${token.symbol} logo`}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Selo de verificação */}
+                      {token.verified && (
+                        <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full w-5 h-5 flex items-center justify-center border-2 border-gray-800">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-3 w-3 text-white"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="ml-4">
+                      <div className="flex items-center">
+                        <div className="font-bold text-white text-lg sm:text-xl">{token.symbol}</div>
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-400">{token.name}</div>
+                      {token.error && (
+                        <div className="text-xs text-red-400 mt-1">
+                          {t("error", "Error:")} {token.error}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    {token.loading ? (
+                      <div className="h-6 w-16 bg-gray-700 rounded animate-pulse"></div>
+                    ) : token.quantity ? (
+                      <div className="font-bold text-white text-lg sm:text-xl">{token.quantity}</div>
+                    ) : (
+                      <div className="text-red-400 text-sm">{t("unavailable_token", "Unavailable")}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm rounded-xl border border-gray-700/50 shadow-lg p-6">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1"
+                className="h-8 w-8 text-gray-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -207,94 +395,88 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  strokeWidth={1.5}
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              Refresh
-            </>
-          )}
-        </button>
-      </div>
-
-      <div className="space-y-3">
-        {tokens.map((token) => (
-          <div key={token.symbol} className="p-3 sm:p-4 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 sm:mr-4 overflow-hidden bg-gray-700 flex items-center justify-center">
-                  <Image
-                    src={token.logo || "/placeholder.svg"}
-                    alt={`${token.symbol} logo`}
-                    width={48}
-                    height={48}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <div className="font-medium text-white text-base sm:text-lg">{token.symbol}</div>
-                  <div className="text-xs sm:text-sm text-gray-400">{token.name}</div>
-                  {token.network && (
-                    <div className="text-xs text-blue-400 mt-0.5">
-                      <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mr-1"></span>
-                      {token.network}
-                    </div>
-                  )}
-                  {token.error && <div className="text-xs text-red-400 mt-1">Error: {token.error}</div>}
-                </div>
-              </div>
-              <div className="text-right">
-                {token.loading ? (
-                  <div className="h-6 w-16 bg-gray-700 rounded animate-pulse"></div>
-                ) : token.quantity ? (
-                  <div className="font-bold text-white text-lg sm:text-xl">{token.quantity}</div>
-                ) : (
-                  <div className="text-red-400 text-sm">Unavailable</div>
-                )}
-              </div>
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">{t("no_tokens_found", "No Tokens Found")}</h3>
+            <p className="text-gray-400 mb-6">
+              {t(
+                "no_tokens_description",
+                'You don\'t have any tokens in your wallet yet. Use the "Receive" button to get started.',
+              )}
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {tokens.map((token) => (
+                <button
+                  key={token.symbol}
+                  onClick={() => handleReceiveClick(token)}
+                  className="px-4 py-2.5 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-lg"
+                >
+                  <div className="w-5 h-5 rounded-full overflow-hidden mr-2 bg-gray-600">
+                    <Image
+                      src={token.logo || "/placeholder.svg"}
+                      alt={`${token.symbol} logo`}
+                      width={20}
+                      height={20}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {t("receive_token", "Receive")} {token.symbol}
+                </button>
+              ))}
             </div>
           </div>
-        ))}
+        )}
       </div>
 
-      <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-2 sm:gap-3">
-        <button className="py-2 sm:py-3 bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg text-white text-sm sm:text-base font-medium hover:opacity-90 transition-opacity flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-1 sm:mr-2"
-          >
-            <path d="M12 19V5" />
-            <path d="m5 12 7-7 7 7" />
-          </svg>
-          Send
-        </button>
-        <button className="py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-purple-700 rounded-lg text-white text-sm sm:text-base font-medium hover:opacity-90 transition-opacity flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-1 sm:mr-2"
-          >
-            <path d="M12 5v14" />
-            <path d="m5 12 7 7 7-7" />
-          </svg>
-          Receive
-        </button>
-      </div>
-    </div>
+      {/* Send Token Modal for WLD */}
+      {selectedToken && selectedToken.symbol === "WLD" && (
+        <SendTokenModal
+          isOpen={isSendModalOpen}
+          onClose={() => setIsSendModalOpen(false)}
+          walletAddress={walletAddress}
+          tokenSymbol={selectedToken.symbol}
+          tokenLogo={selectedToken.logo}
+          tokenName={selectedToken.name}
+          onSuccess={handleTransactionSuccess}
+        />
+      )}
+
+      {/* Send TPF Modal */}
+      {selectedToken && selectedToken.symbol === "TPF" && (
+        <SendTPFModal
+          isOpen={isSendTPFModalOpen}
+          onClose={() => setIsSendTPFModalOpen(false)}
+          walletAddress={walletAddress}
+          tokenLogo={selectedToken.logo}
+          onSuccess={handleTransactionSuccess}
+        />
+      )}
+
+      {/* Receive Token Modal */}
+      {selectedToken && (
+        <ReceiveTokenModal
+          isOpen={isReceiveModalOpen}
+          onClose={() => setIsReceiveModalOpen(false)}
+          walletAddress={walletAddress}
+          tokenSymbol={selectedToken.symbol}
+          tokenLogo={selectedToken.logo}
+          tokenName={selectedToken.name}
+        />
+      )}
+
+      {/* Token Detail Modal with Chart */}
+      {selectedToken && (
+        <TokenDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          token={selectedToken}
+          walletAddress={walletAddress}
+          onSwap={handleTransactionSuccess}
+        />
+      )}
+    </>
   )
 }

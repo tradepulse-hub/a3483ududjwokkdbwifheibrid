@@ -2,14 +2,60 @@ import { MiniKit } from "@worldcoin/minikit-js"
 import { airdropContractABI, AIRDROP_CONTRACT_ADDRESS } from "./airdropContractABI"
 import { ethers } from "ethers"
 
+// Lista de RPCs para tentar
+const RPC_ENDPOINTS = [
+  "https://rpc-testnet.worldcoin.org",
+  "https://worldchain-testnet.g.alchemy.com/public",
+  "https://worldchain-mainnet.g.alchemy.com/public",
+  "https://rpc.worldcoin.org",
+]
+
+// Função para tentar conectar a um contrato usando vários RPCs
+async function tryConnectContract() {
+  let lastError = null
+
+  for (const rpcUrl of RPC_ENDPOINTS) {
+    try {
+      console.log(`Trying to connect to contract using RPC: ${rpcUrl}`)
+
+      const provider = new ethers.JsonRpcProvider(rpcUrl)
+
+      // Verificar se o contrato existe
+      const code = await provider.getCode(AIRDROP_CONTRACT_ADDRESS)
+      if (code === "0x") {
+        console.log(`Contract not found at ${AIRDROP_CONTRACT_ADDRESS} using RPC ${rpcUrl}`)
+        continue // Tentar próximo RPC
+      }
+
+      console.log(`Contract found at ${AIRDROP_CONTRACT_ADDRESS} using RPC ${rpcUrl}`)
+
+      const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
+
+      // Testar uma chamada simples para verificar se o contrato responde
+      await contract.DAILY_AIRDROP()
+
+      return { contract, provider, rpcUrl }
+    } catch (error) {
+      console.error(`Error with RPC ${rpcUrl}:`, error)
+      lastError = error
+      // Continuar para o próximo RPC
+    }
+  }
+
+  // Se chegamos aqui, nenhum RPC funcionou
+  throw new Error(`Failed to connect to contract using any RPC: ${lastError?.message || "Unknown error"}`)
+}
+
 // Function to check the last claim time
 export async function checkLastClaimTime(userAddress: string): Promise<number> {
   try {
-    // Use World Chain RPC
-    const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
-    const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
+    console.log(`Checking last claim time for address: ${userAddress}`)
+    console.log(`Using contract address: ${AIRDROP_CONTRACT_ADDRESS}`)
+
+    const { contract } = await tryConnectContract()
 
     const lastClaimTime = await contract.lastClaimTime(userAddress)
+    console.log(`Last claim time: ${Number(lastClaimTime)}`)
     return Number(lastClaimTime)
   } catch (error) {
     console.error("Error checking last claim time:", error)
@@ -20,10 +66,12 @@ export async function checkLastClaimTime(userAddress: string): Promise<number> {
 // Function to get the claim interval
 export async function getClaimInterval(): Promise<number> {
   try {
-    const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
-    const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
+    console.log(`Getting claim interval from contract: ${AIRDROP_CONTRACT_ADDRESS}`)
+
+    const { contract } = await tryConnectContract()
 
     const interval = await contract.CLAIM_INTERVAL()
+    console.log(`Claim interval: ${Number(interval)}`)
     return Number(interval)
   } catch (error) {
     console.error("Error getting claim interval:", error)
@@ -34,11 +82,14 @@ export async function getClaimInterval(): Promise<number> {
 // Function to get the daily airdrop amount
 export async function getDailyAirdropAmount(): Promise<number> {
   try {
-    const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
-    const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
+    console.log(`Getting daily airdrop amount from contract: ${AIRDROP_CONTRACT_ADDRESS}`)
+
+    const { contract } = await tryConnectContract()
 
     const amount = await contract.DAILY_AIRDROP()
-    return Number(ethers.formatUnits(amount, 18))
+    const formattedAmount = Number(ethers.formatUnits(amount, 18))
+    console.log(`Daily airdrop amount: ${formattedAmount}`)
+    return formattedAmount
   } catch (error) {
     console.error("Error getting daily airdrop amount:", error)
     return 50 // Default value in case of error
@@ -50,6 +101,9 @@ export async function claimAirdrop(
   userAddress: string,
 ): Promise<{ txId: string; success: boolean; error?: string; message?: string; rawResponse?: any }> {
   try {
+    console.log(`Claiming airdrop for address: ${userAddress}`)
+    console.log(`Using contract address: ${AIRDROP_CONTRACT_ADDRESS}`)
+
     if (!MiniKit.isInstalled()) {
       throw new Error("MiniKit is not installed")
     }
@@ -205,6 +259,8 @@ export async function canUserClaim(userAddress: string): Promise<{
   lastClaimTime: number
 }> {
   try {
+    console.log(`Checking if user ${userAddress} can claim`)
+
     const lastClaim = await checkLastClaimTime(userAddress)
     const interval = await getClaimInterval()
 
@@ -212,8 +268,10 @@ export async function canUserClaim(userAddress: string): Promise<{
     const nextClaimTime = lastClaim + interval
 
     if (lastClaim === 0 || now >= nextClaimTime) {
+      console.log(`User can claim: lastClaim=${lastClaim}, now=${now}, nextClaimTime=${nextClaimTime}`)
       return { canClaim: true, timeRemaining: null, lastClaimTime: lastClaim }
     } else {
+      console.log(`User cannot claim yet: lastClaim=${lastClaim}, now=${now}, nextClaimTime=${nextClaimTime}`)
       return { canClaim: false, timeRemaining: nextClaimTime - now, lastClaimTime: lastClaim }
     }
   } catch (error) {
@@ -225,13 +283,13 @@ export async function canUserClaim(userAddress: string): Promise<{
 // Function to check the contract balance
 export async function getContractBalance(): Promise<number> {
   try {
-    // Use World Chain RPC
-    const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
-    const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
+    console.log(`Getting contract balance from: ${AIRDROP_CONTRACT_ADDRESS}`)
+
+    const { contract } = await tryConnectContract()
 
     const balance = await contract.contractBalance()
     const formattedBalance = Number(ethers.formatUnits(balance, 18))
-    console.log("Contract balance (World Chain):", formattedBalance)
+    console.log("Contract balance:", formattedBalance)
     return formattedBalance
   } catch (error) {
     console.error("Error getting contract balance:", error)
@@ -245,69 +303,46 @@ export async function checkContractAccess(): Promise<{
   network: string
   error?: string
 }> {
-  // Try to access the contract on World Chain Mainnet
-  try {
-    const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
+  let lastError = null
 
-    // First, check if there is contract code at the address
-    const code = await provider.getCode(AIRDROP_CONTRACT_ADDRESS)
-
-    // If there's no code at the address, the contract doesn't exist
-    if (code === "0x" || code === "") {
-      return {
-        exists: false,
-        network: "World Chain Mainnet",
-        error: "Contract not deployed at this address",
-      }
-    }
-
-    // If there is code, try to interact with the contract
-    const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
-
-    // Try to call a view function
-    await contract.DAILY_AIRDROP()
-
-    return {
-      exists: true,
-      network: "World Chain Mainnet",
-    }
-  } catch (mainnetError) {
-    console.error("Error accessing contract on World Chain Mainnet:", mainnetError)
-
-    // Try on testnet
+  for (const rpcUrl of RPC_ENDPOINTS) {
     try {
-      const provider = new ethers.JsonRpcProvider("https://rpc-testnet.worldcoin.org")
+      console.log(`Checking contract access using RPC: ${rpcUrl}`)
 
-      // Check if there is contract code at the address
+      const provider = new ethers.JsonRpcProvider(rpcUrl)
+
+      // First, check if there is contract code at the address
       const code = await provider.getCode(AIRDROP_CONTRACT_ADDRESS)
 
       // If there's no code at the address, the contract doesn't exist
       if (code === "0x" || code === "") {
-        return {
-          exists: false,
-          network: "World Chain Testnet",
-          error: "Contract not deployed at this address",
-        }
+        console.log(`Contract not found at ${AIRDROP_CONTRACT_ADDRESS} using RPC ${rpcUrl}`)
+        continue // Tentar próximo RPC
       }
 
+      // If there is code, try to interact with the contract
       const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, airdropContractABI, provider)
 
       // Try to call a view function
       await contract.DAILY_AIRDROP()
+      console.log(`Contract is accessible using RPC ${rpcUrl}`)
 
       return {
         exists: true,
-        network: "World Chain Testnet",
+        network: rpcUrl.includes("testnet") ? "World Chain Testnet" : "World Chain Mainnet",
       }
-    } catch (testnetError) {
-      console.error("Error accessing contract on World Chain Testnet:", testnetError)
-
-      return {
-        exists: false,
-        network: "None",
-        error: "Contract not accessible on any network or not properly deployed",
-      }
+    } catch (error) {
+      console.error(`Error accessing contract using RPC ${rpcUrl}:`, error)
+      lastError = error
+      // Continuar para o próximo RPC
     }
+  }
+
+  // Se chegamos aqui, nenhum RPC funcionou
+  return {
+    exists: false,
+    network: "None",
+    error: `Contract not accessible on any network: ${lastError?.message || "Unknown error"}`,
   }
 }
 
