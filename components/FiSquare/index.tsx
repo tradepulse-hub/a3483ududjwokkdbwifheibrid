@@ -3,13 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { SquareTab, UserProfile } from "@/types/square"
-import {
-  getProfiles,
-  getOrCreateProfile,
-  initializeExampleData,
-  initializeRealTimeListeners,
-  removeRealTimeListeners,
-} from "@/lib/sharedStorageService"
+import { getProfiles, getOrCreateProfile, initializeExampleData, refreshCache } from "@/lib/worldChainStorage"
 import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
 import RecentPosts from "./RecentPosts"
@@ -36,33 +30,21 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const initialized = useRef(false)
 
-  // Inicializar dados de exemplo e listeners em tempo real
+  // Inicializar dados de exemplo
   useEffect(() => {
     if (!initialized.current) {
       const initializeData = async () => {
         try {
           // Inicializar dados de exemplo
           await initializeExampleData()
-
-          // Configurar listeners em tempo real
-          initializeRealTimeListeners(() => {
-            console.log("Posts updated, triggering refresh")
-            setRefreshTrigger((prev) => prev + 1)
-          })
-
           initialized.current = true
         } catch (error) {
-          console.error("Error initializing data:", error)
-          setError("Failed to initialize data. Please try again.")
+          console.error("Erro ao inicializar dados:", error)
+          setError("Falha ao inicializar dados. Por favor, tente novamente.")
         }
       }
 
       initializeData()
-    }
-
-    // Limpar listeners quando o componente for desmontado
-    return () => {
-      removeRealTimeListeners()
     }
   }, [])
 
@@ -71,7 +53,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     let isMounted = true
     const loadingTimeoutId = setTimeout(() => {
       if (isMounted && isLoading) {
-        console.log("Loading timeout reached, forcing render")
+        console.log("Tempo limite de carregamento atingido, forçando renderização")
         setIsLoading(false)
       }
     }, 2000) // Reduzido para 2 segundos para melhor experiência do usuário
@@ -79,7 +61,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     async function loadData() {
       if (!userAddress || !isMounted) return
 
-      console.log("Loading FiSquare data for address:", userAddress)
+      console.log("Carregando dados do FiSquare para endereço:", userAddress)
       setIsLoading(true)
       setError(null)
 
@@ -87,14 +69,14 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         // Obter ou criar perfil do usuário
         let profile = null
         try {
-          console.log("Getting or creating user profile")
+          console.log("Obtendo ou criando perfil do usuário")
           profile = await getOrCreateProfile(userAddress)
           if (isMounted) {
             setUserProfile(profile)
           }
-          console.log("User profile loaded:", profile)
+          console.log("Perfil do usuário carregado:", profile)
         } catch (profileError) {
-          console.error("Error loading profile:", profileError)
+          console.error("Erro ao carregar perfil:", profileError)
           // Criar perfil padrão em memória para não bloquear a UI
           profile = {
             address: userAddress,
@@ -113,9 +95,9 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
 
         // Calcular estatísticas da comunidade
         try {
-          console.log("Fetching all profiles for community stats")
+          console.log("Buscando todos os perfis para estatísticas da comunidade")
           const allProfiles = await getProfiles()
-          console.log(`Fetched ${allProfiles.length} profiles`)
+          console.log(`Buscados ${allProfiles.length} perfis`)
 
           // Usuários ativos (todos os perfis)
           const activeUsers = Math.max(allProfiles.length, 1)
@@ -133,16 +115,18 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             })
           }
         } catch (statsError) {
-          console.error("Error loading community stats:", statsError)
+          console.error("Erro ao carregar estatísticas da comunidade:", statsError)
           // Manter os valores padrão
         }
 
-        console.log("FiSquare data loaded successfully")
+        console.log("Dados do FiSquare carregados com sucesso")
       } catch (error) {
-        console.error("Error loading FiSquare data:", error)
+        console.error("Erro ao carregar dados do FiSquare:", error)
         if (isMounted) {
           setError(
-            error instanceof Error ? error.message : t("error_loading_data", "Failed to load data. Please try again."),
+            error instanceof Error
+              ? error.message
+              : t("error_loading_data", "Falha ao carregar dados. Por favor, tente novamente."),
           )
         }
       } finally {
@@ -186,7 +170,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">{t("error_loading", "Error Loading")}</h3>
+          <h3 className="text-lg font-medium text-white mb-2">{t("error_loading", "Erro ao Carregar")}</h3>
           <p className="text-gray-400 mb-4">{error}</p>
           <button
             onClick={() => {
@@ -195,7 +179,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             }}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
-            {t("try_again", "Try Again")}
+            {t("try_again", "Tentar Novamente")}
           </button>
         </div>
       </div>
@@ -207,7 +191,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
       <div className="bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-800 p-4">
         <div className="flex flex-col justify-center items-center h-40">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-3"></div>
-          <p className="text-gray-400 text-sm">{t("loading_fisquare", "Loading FiSquare...")}</p>
+          <p className="text-gray-400 text-sm">{t("loading_fisquare", "Carregando FiSquare...")}</p>
         </div>
       </div>
     )
@@ -220,14 +204,22 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
 
   // Função para lidar com a criação de posts
   const handlePostCreated = () => {
-    console.log("Post created in parent component")
+    console.log("Post criado no componente pai")
     setRefreshTrigger((prev) => prev + 1)
   }
 
   // Função para forçar uma atualização manual
-  const handleForceRefresh = () => {
-    console.log("Forcing refresh")
-    setRefreshTrigger((prev) => prev + 1)
+  const handleForceRefresh = async () => {
+    try {
+      setIsLoading(true)
+      await refreshCache()
+      setRefreshTrigger((prev) => prev + 1)
+    } catch (error) {
+      console.error("Erro ao forçar atualização:", error)
+      setError("Falha ao atualizar dados. Por favor, tente novamente.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -235,20 +227,20 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
       {/* Estatísticas da comunidade */}
       <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 p-2 border-b border-gray-800/50">
         <div className="flex justify-between items-center">
-          <div className="text-xs text-gray-300 font-medium">{t("community_stats", "Community Stats")}</div>
+          <div className="text-xs text-gray-300 font-medium">{t("community_stats", "Estatísticas da Comunidade")}</div>
           <div className="flex space-x-4">
             <div className="flex flex-col items-center">
               <span className="text-sm font-bold text-blue-400">{communityStats.activeUsers}</span>
-              <span className="text-[10px] text-gray-400">{t("active_users", "Active Users")}</span>
+              <span className="text-[10px] text-gray-400">{t("active_users", "Usuários Ativos")}</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-sm font-bold text-purple-400">{communityStats.registeredUsers}</span>
-              <span className="text-[10px] text-gray-400">{t("registered_users", "Registered Users")}</span>
+              <span className="text-[10px] text-gray-400">{t("registered_users", "Usuários Registrados")}</span>
             </div>
             <button
               onClick={handleForceRefresh}
               className="ml-2 text-xs bg-blue-600/80 hover:bg-blue-600 text-white px-2 py-1 rounded-md transition-colors"
-              title={t("refresh_now", "Refresh Now")}
+              title={t("refresh_now", "Atualizar Agora")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
