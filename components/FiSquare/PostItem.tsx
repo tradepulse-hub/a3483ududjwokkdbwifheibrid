@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getProfile, likePost, unlikePost, deletePost } from "@/lib/squareStorage"
+import { getProfile, likePost, unlikePost, deletePost, addComment } from "@/lib/squareStorage"
 import { getDisplayName, getDefaultProfilePicture, formatDate } from "@/lib/squareService"
 import BanUserModal from "./BanUserModal"
 import UserProfileModal from "./UserProfileModal"
@@ -24,15 +24,23 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
-  // Adicionar um novo estado para controlar a visibilidade da caixa de comentários
   const [showCommentBox, setShowCommentBox] = useState(false)
   const [commentText, setCommentText] = useState("")
   const [localPost, setLocalPost] = useState<Post>(post)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Buscar perfil do autor
   useEffect(() => {
-    const profile = getProfile(post.authorAddress)
-    setAuthorProfile(profile)
+    async function loadAuthorProfile() {
+      try {
+        const profile = await getProfile(post.authorAddress)
+        setAuthorProfile(profile)
+      } catch (error) {
+        console.error("Error loading author profile:", error)
+      }
+    }
+
+    loadAuthorProfile()
   }, [post.authorAddress])
 
   // Atualizar o useEffect para sincronizar o post local quando o post prop mudar
@@ -48,54 +56,68 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
   const isUserAdmin = currentUserProfile?.isAdmin || false
   const canModerate = isAuthor || isUserAdmin
 
-  // Substituir a função handleLikeToggle por esta versão otimista
-  const handleLikeToggle = () => {
-    // Criar uma cópia do post para manipulação local
-    const updatedPost = { ...localPost }
+  // Função para lidar com curtidas
+  const handleLikeToggle = async () => {
+    try {
+      // Criar uma cópia do post para manipulação local
+      const updatedPost = { ...localPost }
 
-    if (isLiked) {
-      // Remover o like imediatamente na UI
-      updatedPost.likes = updatedPost.likes.filter((addr) => addr !== currentUserAddress)
-      setLocalPost(updatedPost)
-      // Persistir a mudança
-      unlikePost(localPost.id, currentUserAddress)
-    } else {
-      // Adicionar o like imediatamente na UI
-      updatedPost.likes = [...updatedPost.likes, currentUserAddress]
-      setLocalPost(updatedPost)
-      // Persistir a mudança
-      likePost(localPost.id, currentUserAddress)
+      if (isLiked) {
+        // Remover o like imediatamente na UI
+        updatedPost.likes = updatedPost.likes.filter((addr) => addr !== currentUserAddress)
+        setLocalPost(updatedPost)
+        // Persistir a mudança
+        await unlikePost(localPost.id, currentUserAddress)
+      } else {
+        // Adicionar o like imediatamente na UI
+        updatedPost.likes = [...updatedPost.likes, currentUserAddress]
+        setLocalPost(updatedPost)
+        // Persistir a mudança
+        await likePost(localPost.id, currentUserAddress)
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error)
+      // Reverter para o estado original em caso de erro
+      setLocalPost(post)
     }
   }
 
-  // Adicionar função para lidar com o envio de comentários
-  const handleAddComment = () => {
-    if (!commentText.trim()) return
+  // Função para lidar com o envio de comentários
+  const handleAddComment = async () => {
+    if (!commentText.trim() || isSubmitting) return
 
-    // Criar um novo comentário
-    const newComment = {
-      id: Date.now().toString(),
-      authorAddress: currentUserAddress,
-      content: commentText.trim(),
-      createdAt: Date.now(),
-      likes: [],
-    }
+    setIsSubmitting(true)
 
-    // Atualizar o post local imediatamente
-    const updatedPost = { ...localPost }
-    updatedPost.comments = [...updatedPost.comments, newComment]
-    setLocalPost(updatedPost)
+    try {
+      // Criar um novo comentário
+      const newComment = {
+        id: Date.now().toString(),
+        authorAddress: currentUserAddress,
+        content: commentText.trim(),
+        createdAt: Date.now(),
+        likes: [],
+      }
 
-    // Persistir a mudança
-    import("@/lib/squareStorage").then(({ addComment }) => {
-      addComment(localPost.id, {
+      // Atualizar o post local imediatamente
+      const updatedPost = { ...localPost }
+      updatedPost.comments = [...updatedPost.comments, newComment]
+      setLocalPost(updatedPost)
+
+      // Persistir a mudança
+      await addComment(localPost.id, {
         authorAddress: currentUserAddress,
         content: commentText.trim(),
       })
-    })
 
-    // Limpar o campo de comentário
-    setCommentText("")
+      // Limpar o campo de comentário
+      setCommentText("")
+    } catch (error) {
+      console.error("Error adding comment:", error)
+      // Reverter para o estado original em caso de erro
+      setLocalPost(post)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleDeletePost = async () => {
@@ -343,12 +365,40 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
               />
               <button
                 onClick={handleAddComment}
-                disabled={!commentText.trim()}
+                disabled={!commentText.trim() || isSubmitting}
                 className={`px-2 py-1 rounded-md text-white text-xs transition-colors ${
-                  !commentText.trim() ? "bg-gray-700 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                  !commentText.trim() || isSubmitting
+                    ? "bg-gray-700 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
-                {t("post", "Post")}
+                {isSubmitting ? (
+                  <span className="flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    {t("posting", "Posting...")}
+                  </span>
+                ) : (
+                  t("post", "Post")
+                )}
               </button>
             </div>
 
@@ -363,7 +413,8 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
                           <Image
                             src={
                               getProfile(comment.authorAddress)?.profilePicture ||
-                              getDefaultProfilePicture(comment.authorAddress)
+                              getDefaultProfilePicture(comment.authorAddress) ||
+                              "/placeholder.svg"
                             }
                             alt="Profile"
                             width={20}

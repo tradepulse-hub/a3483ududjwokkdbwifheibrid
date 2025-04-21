@@ -318,7 +318,7 @@ const translations: Record<Language, Record<string, string>> = {
     all: "Tous",
     write_comment: "Écrire un commentaire...",
     active_users: "Utilisateurs Actifs",
-    registered_users: "Utilisateurs Enregistrés",
+    registered_users: "Utilisateurs Enscrits",
     community_stats: "Statistiques de la Communauté",
   },
 

@@ -69,33 +69,39 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!content.trim()) return
 
     setIsSubmitting(true)
 
-    // Extrair hashtags de criptomoedas
-    const allTags = extractHashtags(content)
-    const cryptoTags = allTags.filter((tag) => isCryptoSupported(tag))
+    try {
+      // Extrair hashtags de criptomoedas
+      const allTags = extractHashtags(content)
+      const cryptoTags = allTags.filter((tag) => isCryptoSupported(tag))
 
-    // Criar o post
-    createPost({
-      authorAddress: userAddress,
-      content: content.trim(),
-      images: images.length > 0 ? images : undefined,
-      cryptoTags,
-      trend,
-    })
+      // Criar o post
+      await createPost({
+        authorAddress: userAddress,
+        content: content.trim(),
+        images: images.length > 0 ? images : undefined,
+        cryptoTags,
+        trend,
+      })
 
-    // Limpar o formulário
-    setContent("")
-    setImages([])
-    setTrend(null)
-    setIsSubmitting(false)
-    setIsExpanded(false)
+      // Limpar o formulário
+      setContent("")
+      setImages([])
+      setTrend(null)
+      setIsExpanded(false)
 
-    // Notificar que um post foi criado
-    onPostCreated()
+      // Notificar que um post foi criado
+      onPostCreated()
+    } catch (error) {
+      console.error("Error creating post:", error)
+      alert(t("error_creating_post", "Error creating post. Please try again."))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleSelectSuggestion = (suggestion: string) => {

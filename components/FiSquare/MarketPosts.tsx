@@ -18,19 +18,31 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
   const { t } = useLanguage()
   const [posts, setPosts] = useState<Post[]>([])
   const [selectedCrypto, setSelectedCrypto] = useState<string>("ALL")
+  const [isLoading, setIsLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
-    // Buscar todos os posts
-    const allPosts = getPosts()
+    async function loadPosts() {
+      setIsLoading(true)
+      try {
+        // Buscar todos os posts
+        const allPosts = await getPosts()
 
-    // Filtrar por criptomoeda selecionada (se não for "ALL")
-    if (selectedCrypto === "ALL") {
-      setPosts(allPosts)
-    } else {
-      const filteredPosts = filterPostsByCrypto(allPosts, selectedCrypto)
-      setPosts(filteredPosts)
+        // Filtrar por criptomoeda selecionada (se não for "ALL")
+        if (selectedCrypto === "ALL") {
+          setPosts(allPosts)
+        } else {
+          const filteredPosts = filterPostsByCrypto(allPosts, selectedCrypto)
+          setPosts(filteredPosts)
+        }
+      } catch (error) {
+        console.error("Error loading market posts:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    loadPosts()
   }, [selectedCrypto, refreshTrigger])
 
   const handlePostCreated = () => {
@@ -39,6 +51,14 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
 
   const handlePostDeleted = () => {
     setRefreshTrigger((prev) => prev + 1)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
   }
 
   return (

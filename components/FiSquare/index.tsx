@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { SquareTab, UserProfile } from "@/types/square"
-import { getProfiles, getOrCreateProfile } from "@/lib/squareStorage"
+import {
+  getProfiles,
+  getOrCreateProfile,
+  initializeRealTimeListeners,
+  removeRealTimeListeners,
+} from "@/lib/squareStorage"
 import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
 import RecentPosts from "./RecentPosts"
@@ -26,30 +31,53 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     activeUsers: 0,
     registeredUsers: 0,
   })
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+  // Inicializar listeners em tempo real
+  useEffect(() => {
+    initializeRealTimeListeners(() => {
+      // Callback quando os posts são atualizados
+      setRefreshTrigger((prev) => prev + 1)
+    })
+
+    // Limpar listeners quando o componente for desmontado
+    return () => {
+      removeRealTimeListeners()
+    }
+  }, [])
 
   useEffect(() => {
-    if (userAddress) {
-      // Obter ou criar perfil do usuário
-      const profile = getOrCreateProfile(userAddress)
-      setUserProfile(profile)
+    async function loadData() {
+      if (userAddress) {
+        setIsLoading(true)
+        try {
+          // Obter ou criar perfil do usuário
+          const profile = await getOrCreateProfile(userAddress)
+          setUserProfile(profile)
 
-      // Calcular estatísticas da comunidade
-      const allProfiles = getProfiles()
+          // Calcular estatísticas da comunidade
+          const allProfiles = await getProfiles()
 
-      // Usuários ativos (todos os perfis)
-      const activeUsers = allProfiles.length
+          // Usuários ativos (todos os perfis)
+          const activeUsers = allProfiles.length
 
-      // Usuários registrados (com foto de perfil ou nickname)
-      const registeredUsers = allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length
+          // Usuários registrados (com foto de perfil ou nickname)
+          const registeredUsers = allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length
 
-      setCommunityStats({
-        activeUsers,
-        registeredUsers,
-      })
-
-      setIsLoading(false)
+          setCommunityStats({
+            activeUsers,
+            registeredUsers,
+          })
+        } catch (error) {
+          console.error("Error loading FiSquare data:", error)
+        } finally {
+          setIsLoading(false)
+        }
+      }
     }
-  }, [userAddress])
+
+    loadData()
+  }, [userAddress, refreshTrigger])
 
   // Verificar se o usuário está banido
   const isBanned = userProfile ? isUserBanned(userProfile) : false

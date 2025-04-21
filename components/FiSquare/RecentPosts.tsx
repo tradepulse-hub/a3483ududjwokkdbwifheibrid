@@ -17,13 +17,25 @@ interface RecentPostsProps {
 export default function RecentPosts({ userAddress, userProfile, isBanned }: RecentPostsProps) {
   const { t } = useLanguage()
   const [posts, setPosts] = useState<Post[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
-    // Buscar posts e ordenar por data (mais recentes primeiro)
-    const allPosts = getPosts()
-    const sortedPosts = sortPostsByDate(allPosts)
-    setPosts(sortedPosts)
+    async function loadPosts() {
+      setIsLoading(true)
+      try {
+        // Buscar posts e ordenar por data (mais recentes primeiro)
+        const allPosts = await getPosts()
+        const sortedPosts = sortPostsByDate(allPosts)
+        setPosts(sortedPosts)
+      } catch (error) {
+        console.error("Error loading recent posts:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadPosts()
   }, [refreshTrigger])
 
   const handlePostCreated = () => {
@@ -32,6 +44,14 @@ export default function RecentPosts({ userAddress, userProfile, isBanned }: Rece
 
   const handlePostDeleted = () => {
     setRefreshTrigger((prev) => prev + 1)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
   }
 
   return (

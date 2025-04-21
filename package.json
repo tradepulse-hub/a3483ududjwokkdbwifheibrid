@@ -73,7 +73,8 @@
     "next-auth": "latest",
     "ethers": "latest",
     "@apollo/client": "latest",
-    "framer-motion": "latest"
+    "framer-motion": "latest",
+    "firebase": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
