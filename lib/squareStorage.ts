@@ -350,12 +350,14 @@ export async function createPost(post: Omit<Post, "id" | "likes" | "comments">):
 
     // Salvar o post no Firebase
     const postRef = ref(database, `${POSTS_REF}/${postId}`)
+
+    console.log("Saving post to Firebase...")
     await set(postRef, newPost)
     console.log(`Post saved to Firebase with ID: ${postId}`)
 
     // Atualizar cache local
     if (postsCache) {
-      postsCache.push(newPost)
+      postsCache.unshift(newPost) // Adicionar no início para mostrar posts mais recentes primeiro
     }
 
     // Atualizar contagem de posts do usuário

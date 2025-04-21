@@ -92,24 +92,29 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
       console.log("Creating post in RecentPosts component")
 
       // Criar post no Firebase
-      await createPost(postData)
+      const postId = await createPost(postData)
+      console.log(`Post created with ID: ${postId}`)
 
       // Atualizar a lista de posts localmente para feedback imediato
       const newPost: Post = {
         ...postData,
-        id: Date.now().toString(), // ID temporário
+        id: postId,
         likes: [],
         comments: [],
       }
 
       setPosts((prev) => sortPostsByDate([newPost, ...prev]))
+      console.log("Local posts state updated")
 
       // Notificar o componente pai
       if (onPostCreated) {
         onPostCreated()
       }
 
-      // Não atualizar o refreshTrigger aqui para evitar ciclos
+      // Forçar uma atualização após um breve atraso para garantir que os dados estejam sincronizados
+      setTimeout(() => {
+        setRefreshTrigger((prev) => prev + 1)
+      }, 1000)
     } catch (error) {
       console.error("Error creating post:", error)
       setError(t("failed_to_create_post", "Failed to create post. Please try again."))

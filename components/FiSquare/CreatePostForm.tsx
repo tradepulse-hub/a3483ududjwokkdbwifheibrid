@@ -86,6 +86,15 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
     setIsSubmitting(true)
     setError(null)
 
+    // Adicionar um timeout de segurança para evitar carregamento infinito
+    const timeoutId = setTimeout(() => {
+      if (isMountedRef.current && isSubmitting) {
+        setIsSubmitting(false)
+        setError(t("timeout_error", "Request timed out. Please try again."))
+        console.error("Post creation timed out")
+      }
+    }, 10000) // 10 segundos de timeout
+
     try {
       // Extrair hashtags de criptomoedas
       const allTags = extractHashtags(content)
@@ -101,8 +110,14 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
         createdAt: Date.now(),
       }
 
+      console.log("Creating post with data:", postData)
+
       // Criar o post no Firebase
       await createPost(postData)
+      console.log("Post created successfully")
+
+      // Limpar o timeout após sucesso
+      clearTimeout(timeoutId)
 
       // Notificar que um post foi criado
       onPostCreated()
@@ -116,6 +131,9 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
       console.error("Error creating post:", error)
       setError(t("error_creating_post", "Error creating post. Please try again."))
     } finally {
+      // Limpar o timeout em caso de erro também
+      clearTimeout(timeoutId)
+
       if (isMountedRef.current) {
         setIsSubmitting(false)
       }
