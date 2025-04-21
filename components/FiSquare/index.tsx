@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
-import type { SquareTab, UserProfile, Post } from "@/types/square"
+import type { SquareTab, UserProfile } from "@/types/square"
+import {
+  getProfiles,
+  getOrCreateProfile,
+  initializeRealTimeListeners,
+  removeRealTimeListeners,
+} from "@/lib/squareStorage"
+import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
 import RecentPosts from "./RecentPosts"
 import PopularPosts from "./PopularPosts"
@@ -10,29 +17,6 @@ import MarketPosts from "./MarketPosts"
 import ProfileSection from "./ProfileSection"
 import BannedMessage from "./BannedMessage"
 import { motion } from "framer-motion"
-
-// Dados simulados para garantir que o componente sempre renderize algo
-const MOCK_POSTS: Post[] = [
-  {
-    id: "post1",
-    authorAddress: "0x1234567890abcdef1234567890abcdef12345678",
-    content: "Bem-vindo ao FiSquare! Este é um post de exemplo. #TPF #WLD",
-    createdAt: Date.now() - 3600000,
-    likes: [],
-    comments: [],
-    cryptoTags: ["TPF", "WLD"],
-  },
-  {
-    id: "post2",
-    authorAddress: "0x1234567890abcdef1234567890abcdef12345678",
-    content: "TPF está em alta hoje! 📈 #TPF",
-    createdAt: Date.now() - 7200000,
-    likes: [],
-    comments: [],
-    cryptoTags: ["TPF"],
-    trend: "up",
-  },
-]
 
 interface FiSquareProps {
   userAddress: string
@@ -44,51 +28,118 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [posts, setPosts] = useState<Post[]>([])
   const [communityStats, setCommunityStats] = useState({
     activeUsers: 1,
     registeredUsers: 1,
   })
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [listenersInitialized, setListenersInitialized] = useState(false)
 
-  // Efeito para criar um perfil de usuário padrão e carregar dados simulados
+  // Inicializar listeners em tempo real com tratamento de erros melhorado
   useEffect(() => {
-    // Função para carregar dados (com fallback para dados simulados)
-    const loadData = async () => {
+    let listenerCleanup: (() => void) | null = null
+
+    try {
+      console.log("Initializing real-time listeners")
+
+      // Verificar se os listeners já foram inicializados para evitar duplicação
+      if (!listenersInitialized) {
+        const onPostsUpdate = () => {
+          console.log("Posts updated, triggering refresh")
+          setRefreshTrigger((prev) => prev + 1)
+        }
+
+        initializeRealTimeListeners(onPostsUpdate)
+        setListenersInitialized(true)
+
+        // Definir função de limpeza
+        listenerCleanup = () => {
+          console.log("Removing real-time listeners")
+          removeRealTimeListeners()
+          setListenersInitialized(false)
+        }
+      }
+    } catch (err) {
+      console.error("Error initializing listeners:", err)
+      // Não definir erro aqui para não bloquear a renderização
+    }
+
+    // Limpar listeners quando o componente for desmontado
+    return () => {
+      if (listenerCleanup) {
+        listenerCleanup()
+      }
+    }
+  }, [])
+
+  // Carregar dados do usuário e estatísticas
+  useEffect(() => {
+    async function loadData() {
+      if (!userAddress) {
+        setIsLoading(false)
+        return
+      }
+
+      console.log("Loading FiSquare data for address:", userAddress)
+      setIsLoading(true)
+      setError(null)
+
       try {
-        console.log("Loading FiSquare data for address:", userAddress)
-
-        // Criar perfil de usuário padrão
-        const defaultProfile: UserProfile = {
-          address: userAddress,
-          nickname: null,
-          profilePicture: null,
-          isAdmin: userAddress.toLowerCase() === "0xf04a78df4cc3017c0c23f37528d7b6cbbeea6677".toLowerCase(),
-          createdAt: Date.now(),
-          followers: [],
-          following: [],
-          postCount: 0,
-        }
-
-        setUserProfile(defaultProfile)
-
-        // Usar dados simulados para garantir que algo seja exibido
-        setPosts(MOCK_POSTS)
-
-        // Tentar carregar dados reais do Firebase (opcional)
+        // Obter ou criar perfil do usuário
+        let profile = null
         try {
-          // Aqui você pode adicionar chamadas para carregar dados reais
-          // Se falhar, já temos os dados simulados como fallback
-        } catch (firebaseError) {
-          console.error("Error loading data from Firebase:", firebaseError)
-          // Não definimos erro aqui, pois já temos dados simulados
+          console.log("Getting or creating user profile")
+          profile = await getOrCreateProfile(userAddress)
+          setUserProfile(profile)
+          console.log("User profile loaded:", profile)
+        } catch (profileError) {
+          console.error("Error loading profile:", profileError)
+          // Criar perfil padrão em memória para não bloquear a UI
+          profile = {
+            address: userAddress,
+            nickname: null,
+            profilePicture: null,
+            isAdmin: userAddress.toLowerCase() === "0xf04a78df4cc3017c0c23f37528d7b6cbbeea6677".toLowerCase(),
+            createdAt: Date.now(),
+            followers: [],
+            following: [],
+            postCount: 0,
+          }
+          setUserProfile(profile)
         }
+
+        // Calcular estatísticas da comunidade
+        try {
+          console.log("Fetching all profiles for community stats")
+          const allProfiles = await getProfiles()
+          console.log(`Fetched ${allProfiles.length} profiles`)
+
+          // Usuários ativos (todos os perfis)
+          const activeUsers = Math.max(allProfiles.length, 1)
+
+          // Usuários registrados (com foto de perfil ou nickname)
+          const registeredUsers = Math.max(
+            allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length,
+            1,
+          )
+
+          setCommunityStats({
+            activeUsers,
+            registeredUsers,
+          })
+        } catch (statsError) {
+          console.error("Error loading community stats:", statsError)
+          // Manter os valores padrão
+        }
+
+        console.log("FiSquare data loaded successfully")
       } catch (error) {
-        console.error("Error in loadData:", error)
+        console.error("Error loading FiSquare data:", error)
         setError(
           error instanceof Error ? error.message : t("error_loading_data", "Failed to load data. Please try again."),
         )
       } finally {
-        // Garantir que o estado de carregamento seja sempre desativado
+        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
         setIsLoading(false)
       }
     }
@@ -96,20 +147,19 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     // Adicionar um timeout para garantir que o carregamento termine mesmo se algo der errado
     const loadingTimeout = setTimeout(() => {
       if (isLoading) {
-        console.log("Loading timeout reached, forcing render with mock data")
+        console.log("Loading timeout reached, forcing render")
         setIsLoading(false)
       }
     }, 5000) // 5 segundos de timeout
 
-    // Carregar dados
     loadData()
 
     // Limpar timeout quando o componente for desmontado
     return () => clearTimeout(loadingTimeout)
-  }, [userAddress, t])
+  }, [userAddress, refreshTrigger, t])
 
-  // Verificar se o usuário está banido (sempre falso nesta versão simplificada)
-  const isBanned = false
+  // Verificar se o usuário está banido
+  const isBanned = userProfile ? isUserBanned(userProfile) : false
 
   // Se houver um erro, mostrar mensagem de erro
   if (error) {
@@ -137,9 +187,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
           <button
             onClick={() => {
               setError(null)
-              setIsLoading(true)
-              // Recarregar a página para tentar novamente
-              window.location.reload()
+              setRefreshTrigger((prev) => prev + 1)
             }}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
@@ -159,6 +207,12 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         </div>
       </div>
     )
+  }
+
+  // Função para atualizar o perfil do usuário após edição
+  const handleProfileUpdate = (updatedProfile: UserProfile) => {
+    setUserProfile(updatedProfile)
+    setRefreshTrigger((prev) => prev + 1)
   }
 
   return (
@@ -181,7 +235,11 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
       </div>
 
       {/* Perfil do usuário em formato compacto */}
-      <ProfileSection userProfile={userProfile} currentUserAddress={userAddress} />
+      <ProfileSection
+        userProfile={userProfile}
+        currentUserAddress={userAddress}
+        onProfileUpdate={handleProfileUpdate}
+      />
 
       {/* Mensagem de banimento (se aplicável) */}
       {isBanned && userProfile && <BannedMessage userProfile={userProfile} />}
@@ -198,15 +256,30 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         className="p-3"
       >
         {activeTab === "recent" && (
-          <RecentPosts userAddress={userAddress} userProfile={userProfile} isBanned={isBanned} initialPosts={posts} />
+          <RecentPosts
+            userAddress={userAddress}
+            userProfile={userProfile}
+            isBanned={isBanned}
+            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+          />
         )}
 
         {activeTab === "popular" && (
-          <PopularPosts userAddress={userAddress} userProfile={userProfile} isBanned={isBanned} initialPosts={posts} />
+          <PopularPosts
+            userAddress={userAddress}
+            userProfile={userProfile}
+            isBanned={isBanned}
+            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+          />
         )}
 
         {activeTab === "market" && (
-          <MarketPosts userAddress={userAddress} userProfile={userProfile} isBanned={isBanned} initialPosts={posts} />
+          <MarketPosts
+            userAddress={userAddress}
+            userProfile={userProfile}
+            isBanned={isBanned}
+            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+          />
         )}
       </motion.div>
     </div>

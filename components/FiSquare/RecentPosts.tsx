@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
+import { getPosts } from "@/lib/squareStorage"
 import { sortPostsByDate } from "@/lib/squareService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
@@ -11,32 +12,67 @@ interface RecentPostsProps {
   userAddress: string
   userProfile: UserProfile | null
   isBanned: boolean
-  initialPosts?: Post[] // Adicionado para aceitar posts iniciais
+  onRefresh?: () => void
 }
 
-export default function RecentPosts({ userAddress, userProfile, isBanned, initialPosts = [] }: RecentPostsProps) {
+export default function RecentPosts({ userAddress, userProfile, isBanned, onRefresh }: RecentPostsProps) {
   const { t } = useLanguage()
-  const [posts, setPosts] = useState<Post[]>(initialPosts)
-  const [isLoading, setIsLoading] = useState(false) // Começar como false já que temos posts iniciais
+  const [posts, setPosts] = useState<Post[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Ordenar posts por data quando os posts iniciais mudarem
+  // Modificar o useEffect para garantir que o estado de carregamento seja atualizado corretamente
   useEffect(() => {
-    if (initialPosts.length > 0) {
-      const sortedPosts = sortPostsByDate(initialPosts)
-      setPosts(sortedPosts)
-    }
-  }, [initialPosts])
+    async function loadPosts() {
+      console.log("Loading recent posts")
+      setIsLoading(true)
+      setError(null)
 
-  const handlePostCreated = (newPost: Post) => {
-    console.log("Post created, adding to list")
-    setPosts((prevPosts) => sortPostsByDate([newPost, ...prevPosts]))
+      try {
+        // Buscar posts e ordenar por data (mais recentes primeiro)
+        console.log("Fetching posts")
+        const allPosts = await getPosts()
+        console.log(`Fetched ${allPosts.length} posts`)
+
+        const sortedPosts = sortPostsByDate(allPosts)
+        console.log("Posts sorted by date")
+
+        setPosts(sortedPosts)
+      } catch (error) {
+        console.error("Error loading recent posts:", error)
+        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
+      } finally {
+        // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
+        setIsLoading(false)
+        console.log("Recent posts loading complete")
+      }
+    }
+
+    // Adicionar um timeout para garantir que o carregamento termine mesmo se algo der errado
+    const loadingTimeout = setTimeout(() => {
+      if (isLoading) {
+        console.log("Loading timeout reached, forcing render with empty posts")
+        setIsLoading(false)
+      }
+    }, 3000) // 3 segundos de timeout
+
+    loadPosts()
+
+    // Limpar timeout quando o componente for desmontado
+    return () => clearTimeout(loadingTimeout)
+  }, [refreshTrigger, t])
+
+  const handlePostCreated = () => {
+    console.log("Post created, refreshing")
+    setRefreshTrigger((prev) => prev + 1)
+    if (onRefresh) onRefresh()
   }
 
-  const handlePostDeleted = (postId: string) => {
-    console.log("Post deleted, removing from list")
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId))
+  const handlePostDeleted = () => {
+    console.log("Post deleted, refreshing")
+    setRefreshTrigger((prev) => prev + 1)
+    if (onRefresh) onRefresh()
   }
 
   if (error) {
@@ -78,7 +114,7 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, initia
               post={post}
               currentUserAddress={userAddress}
               currentUserProfile={userProfile}
-              onPostDeleted={() => handlePostDeleted(post.id)}
+              onPostDeleted={handlePostDeleted}
             />
           ))}
         </div>

@@ -28,6 +28,8 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
   const [commentText, setCommentText] = useState("")
   const [localPost, setLocalPost] = useState<Post>(post)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
 
   // Buscar perfil do autor
   useEffect(() => {
@@ -37,6 +39,17 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
         setAuthorProfile(profile)
       } catch (error) {
         console.error("Error loading author profile:", error)
+        // Criar um perfil padrão para não quebrar a UI
+        setAuthorProfile({
+          address: post.authorAddress,
+          nickname: null,
+          profilePicture: null,
+          isAdmin: false,
+          createdAt: Date.now(),
+          followers: [],
+          following: [],
+          postCount: 0,
+        })
       }
     }
 
@@ -59,6 +72,8 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
   // Função para lidar com curtidas
   const handleLikeToggle = async () => {
     try {
+      setError(null)
+
       // Criar uma cópia do post para manipulação local
       const updatedPost = { ...localPost }
 
@@ -75,8 +90,9 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
         // Persistir a mudança
         await likePost(localPost.id, currentUserAddress)
       }
-    } catch (error) {
-      console.error("Error toggling like:", error)
+    } catch (err) {
+      console.error("Error toggling like:", err)
+      setError(t("error_toggling_like", "Failed to update like. Please try again."))
       // Reverter para o estado original em caso de erro
       setLocalPost(post)
     }
@@ -87,6 +103,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
     if (!commentText.trim() || isSubmitting) return
 
     setIsSubmitting(true)
+    setError(null)
 
     try {
       // Criar um novo comentário
@@ -111,8 +128,15 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
 
       // Limpar o campo de comentário
       setCommentText("")
+      setActionSuccess(t("comment_added", "Comment added successfully"))
+
+      // Limpar mensagem de sucesso após 3 segundos
+      setTimeout(() => {
+        setActionSuccess(null)
+      }, 3000)
     } catch (error) {
       console.error("Error adding comment:", error)
+      setError(t("error_adding_comment", "Failed to add comment. Please try again."))
       // Reverter para o estado original em caso de erro
       setLocalPost(post)
     } finally {
@@ -122,13 +146,20 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
 
   const handleDeletePost = async () => {
     try {
+      setIsSubmitting(true)
+      setError(null)
+
       await deletePost(post.id)
       setShowDeleteConfirm(false)
+
       if (onPostDeleted) {
         onPostDeleted()
       }
     } catch (error) {
       console.error("Error deleting post:", error)
+      setError(t("error_deleting_post", "Failed to delete post. Please try again."))
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -295,6 +326,19 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
         )}
       </div>
 
+      {/* Mensagens de erro ou sucesso */}
+      {error && (
+        <div className="mx-2 mb-2 p-2 bg-red-900/30 border border-red-800/50 rounded-md text-red-300 text-xs">
+          {error}
+        </div>
+      )}
+
+      {actionSuccess && (
+        <div className="mx-2 mb-2 p-2 bg-green-900/30 border border-green-800/50 rounded-md text-green-300 text-xs">
+          {actionSuccess}
+        </div>
+      )}
+
       {/* Rodapé do post */}
       <div className="flex flex-col text-xs text-gray-400 border-t border-gray-700/30">
         <div className="flex items-center justify-between p-2">
@@ -343,11 +387,12 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
           </div>
 
           <div className="flex space-x-1 overflow-x-auto max-w-[50%]">
-            {localPost.cryptoTags.map((tag) => (
-              <span key={tag} className="text-blue-400 text-[10px] whitespace-nowrap">
-                #{tag}
-              </span>
-            ))}
+            {localPost.cryptoTags &&
+              localPost.cryptoTags.map((tag) => (
+                <span key={tag} className="text-blue-400 text-[10px] whitespace-nowrap">
+                  #{tag}
+                </span>
+              ))}
           </div>
         </div>
 
@@ -403,7 +448,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
             </div>
 
             {/* Lista de comentários */}
-            {localPost.comments.length > 0 && (
+            {localPost.comments && localPost.comments.length > 0 && (
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {localPost.comments.map((comment) => (
                   <div key={comment.id} className="bg-gray-900/50 rounded-md p-2">
@@ -411,11 +456,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
                       <div className="flex items-center">
                         <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 mr-1.5">
                           <Image
-                            src={
-                              getProfile(comment.authorAddress)?.profilePicture ||
-                              getDefaultProfilePicture(comment.authorAddress) ||
-                              "/placeholder.svg"
-                            }
+                            src={getDefaultProfilePicture(comment.authorAddress) || "/placeholder.svg"}
                             alt="Profile"
                             width={20}
                             height={20}
@@ -423,9 +464,7 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
                           />
                         </div>
                         <span className="font-medium text-[10px] text-white">
-                          {getProfile(comment.authorAddress)
-                            ? getDisplayName(getProfile(comment.authorAddress)!)
-                            : comment.authorAddress.substring(0, 6) + "..."}
+                          {comment.authorAddress.substring(0, 6) + "..."}
                         </span>
                       </div>
                       <span className="text-[8px] text-gray-400">{formatDate(comment.createdAt)}</span>
@@ -446,18 +485,53 @@ export default function PostItem({ post, currentUserAddress, currentUserProfile,
             <h3 className="text-sm font-bold text-white mb-3">
               {t("delete_confirmation", "Are you sure you want to delete this post?")}
             </h3>
+
+            {error && (
+              <div className="mb-3 p-2 bg-red-900/30 border border-red-800/50 rounded-md text-red-300 text-xs">
+                {error}
+              </div>
+            )}
+
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
+                disabled={isSubmitting}
                 className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded-md transition-colors"
               >
                 {t("cancel", "Cancel")}
               </button>
               <button
                 onClick={handleDeletePost}
-                className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded-md transition-colors"
+                disabled={isSubmitting}
+                className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded-md transition-colors flex items-center"
               >
-                {t("yes_delete", "Yes, Delete")}
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    {t("deleting", "Deleting...")}
+                  </>
+                ) : (
+                  t("yes_delete", "Yes, Delete")
+                )}
               </button>
             </div>
           </div>

@@ -12,25 +12,46 @@ import { motion } from "framer-motion"
 interface ProfileSectionProps {
   userProfile: UserProfile | null
   currentUserAddress: string
+  onProfileUpdate?: (updatedProfile: UserProfile) => void
 }
 
-export default function ProfileSection({ userProfile, currentUserAddress }: ProfileSectionProps) {
+export default function ProfileSection({ userProfile, currentUserAddress, onProfileUpdate }: ProfileSectionProps) {
   const { t } = useLanguage()
   const [isEditing, setIsEditing] = useState(false)
   const [nickname, setNickname] = useState(userProfile?.nickname || "")
   const [profilePicture, setProfilePicture] = useState<string | null>(userProfile?.profilePicture || null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (!userProfile) return null
 
-  const handleSaveProfile = () => {
-    if (userProfile) {
+  const handleSaveProfile = async () => {
+    if (!userProfile) return
+
+    setIsSaving(true)
+    setError(null)
+
+    try {
       const updatedProfile = {
         ...userProfile,
         nickname: nickname.trim() || null,
         profilePicture,
       }
-      saveProfile(updatedProfile)
+
+      // Salvar no Firebase
+      await saveProfile(updatedProfile)
+
+      // Notificar o componente pai sobre a atualização
+      if (onProfileUpdate) {
+        onProfileUpdate(updatedProfile)
+      }
+
       setIsEditing(false)
+    } catch (err) {
+      console.error("Error saving profile:", err)
+      setError(t("error_saving_profile", "Failed to save profile. Please try again."))
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -57,6 +78,12 @@ export default function ProfileSection({ userProfile, currentUserAddress }: Prof
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 -mt-8 relative z-10">
           <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 border border-gray-700/50 shadow-lg">
             <h3 className="text-sm font-semibold text-white mb-2">{t("edit_profile", "Edit Profile")}</h3>
+
+            {error && (
+              <div className="bg-red-900/30 text-red-300 text-xs p-2 rounded-md mb-3 border border-red-800/50">
+                {error}
+              </div>
+            )}
 
             <div className="space-y-3">
               <div>
@@ -95,14 +122,42 @@ export default function ProfileSection({ userProfile, currentUserAddress }: Prof
                 <button
                   onClick={() => setIsEditing(false)}
                   className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded-md transition-colors"
+                  disabled={isSaving}
                 >
                   {t("cancel", "Cancel")}
                 </button>
                 <button
                   onClick={handleSaveProfile}
-                  className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors"
+                  disabled={isSaving}
+                  className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md transition-colors flex items-center"
                 >
-                  {t("save_profile", "Save Profile")}
+                  {isSaving ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-3 w-3 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      {t("saving", "Saving...")}
+                    </>
+                  ) : (
+                    t("save_profile", "Save Profile")
+                  )}
                 </button>
               </div>
             </div>

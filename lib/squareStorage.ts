@@ -1,8 +1,10 @@
+// Melhorar o tratamento de erros e a remoção de listeners no Firebase
+
 // Serviço para armazenar dados do Square no Firebase
 import type { UserProfile, Post, BannedUser, Comment } from "@/types/square"
 import { generateId } from "./squareService"
 import { database } from "./firebaseConfig"
-import { ref, set, get, push, remove, onValue, off } from "firebase/database"
+import { ref, set, get, remove, onValue, off } from "firebase/database"
 
 // Referências para os nós do Firebase
 const PROFILES_REF = "square_profiles"
@@ -327,16 +329,37 @@ export async function createPost(post: Omit<Post, "id" | "likes" | "comments">):
 export async function likePost(postId: string, userAddress: string): Promise<void> {
   try {
     console.log(`Liking post ${postId} by user ${userAddress}`)
-    const postRef = ref(database, `${POSTS_REF}/${postId}/likes`)
-    await push(postRef, userAddress)
+
+    // Verificar se o post existe
+    const postRef = ref(database, `${POSTS_REF}/${postId}`)
+    const snapshot = await get(postRef)
+
+    if (!snapshot.exists()) {
+      throw new Error("Post not found")
+    }
+
+    const post = snapshot.val() as Post
+
+    // Verificar se o usuário já curtiu o post
+    if (post.likes && post.likes.includes(userAddress)) {
+      console.log("User already liked this post")
+      return
+    }
+
+    // Adicionar o like
+    const likesRef = ref(database, `${POSTS_REF}/${postId}/likes`)
+    const newLikes = [...(post.likes || []), userAddress]
+    await set(likesRef, newLikes)
 
     // Atualizar cache local
     if (postsCache) {
       const postIndex = postsCache.findIndex((p) => p.id === postId)
       if (postIndex >= 0) {
-        postsCache[postIndex].likes.push(userAddress)
+        postsCache[postIndex].likes = newLikes
       }
     }
+
+    console.log("Like added successfully")
   } catch (error) {
     console.error("Error liking post:", error)
     throw error
@@ -346,32 +369,37 @@ export async function likePost(postId: string, userAddress: string): Promise<voi
 export async function unlikePost(postId: string, userAddress: string): Promise<void> {
   try {
     console.log(`Unliking post ${postId} by user ${userAddress}`)
-    const postRef = ref(database, `${POSTS_REF}/${postId}/likes`)
+
+    // Verificar se o post existe
+    const postRef = ref(database, `${POSTS_REF}/${postId}`)
     const snapshot = await get(postRef)
-    const likes = snapshot.val()
 
-    // Encontrar a chave do like do usuário
-    let likeKeyToRemove = null
-    for (const key in likes) {
-      if (likes[key] === userAddress) {
-        likeKeyToRemove = key
-        break
+    if (!snapshot.exists()) {
+      throw new Error("Post not found")
+    }
+
+    const post = snapshot.val() as Post
+
+    // Verificar se o usuário curtiu o post
+    if (!post.likes || !post.likes.includes(userAddress)) {
+      console.log("User has not liked this post")
+      return
+    }
+
+    // Remover o like
+    const likesRef = ref(database, `${POSTS_REF}/${postId}/likes`)
+    const newLikes = post.likes.filter((addr) => addr !== userAddress)
+    await set(likesRef, newLikes)
+
+    // Atualizar cache local
+    if (postsCache) {
+      const postIndex = postsCache.findIndex((p) => p.id === postId)
+      if (postIndex >= 0) {
+        postsCache[postIndex].likes = newLikes
       }
     }
 
-    // Remover o like do usuário
-    if (likeKeyToRemove) {
-      const likeRef = ref(database, `${POSTS_REF}/${postId}/likes/${likeKeyToRemove}`)
-      await remove(likeRef)
-
-      // Atualizar cache local
-      if (postsCache) {
-        const postIndex = postsCache.findIndex((p) => p.id === postId)
-        if (postIndex >= 0) {
-          postsCache[postIndex].likes = postsCache[postIndex].likes.filter((addr) => addr !== userAddress)
-        }
-      }
-    }
+    console.log("Like removed successfully")
   } catch (error) {
     console.error("Error unliking post:", error)
     throw error
@@ -381,10 +409,18 @@ export async function unlikePost(postId: string, userAddress: string): Promise<v
 export async function deletePost(postId: string): Promise<void> {
   try {
     console.log(`Deleting post ${postId}`)
-    const postRef = ref(database, `${POSTS_REF}/${postId}`)
-    const postSnapshot = await get(postRef)
-    const post = postSnapshot.val() as Post
 
+    // Verificar se o post existe
+    const postRef = ref(database, `${POSTS_REF}/${postId}`)
+    const snapshot = await get(postRef)
+
+    if (!snapshot.exists()) {
+      throw new Error("Post not found")
+    }
+
+    const post = snapshot.val() as Post
+
+    // Remover o post
     await remove(postRef)
 
     // Atualizar cache local
@@ -403,6 +439,8 @@ export async function deletePost(postId: string): Promise<void> {
         await saveProfile(updatedProfile)
       }
     }
+
+    console.log("Post deleted successfully")
   } catch (error) {
     console.error("Error deleting post:", error)
     throw error
@@ -412,6 +450,18 @@ export async function deletePost(postId: string): Promise<void> {
 export async function addComment(postId: string, comment: Omit<Comment, "id" | "createdAt" | "likes">): Promise<void> {
   try {
     console.log(`Adding comment to post ${postId}`)
+
+    // Verificar se o post existe
+    const postRef = ref(database, `${POSTS_REF}/${postId}`)
+    const snapshot = await get(postRef)
+
+    if (!snapshot.exists()) {
+      throw new Error("Post not found")
+    }
+
+    const post = snapshot.val() as Post
+
+    // Criar o novo comentário
     const commentId = generateId()
     const newComment: Comment = {
       id: commentId,
@@ -421,19 +471,20 @@ export async function addComment(postId: string, comment: Omit<Comment, "id" | "
       likes: [],
     }
 
-    const commentRef = ref(database, `${POSTS_REF}/${postId}/comments`)
-    await push(commentRef, newComment)
+    // Adicionar o comentário ao post
+    const commentsRef = ref(database, `${POSTS_REF}/${postId}/comments`)
+    const newComments = [...(post.comments || []), newComment]
+    await set(commentsRef, newComments)
 
     // Atualizar cache local
     if (postsCache) {
       const postIndex = postsCache.findIndex((p) => p.id === postId)
       if (postIndex >= 0) {
-        if (!postsCache[postIndex].comments) {
-          postsCache[postIndex].comments = []
-        }
-        postsCache[postIndex].comments.push(newComment)
+        postsCache[postIndex].comments = newComments
       }
     }
+
+    console.log("Comment added successfully")
   } catch (error) {
     console.error("Error adding comment:", error)
     throw error
@@ -445,27 +496,34 @@ export async function followUser(userAddress: string, profileAddress: string): P
   try {
     console.log(`Following user ${profileAddress} by user ${userAddress}`)
 
+    // Verificar se o usuário já está seguindo o perfil
+    const userProfile = await getProfile(userAddress)
+    const targetProfile = await getProfile(profileAddress)
+
+    if (!userProfile || !targetProfile) {
+      throw new Error("User or target profile not found")
+    }
+
+    if (userProfile.following && userProfile.following.includes(profileAddress)) {
+      console.log("User already follows this profile")
+      return
+    }
+
     // Adicionar o profileAddress à lista de following do usuário
-    const followingRef = ref(database, `${PROFILES_REF}/${userAddress}/following`)
-    await push(followingRef, profileAddress)
+    const userFollowing = [...(userProfile.following || []), profileAddress]
+    await saveProfile({
+      ...userProfile,
+      following: userFollowing,
+    })
 
     // Adicionar o userAddress à lista de followers do profile
-    const followersRef = ref(database, `${PROFILES_REF}/${profileAddress}/followers`)
-    await push(followersRef, userAddress)
+    const profileFollowers = [...(targetProfile.followers || []), userAddress]
+    await saveProfile({
+      ...targetProfile,
+      followers: profileFollowers,
+    })
 
-    // Atualizar cache local
-    if (profilesCache) {
-      const userProfileIndex = profilesCache.findIndex((p) => p.address === userAddress)
-      const profileToFollowIndex = profilesCache.findIndex((p) => p.address === profileAddress)
-
-      if (userProfileIndex >= 0 && !profilesCache[userProfileIndex].following.includes(profileAddress)) {
-        profilesCache[userProfileIndex].following.push(profileAddress)
-      }
-
-      if (profileToFollowIndex >= 0 && !profilesCache[profileToFollowIndex].followers.includes(userAddress)) {
-        profilesCache[profileToFollowIndex].followers.push(userAddress)
-      }
-    }
+    console.log("Follow relationship created successfully")
   } catch (error) {
     console.error("Error following user:", error)
     throw error
@@ -476,59 +534,34 @@ export async function unfollowUser(userAddress: string, profileAddress: string):
   try {
     console.log(`Unfollowing user ${profileAddress} by user ${userAddress}`)
 
+    // Verificar se o usuário está seguindo o perfil
+    const userProfile = await getProfile(userAddress)
+    const targetProfile = await getProfile(profileAddress)
+
+    if (!userProfile || !targetProfile) {
+      throw new Error("User or target profile not found")
+    }
+
+    if (!userProfile.following || !userProfile.following.includes(profileAddress)) {
+      console.log("User does not follow this profile")
+      return
+    }
+
     // Remover o profileAddress da lista de following do usuário
-    const followingRef = ref(database, `${PROFILES_REF}/${userAddress}/following`)
-    const followingSnapshot = await get(followingRef)
-    const following = followingSnapshot.val()
-
-    let followingKeyToRemove = null
-    for (const key in following) {
-      if (following[key] === profileAddress) {
-        followingKeyToRemove = key
-        break
-      }
-    }
-
-    if (followingKeyToRemove) {
-      const followingItemRef = ref(database, `${PROFILES_REF}/${userAddress}/following/${followingKeyToRemove}`)
-      await remove(followingItemRef)
-    }
+    const userFollowing = (userProfile.following || []).filter((addr) => addr !== profileAddress)
+    await saveProfile({
+      ...userProfile,
+      following: userFollowing,
+    })
 
     // Remover o userAddress da lista de followers do profile
-    const followersRef = ref(database, `${PROFILES_REF}/${profileAddress}/followers`)
-    const followersSnapshot = await get(followersRef)
-    const followers = followersSnapshot.val()
+    const profileFollowers = (targetProfile.followers || []).filter((addr) => addr !== userAddress)
+    await saveProfile({
+      ...targetProfile,
+      followers: profileFollowers,
+    })
 
-    let followerKeyToRemove = null
-    for (const key in followers) {
-      if (followers[key] === userAddress) {
-        followerKeyToRemove = key
-        break
-      }
-    }
-
-    if (followerKeyToRemove) {
-      const followerItemRef = ref(database, `${PROFILES_REF}/${profileAddress}/followers/${followerKeyToRemove}`)
-      await remove(followerItemRef)
-    }
-
-    // Atualizar cache local
-    if (profilesCache) {
-      const userProfileIndex = profilesCache.findIndex((p) => p.address === userAddress)
-      const profileToUnfollowIndex = profilesCache.findIndex((p) => p.address === profileAddress)
-
-      if (userProfileIndex >= 0) {
-        profilesCache[userProfileIndex].following = profilesCache[userProfileIndex].following.filter(
-          (addr) => addr !== profileAddress,
-        )
-      }
-
-      if (profileToUnfollowIndex >= 0) {
-        profilesCache[profileToUnfollowIndex].followers = profilesCache[profileToUnfollowIndex].followers.filter(
-          (addr) => addr !== userAddress,
-        )
-      }
-    }
+    console.log("Follow relationship removed successfully")
   } catch (error) {
     console.error("Error unfollowing user:", error)
     throw error
@@ -559,7 +592,12 @@ export async function banUser(
 
     // Atualizar cache local
     if (bannedUsersCache) {
-      bannedUsersCache.push(bannedUser)
+      const existingIndex = bannedUsersCache.findIndex((u) => u.address === userAddress)
+      if (existingIndex >= 0) {
+        bannedUsersCache[existingIndex] = bannedUser
+      } else {
+        bannedUsersCache.push(bannedUser)
+      }
     }
 
     // Atualizar perfil do usuário (se existir)
@@ -574,6 +612,8 @@ export async function banUser(
       }
       await saveProfile(updatedProfile)
     }
+
+    console.log("User banned successfully")
   } catch (error) {
     console.error("Error banning user:", error)
     throw error
@@ -601,6 +641,8 @@ export async function unbanUser(userAddress: string): Promise<void> {
       }
       await saveProfile(updatedProfile)
     }
+
+    console.log("User unbanned successfully")
   } catch (error) {
     console.error("Error unbanning user:", error)
     throw error
