@@ -1,135 +1,107 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { useLanguage } from "@/lib/languageContext"
-import type { Post, UserProfile } from "@/types/square"
-import { getRecentPosts, syncWithFirebase } from "@/lib/hybridStorageService"
-import PostItem from "./PostItem"
-import CreatePostForm from "./CreatePostForm"
+import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
+import { Loader2 } from "lucide-react"
+import { getRecentPosts, refreshCache } from "@/lib/worldChainStorage"
+import type { Post } from "@/types/square"
+import PostCard from "./PostCard"
+import { Button } from "@/components/ui/button"
 
-interface RecentPostsProps {
-  userAddress: string
-  userProfile: UserProfile | null
-  isBanned: boolean
-  onPostCreated?: () => void
-}
-
-export default function RecentPosts({ userAddress, userProfile, isBanned, onPostCreated }: RecentPostsProps) {
-  const { t } = useLanguage()
+export default function RecentPosts() {
+  const { t } = useTranslation()
   const [posts, setPosts] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const isMountedRef = useRef(true)
+  const [refreshing, setRefreshing] = useState(false)
 
-  // Limpar referências quando o componente for desmontado
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
-
-  // Carregar posts
-  useEffect(() => {
-    async function loadPosts() {
-      if (!isMountedRef.current) return
-
-      console.log("Loading recent posts")
-      setIsLoading(true)
+  const fetchPosts = async (forceRefresh = false) => {
+    try {
+      setLoading(true)
       setError(null)
 
-      try {
-        // Sincronizar com o Firebase primeiro (sem forçar)
-        await syncWithFirebase()
-
-        // Buscar posts recentes do localStorage (instantâneo)
-        const recentPosts = getRecentPosts()
-        console.log(`Loaded ${recentPosts.length} posts from localStorage`)
-
-        if (isMountedRef.current) {
-          setPosts(recentPosts)
-        }
-      } catch (error) {
-        console.error("Error loading recent posts:", error)
-        if (isMountedRef.current) {
-          setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
-        }
-      } finally {
-        if (isMountedRef.current) {
-          setIsLoading(false)
-          console.log("Recent posts loading complete")
-        }
+      if (forceRefresh) {
+        setRefreshing(true)
+        await refreshCache()
       }
+
+      // Set a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        if (loading) {
+          setError(t("Loading posts is taking longer than expected. Please try refreshing."))
+          setLoading(false)
+        }
+      }, 15000)
+
+      const fetchedPosts = await getRecentPosts()
+      setPosts(fetchedPosts)
+
+      clearTimeout(timeoutId)
+      setLoading(false)
+      setRefreshing(false)
+    } catch (err) {
+      console.error("Error fetching posts:", err)
+      setError(t("Failed to load posts. Please try again."))
+      setLoading(false)
+      setRefreshing(false)
     }
-
-    // Carregar posts imediatamente
-    loadPosts()
-  }, [refreshTrigger, t])
-
-  // Função para lidar com a criação de posts
-  const handlePostCreated = () => {
-    console.log("Post created, refreshing posts")
-    // Forçar atualização imediata
-    setRefreshTrigger((prev) => prev + 1)
-
-    // Notificar o componente pai
-    if (onPostCreated) {
-      onPostCreated()
-    }
   }
 
-  const handlePostDeleted = () => {
-    console.log("Post deleted, refreshing")
-    setRefreshTrigger((prev) => prev + 1)
+  useEffect(() => {
+    fetchPosts()
+  }, [])
+
+  const handleRefresh = () => {
+    fetchPosts(true)
   }
 
-  if (error) {
+  if (loading && !refreshing) {
     return (
-      <div className="bg-red-900/30 border border-red-800/50 rounded-lg p-4 text-center">
-        <p className="text-red-300 text-sm mb-2">{error}</p>
-        <button
-          onClick={() => {
-            setError(null)
-            setRefreshTrigger((prev) => prev + 1)
-          }}
-          className="text-xs bg-red-800 hover:bg-red-700 text-white px-3 py-1 rounded-md"
-        >
-          {t("try_again", "Try Again")}
-        </button>
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex flex-col items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-4 text-center text-sm text-gray-500">{t("Loading posts...")}</p>
       </div>
     )
   }
 
   return (
-    <div>
-      {/* Formulário de criação de post (se não estiver banido) */}
-      {!isBanned && <CreatePostForm userAddress={userAddress} onPostCreated={handlePostCreated} />}
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold">{t("Recent Posts")}</h2>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+          {refreshing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t("Refreshing...")}
+            </>
+          ) : (
+            t("Refresh")
+          )}
+        </Button>
+      </div>
 
-      {/* Lista de posts */}
-      {posts.length > 0 ? (
-        <div>
-          {posts.map((post) => (
-            <PostItem
-              key={post.id}
-              post={post}
-              currentUserAddress={userAddress}
-              currentUserProfile={userProfile}
-              onPostDeleted={handlePostDeleted}
-            />
-          ))}
+      {error && (
+        <div className="rounded-md bg-red-50 p-4 mb-4">
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">{t("Error")}</h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p>{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!loading && posts.length === 0 && !error ? (
+        <div className="text-center p-8 border rounded-lg bg-gray-50">
+          <p className="text-gray-500">{t("No posts yet. Be the first to post!")}</p>
         </div>
       ) : (
-        <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50 text-center">
-          <p className="text-gray-300 text-sm mb-1">{t("no_posts_yet", "No posts yet")}</p>
-          <p className="text-gray-400 text-xs">{t("be_first_to_post", "Be the first to post!")}</p>
+        <div className="space-y-4">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
         </div>
       )}
     </div>

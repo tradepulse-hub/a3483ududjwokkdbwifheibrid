@@ -65,6 +65,7 @@
     "graphql-ws": "latest",
     "subscriptions-transport-ws": "latest",
     "@emotion/is-prop-valid": "latest",
+    "i18next": "latest",
     "@worldcoin/minikit-js": "latest",
     "jose": "latest",
     "nanoid": "latest",
@@ -74,7 +75,8 @@
     "ethers": "latest",
     "@apollo/client": "latest",
     "framer-motion": "latest",
-    "firebase": "latest"
+    "firebase": "latest",
+    "react-i18next": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
