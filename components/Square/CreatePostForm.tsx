@@ -142,6 +142,7 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
                 className={`p-1.5 rounded-md text-xs transition-colors ${
                   trend === "up" ? "bg-green-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 }`}
+                title={t("trending_up", "Trending Up")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +151,8 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 17h4l3-6 4 11 3-5h4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l5-5 9 9" />
                 </svg>
               </button>
 
@@ -159,6 +161,7 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
                 className={`p-1.5 rounded-md text-xs transition-colors ${
                   trend === "down" ? "bg-red-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 }`}
+                title={t("trending_down", "Trending Down")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -167,7 +170,8 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h4l3 6 4-11 3 5h4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19l5-5 9-9" />
                 </svg>
               </button>
             </div>
