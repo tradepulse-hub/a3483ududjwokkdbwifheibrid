@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { SquareTab, UserProfile } from "@/types/square"
-import { getProfiles, getOrCreateProfile, initializeExampleData, syncWithFirebase } from "@/lib/hybridStorageService"
+import {
+  getProfiles,
+  getOrCreateProfile,
+  initializeExampleData,
+  initializeRealTimeListeners,
+  removeRealTimeListeners,
+} from "@/lib/sharedStorageService"
 import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
 import RecentPosts from "./RecentPosts"
@@ -29,29 +35,34 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   })
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const initialized = useRef(false)
-  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Inicializar dados de exemplo apenas uma vez
+  // Inicializar dados de exemplo e listeners em tempo real
   useEffect(() => {
     if (!initialized.current) {
-      // Inicializar dados de exemplo
-      initializeExampleData()
-      initialized.current = true
+      const initializeData = async () => {
+        try {
+          // Inicializar dados de exemplo
+          await initializeExampleData()
 
-      // Sincronizar com o Firebase
-      syncWithFirebase(true).catch((err) => console.error("Initial sync error:", err))
+          // Configurar listeners em tempo real
+          initializeRealTimeListeners(() => {
+            console.log("Posts updated, triggering refresh")
+            setRefreshTrigger((prev) => prev + 1)
+          })
+
+          initialized.current = true
+        } catch (error) {
+          console.error("Error initializing data:", error)
+          setError("Failed to initialize data. Please try again.")
+        }
+      }
+
+      initializeData()
     }
 
-    // Configurar sincronização periódica
-    syncIntervalRef.current = setInterval(() => {
-      console.log("Running periodic sync...")
-      syncWithFirebase().catch((err) => console.error("Periodic sync error:", err))
-    }, 30000) // Sincronizar a cada 30 segundos
-
+    // Limpar listeners quando o componente for desmontado
     return () => {
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current)
-      }
+      removeRealTimeListeners()
     }
   }, [])
 
@@ -73,14 +84,11 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
       setError(null)
 
       try {
-        // Sincronizar com o Firebase primeiro
-        await syncWithFirebase()
-
         // Obter ou criar perfil do usuário
         let profile = null
         try {
           console.log("Getting or creating user profile")
-          profile = getOrCreateProfile(userAddress)
+          profile = await getOrCreateProfile(userAddress)
           if (isMounted) {
             setUserProfile(profile)
           }
@@ -106,7 +114,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         // Calcular estatísticas da comunidade
         try {
           console.log("Fetching all profiles for community stats")
-          const allProfiles = getProfiles()
+          const allProfiles = await getProfiles()
           console.log(`Fetched ${allProfiles.length} profiles`)
 
           // Usuários ativos (todos os perfis)
@@ -214,22 +222,12 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   const handlePostCreated = () => {
     console.log("Post created in parent component")
     setRefreshTrigger((prev) => prev + 1)
-
-    // Forçar sincronização com o Firebase após criar um post
-    syncWithFirebase(true).catch((err) => console.error("Sync after post creation error:", err))
   }
 
-  // Função para forçar uma sincronização manual
-  const handleForceSync = async () => {
-    try {
-      setIsLoading(true)
-      await syncWithFirebase(true)
-      setRefreshTrigger((prev) => prev + 1)
-    } catch (error) {
-      console.error("Force sync error:", error)
-    } finally {
-      setIsLoading(false)
-    }
+  // Função para forçar uma atualização manual
+  const handleForceRefresh = () => {
+    console.log("Forcing refresh")
+    setRefreshTrigger((prev) => prev + 1)
   }
 
   return (
@@ -248,9 +246,9 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
               <span className="text-[10px] text-gray-400">{t("registered_users", "Registered Users")}</span>
             </div>
             <button
-              onClick={handleForceSync}
+              onClick={handleForceRefresh}
               className="ml-2 text-xs bg-blue-600/80 hover:bg-blue-600 text-white px-2 py-1 rounded-md transition-colors"
-              title={t("sync_now", "Sync Now")}
+              title={t("refresh_now", "Refresh Now")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
