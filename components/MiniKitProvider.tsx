@@ -1,9 +1,8 @@
-"use client" // Required for Next.js
+"use client"
 
 import { MiniKit } from "@worldcoin/minikit-js"
 import { type ReactNode, useEffect } from "react"
 
-// Adicionando exportação nomeada para MiniKitProvider
 export function MiniKitProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     MiniKit.install()
@@ -13,5 +12,4 @@ export function MiniKitProvider({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
-// Mantendo a exportação default para compatibilidade
 export default MiniKitProvider

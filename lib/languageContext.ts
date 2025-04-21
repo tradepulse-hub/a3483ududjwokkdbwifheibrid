@@ -26,3 +26,6 @@ export const getTranslation = (language: Language, key: string, fallback?: strin
   const translationSet = translations[language] || translations.en
   return translationSet[key] || fallback || key
 }
+
+// Add LanguageProvider export to fix the error
+export { default as LanguageProvider } from "../components/LanguageProvider"
