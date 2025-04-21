@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { SquareTab, UserProfile } from "@/types/square"
-import { getProfiles, getOrCreateProfile, initializeExampleData } from "@/lib/localStorageService"
+import { getProfiles, getOrCreateProfile, initializeExampleData, syncWithFirebase } from "@/lib/hybridStorageService"
 import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
 import RecentPosts from "./RecentPosts"
@@ -29,6 +29,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   })
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const initialized = useRef(false)
+  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Inicializar dados de exemplo apenas uma vez
   useEffect(() => {
@@ -36,6 +37,21 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
       // Inicializar dados de exemplo
       initializeExampleData()
       initialized.current = true
+
+      // Sincronizar com o Firebase
+      syncWithFirebase(true).catch((err) => console.error("Initial sync error:", err))
+    }
+
+    // Configurar sincronização periódica
+    syncIntervalRef.current = setInterval(() => {
+      console.log("Running periodic sync...")
+      syncWithFirebase().catch((err) => console.error("Periodic sync error:", err))
+    }, 30000) // Sincronizar a cada 30 segundos
+
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+      }
     }
   }, [])
 
@@ -57,6 +73,9 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
       setError(null)
 
       try {
+        // Sincronizar com o Firebase primeiro
+        await syncWithFirebase()
+
         // Obter ou criar perfil do usuário
         let profile = null
         try {
@@ -195,6 +214,22 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   const handlePostCreated = () => {
     console.log("Post created in parent component")
     setRefreshTrigger((prev) => prev + 1)
+
+    // Forçar sincronização com o Firebase após criar um post
+    syncWithFirebase(true).catch((err) => console.error("Sync after post creation error:", err))
+  }
+
+  // Função para forçar uma sincronização manual
+  const handleForceSync = async () => {
+    try {
+      setIsLoading(true)
+      await syncWithFirebase(true)
+      setRefreshTrigger((prev) => prev + 1)
+    } catch (error) {
+      console.error("Force sync error:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -212,6 +247,26 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
               <span className="text-sm font-bold text-purple-400">{communityStats.registeredUsers}</span>
               <span className="text-[10px] text-gray-400">{t("registered_users", "Registered Users")}</span>
             </div>
+            <button
+              onClick={handleForceSync}
+              className="ml-2 text-xs bg-blue-600/80 hover:bg-blue-600 text-white px-2 py-1 rounded-md transition-colors"
+              title={t("sync_now", "Sync Now")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>

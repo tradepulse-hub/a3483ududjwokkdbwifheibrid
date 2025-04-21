@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getRecentPosts } from "@/lib/localStorageService"
+import { getRecentPosts, syncWithFirebase } from "@/lib/hybridStorageService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
 
@@ -39,6 +39,9 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
       setError(null)
 
       try {
+        // Sincronizar com o Firebase primeiro (sem forçar)
+        await syncWithFirebase()
+
         // Buscar posts recentes do localStorage (instantâneo)
         const recentPosts = getRecentPosts()
         console.log(`Loaded ${recentPosts.length} posts from localStorage`)
