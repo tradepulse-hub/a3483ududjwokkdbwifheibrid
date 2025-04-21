@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { SquareTab, UserProfile } from "@/types/square"
 import {
@@ -33,52 +33,67 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     registeredUsers: 1,
   })
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [listenersInitialized, setListenersInitialized] = useState(false)
+  const listenersInitializedRef = useRef(false)
+  const isUpdatingRef = useRef(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Inicializar listeners em tempo real com tratamento de erros melhorado
   useEffect(() => {
-    let listenerCleanup: (() => void) | null = null
+    // Evitar inicialização duplicada de listeners
+    if (listenersInitializedRef.current) return
+
+    console.log("Initializing real-time listeners")
 
     try {
-      console.log("Initializing real-time listeners")
+      // Função de callback com debounce para evitar múltiplas atualizações em sequência
+      const onPostsUpdate = () => {
+        if (isUpdatingRef.current) return
 
-      // Verificar se os listeners já foram inicializados para evitar duplicação
-      if (!listenersInitialized) {
-        const onPostsUpdate = () => {
-          console.log("Posts updated, triggering refresh")
+        isUpdatingRef.current = true
+        console.log("Posts updated, triggering refresh with debounce")
+
+        // Limpar timeout anterior se existir
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current)
+        }
+
+        // Definir novo timeout para debounce
+        timeoutRef.current = setTimeout(() => {
+          console.log("Executing debounced refresh")
           setRefreshTrigger((prev) => prev + 1)
-        }
-
-        initializeRealTimeListeners(onPostsUpdate)
-        setListenersInitialized(true)
-
-        // Definir função de limpeza
-        listenerCleanup = () => {
-          console.log("Removing real-time listeners")
-          removeRealTimeListeners()
-          setListenersInitialized(false)
-        }
+          isUpdatingRef.current = false
+        }, 500) // 500ms de debounce
       }
+
+      initializeRealTimeListeners(onPostsUpdate)
+      listenersInitializedRef.current = true
     } catch (err) {
       console.error("Error initializing listeners:", err)
-      // Não definir erro aqui para não bloquear a renderização
     }
 
     // Limpar listeners quando o componente for desmontado
     return () => {
-      if (listenerCleanup) {
-        listenerCleanup()
+      console.log("Cleaning up listeners")
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
       }
+      removeRealTimeListeners()
+      listenersInitializedRef.current = false
     }
   }, [])
 
   // Carregar dados do usuário e estatísticas
   useEffect(() => {
-    async function loadData() {
-      if (!userAddress) {
+    let isMounted = true
+    const loadingTimeoutId = setTimeout(() => {
+      if (isMounted && isLoading) {
+        console.log("Loading timeout reached, forcing render")
         setIsLoading(false)
-        return
       }
+    }, 5000)
+
+    async function loadData() {
+      if (!userAddress || !isMounted) return
 
       console.log("Loading FiSquare data for address:", userAddress)
       setIsLoading(true)
@@ -90,7 +105,9 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         try {
           console.log("Getting or creating user profile")
           profile = await getOrCreateProfile(userAddress)
-          setUserProfile(profile)
+          if (isMounted) {
+            setUserProfile(profile)
+          }
           console.log("User profile loaded:", profile)
         } catch (profileError) {
           console.error("Error loading profile:", profileError)
@@ -105,7 +122,9 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             following: [],
             postCount: 0,
           }
-          setUserProfile(profile)
+          if (isMounted) {
+            setUserProfile(profile)
+          }
         }
 
         // Calcular estatísticas da comunidade
@@ -123,10 +142,12 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             1,
           )
 
-          setCommunityStats({
-            activeUsers,
-            registeredUsers,
-          })
+          if (isMounted) {
+            setCommunityStats({
+              activeUsers,
+              registeredUsers,
+            })
+          }
         } catch (statsError) {
           console.error("Error loading community stats:", statsError)
           // Manter os valores padrão
@@ -135,27 +156,26 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
         console.log("FiSquare data loaded successfully")
       } catch (error) {
         console.error("Error loading FiSquare data:", error)
-        setError(
-          error instanceof Error ? error.message : t("error_loading_data", "Failed to load data. Please try again."),
-        )
+        if (isMounted) {
+          setError(
+            error instanceof Error ? error.message : t("error_loading_data", "Failed to load data. Please try again."),
+          )
+        }
       } finally {
         // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
-    // Adicionar um timeout para garantir que o carregamento termine mesmo se algo der errado
-    const loadingTimeout = setTimeout(() => {
-      if (isLoading) {
-        console.log("Loading timeout reached, forcing render")
-        setIsLoading(false)
-      }
-    }, 5000) // 5 segundos de timeout
-
     loadData()
 
-    // Limpar timeout quando o componente for desmontado
-    return () => clearTimeout(loadingTimeout)
+    // Limpar timeout e marcar componente como desmontado
+    return () => {
+      isMounted = false
+      clearTimeout(loadingTimeoutId)
+    }
   }, [userAddress, refreshTrigger, t])
 
   // Verificar se o usuário está banido
@@ -212,7 +232,12 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   // Função para atualizar o perfil do usuário após edição
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile)
-    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  // Função para lidar com a criação de posts
+  const handlePostCreated = () => {
+    console.log("Post created in parent component")
+    // Não atualizar o estado aqui para evitar ciclos
   }
 
   return (
@@ -260,7 +285,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             userAddress={userAddress}
             userProfile={userProfile}
             isBanned={isBanned}
-            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+            onPostCreated={handlePostCreated}
           />
         )}
 
@@ -269,7 +294,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             userAddress={userAddress}
             userProfile={userProfile}
             isBanned={isBanned}
-            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+            onPostCreated={handlePostCreated}
           />
         )}
 
@@ -278,7 +303,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
             userAddress={userAddress}
             userProfile={userProfile}
             isBanned={isBanned}
-            onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
+            onPostCreated={handlePostCreated}
           />
         )}
       </motion.div>

@@ -1,5 +1,3 @@
-// Melhorar o tratamento de erros e a remoção de listeners no Firebase
-
 // Serviço para armazenar dados do Square no Firebase
 import type { UserProfile, Post, BannedUser, Comment } from "@/types/square"
 import { generateId } from "./squareService"
@@ -21,8 +19,17 @@ let profilesListener: any = null
 let postsListener: any = null
 let bannedUsersListener: any = null
 
+// Flag para controlar se os listeners já foram inicializados
+let listenersInitialized = false
+
 // Inicializar listeners para atualizações em tempo real
 export function initializeRealTimeListeners(onPostsUpdate?: () => void) {
+  // Evitar inicialização duplicada
+  if (listenersInitialized) {
+    console.log("Listeners already initialized, skipping")
+    return
+  }
+
   console.log("Initializing Firebase real-time listeners")
 
   try {
@@ -84,6 +91,7 @@ export function initializeRealTimeListeners(onPostsUpdate?: () => void) {
       },
     )
 
+    listenersInitialized = true
     console.log("All listeners initialized successfully")
   } catch (error) {
     console.error("Error initializing listeners:", error)
@@ -121,6 +129,7 @@ export function removeRealTimeListeners() {
       bannedUsersListener = null
     }
 
+    listenersInitialized = false
     console.log("All listeners removed successfully")
   } catch (error) {
     console.error("Error removing listeners:", error)
