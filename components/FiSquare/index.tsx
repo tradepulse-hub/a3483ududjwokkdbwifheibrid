@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { SquareTab, UserProfile } from "@/types/square"
-import { getOrCreateProfile } from "@/lib/squareStorage"
+import { getProfiles, getOrCreateProfile } from "@/lib/squareStorage"
 import { isUserBanned } from "@/lib/squareService"
 import SquareTabs from "./SquareTabs"
 import RecentPosts from "./RecentPosts"
@@ -22,12 +22,31 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
   const [activeTab, setActiveTab] = useState<SquareTab>("recent")
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [communityStats, setCommunityStats] = useState({
+    activeUsers: 0,
+    registeredUsers: 0,
+  })
 
   useEffect(() => {
     if (userAddress) {
       // Obter ou criar perfil do usuário
       const profile = getOrCreateProfile(userAddress)
       setUserProfile(profile)
+
+      // Calcular estatísticas da comunidade
+      const allProfiles = getProfiles()
+
+      // Usuários ativos (todos os perfis)
+      const activeUsers = allProfiles.length
+
+      // Usuários registrados (com foto de perfil ou nickname)
+      const registeredUsers = allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length
+
+      setCommunityStats({
+        activeUsers,
+        registeredUsers,
+      })
+
       setIsLoading(false)
     }
   }, [userAddress])
@@ -45,6 +64,23 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
 
   return (
     <div className="bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-800 overflow-hidden">
+      {/* Estatísticas da comunidade */}
+      <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 p-2 border-b border-gray-800/50">
+        <div className="flex justify-between items-center">
+          <div className="text-xs text-gray-300 font-medium">{t("community_stats", "Community Stats")}</div>
+          <div className="flex space-x-4">
+            <div className="flex flex-col items-center">
+              <span className="text-sm font-bold text-blue-400">{communityStats.activeUsers}</span>
+              <span className="text-[10px] text-gray-400">{t("active_users", "Active Users")}</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-sm font-bold text-purple-400">{communityStats.registeredUsers}</span>
+              <span className="text-[10px] text-gray-400">{t("registered_users", "Registered Users")}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Perfil do usuário em formato compacto */}
       <ProfileSection userProfile={userProfile} currentUserAddress={userAddress} />
 
