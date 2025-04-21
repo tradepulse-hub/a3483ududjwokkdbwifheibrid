@@ -6,12 +6,15 @@ import { useLanguage } from "@/lib/languageContext"
 import { extractHashtags, SUPPORTED_CRYPTOS, isCryptoSupported } from "@/lib/squareService"
 import { createPost } from "@/lib/localStorageService"
 import { motion } from "framer-motion"
+import { toast } from "@/components/ui/use-toast"
 
+// Adicione a propriedade onPostCreated à interface
 interface CreatePostFormProps {
   userAddress: string
-  onPostCreated: () => void
+  onPostCreated?: () => void
 }
 
+// Atualize a definição da função para incluir onPostCreated
 export default function CreatePostForm({ userAddress, onPostCreated }: CreatePostFormProps) {
   const { t } = useLanguage()
   const [content, setContent] = useState("")
@@ -25,6 +28,7 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
   const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const isMountedRef = useRef(true)
+  const [cryptoTags, setCryptoTags] = useState<string[]>([])
 
   // Limpar referência quando o componente for desmontado
   useEffect(() => {
@@ -80,7 +84,10 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
     }
   }
 
-  const handleSubmit = async () => {
+  // Atualize a função handleSubmit para chamar onPostCreated
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     if (!content.trim() || isSubmitting) return
 
     setIsSubmitting(true)
@@ -90,6 +97,7 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
       // Extrair hashtags de criptomoedas
       const allTags = extractHashtags(content)
       const cryptoTags = allTags.filter((tag) => isCryptoSupported(tag))
+      setCryptoTags(cryptoTags)
 
       // Criar o post usando o serviço de armazenamento local
       const postData = {
@@ -107,21 +115,35 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
       createPost(postData)
       console.log("Post created successfully")
 
-      // Notificar que um post foi criado
-      onPostCreated()
-
-      // Limpar o formulário
+      // Limpar o formulário após o envio bem-sucedido
       setContent("")
       setImages([])
-      setTrend(null)
-      setIsExpanded(false)
+      setCryptoTags([])
+
+      // Notificar o componente pai que um post foi criado
+      if (onPostCreated) {
+        onPostCreated()
+      }
+
+      // Adicione um toast de sucesso
+      toast({
+        title: t("Post Created"),
+        description: t("Your post has been published successfully"),
+        duration: 3000,
+      })
+
+      // Adicione um pequeno atraso para garantir que o post seja propagado
+      await new Promise((resolve) => setTimeout(resolve, 2000))
     } catch (error) {
       console.error("Error creating post:", error)
-      setError(t("error_creating_post", "Error creating post. Please try again."))
+      toast({
+        title: t("Error"),
+        description: t("Failed to create post. Please try again."),
+        variant: "destructive",
+        duration: 3000,
+      })
     } finally {
-      if (isMountedRef.current) {
-        setIsSubmitting(false)
-      }
+      setIsSubmitting(false)
     }
   }
 

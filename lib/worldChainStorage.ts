@@ -510,26 +510,38 @@ export async function getPosts(): Promise<Post[]> {
 
     // Call the getAllPosts function on the contract
     const postIds = await readContract("getAllPosts")
+    console.log("Retrieved post IDs:", postIds)
 
     if (!postIds || !Array.isArray(postIds) || postIds.length === 0) {
+      console.log("No posts found")
       return []
     }
 
-    // Fetch each post individually
-    const posts = await Promise.all(
-      postIds.map(async (postId: string) => {
-        try {
-          const post = await getPost(postId)
-          return post
-        } catch (e) {
-          console.error(`Error fetching post ${postId}:`, e)
-          return null
-        }
-      }),
-    )
+    // Fetch each post individually with better error handling
+    const postsPromises = postIds.map(async (postId: string) => {
+      try {
+        console.log(`Fetching post with ID: ${postId}`)
+        const post = await getPost(postId)
+        return post
+      } catch (e) {
+        console.error(`Error fetching post ${postId}:`, e)
+        return null
+      }
+    })
 
-    // Filter out null posts
-    return posts.filter((post) => post !== null) as Post[]
+    // Use Promise.allSettled to handle errors gracefully
+    const postsResults = await Promise.allSettled(postsPromises)
+
+    // Filter out rejected promises and null posts
+    const posts = postsResults
+      .filter(
+        (result): result is PromiseFulfilledResult<Post | null> =>
+          result.status === "fulfilled" && result.value !== null,
+      )
+      .map((result) => result.value) as Post[]
+
+    console.log(`Successfully retrieved ${posts.length} posts`)
+    return posts
   } catch (error) {
     console.error("Error getting posts:", error)
     return []
@@ -574,6 +586,22 @@ export async function getPost(postId: string): Promise<Post | null> {
   }
 }
 
+// Adicione esta nova função para verificar se um post existe
+export async function checkPostExists(postId: string): Promise<boolean> {
+  try {
+    console.log(`Checking if post ${postId} exists`)
+
+    // Try to get the post
+    const [data, author, timestamp, likeCount, editCount] = await readContract("getPost", [postId])
+
+    // If we get here without an error, the post exists
+    return true
+  } catch (error) {
+    console.log(`Post ${postId} does not exist or could not be retrieved`)
+    return false
+  }
+}
+
 // Function to create a post
 export async function createPost(post: Omit<Post, "id" | "likes" | "comments">): Promise<string> {
   try {
@@ -581,6 +609,7 @@ export async function createPost(post: Omit<Post, "id" | "likes" | "comments">):
 
     // Generate a unique ID for the post
     const postId = generateId()
+    console.log(`Generated post ID: ${postId}`)
 
     // Prepare the post data for the contract
     const postData = {
@@ -588,13 +617,20 @@ export async function createPost(post: Omit<Post, "id" | "likes" | "comments">):
       images: post.images || [],
       cryptoTags: post.cryptoTags || [],
       trend: post.trend || null,
+      timestamp: Math.floor(Date.now() / 1000), // Add timestamp in seconds
     }
+
+    console.log("Post data:", postData)
 
     // Convert the post to JSON
     const postJson = JSON.stringify(postData)
 
     // Call the createPost function on the contract
-    await writeContract("createPost", [postId, postJson, post.cryptoTags || []])
+    const txId = await writeContract("createPost", [postId, postJson, post.cryptoTags || []])
+    console.log(`Post created with transaction ID: ${txId}`)
+
+    // Wait a moment to ensure blockchain propagation
+    await new Promise((resolve) => setTimeout(resolve, 2000))
 
     return postId
   } catch (error) {

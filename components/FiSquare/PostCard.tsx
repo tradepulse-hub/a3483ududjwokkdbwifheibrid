@@ -11,17 +11,21 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
+// Atualize a interface PostCardProps para incluir onPostUpdated
 interface PostCardProps {
   post: Post
+  onPostUpdated?: () => void
 }
 
-export default function PostCard({ post }: PostCardProps) {
+// Atualize a definição da função para incluir onPostUpdated
+export default function PostCard({ post, onPostUpdated }: PostCardProps) {
   const { t } = useTranslation()
   const [isLiked, setIsLiked] = useState(false) // In a real app, check if the current user has liked the post
   const [likeCount, setLikeCount] = useState(post.likes.length)
   const [isLiking, setIsLiking] = useState(false)
   const [showComments, setShowComments] = useState(false)
 
+  // Atualize a função handleLikeToggle para chamar onPostUpdated
   const handleLikeToggle = async () => {
     try {
       setIsLiking(true)
@@ -35,6 +39,11 @@ export default function PostCard({ post }: PostCardProps) {
       }
 
       setIsLiked(!isLiked)
+
+      // Notify parent component that the post was updated
+      if (onPostUpdated) {
+        onPostUpdated()
+      }
     } catch (error) {
       console.error("Error toggling like:", error)
     } finally {
