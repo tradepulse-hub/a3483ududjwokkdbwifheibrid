@@ -3,6 +3,14 @@ import type { Language } from "./languageContext"
 // Definir as traduções para cada idioma
 const translations: Record<Language, Record<string, string>> = {
   en: {
+    // Geral
+    wallet: "Wallet",
+    airdrop_zone: "Airdrop Zone",
+    menu: "Menu",
+    select_option: "Select an option to continue",
+    send: "Send",
+    receive: "Receive",
+
     // Outras traduções existentes...
 
     // FiSquare
@@ -100,6 +108,14 @@ const translations: Record<Language, Record<string, string>> = {
   },
 
   es: {
+    // Geral
+    wallet: "Cartera",
+    airdrop_zone: "Zona de Airdrop",
+    menu: "Menú",
+    select_option: "Selecciona una opción para continuar",
+    send: "Enviar",
+    receive: "Recibir",
+
     // Outras traduções existentes...
 
     // FiSquare
@@ -197,6 +213,14 @@ const translations: Record<Language, Record<string, string>> = {
   },
 
   it: {
+    // Geral
+    wallet: "Portafoglio",
+    airdrop_zone: "Zona Airdrop",
+    menu: "Menu",
+    select_option: "Seleziona un'opzione per continuare",
+    send: "Invia",
+    receive: "Ricevi",
+
     // Outras traduções existentes...
 
     // FiSquare
@@ -294,6 +318,14 @@ const translations: Record<Language, Record<string, string>> = {
   },
 
   zh: {
+    // Geral
+    wallet: "钱包",
+    airdrop_zone: "空投区",
+    menu: "菜单",
+    select_option: "选择一个选项继续",
+    send: "发送",
+    receive: "接收",
+
     // Outras traduções existentes...
 
     // FiSquare
@@ -391,6 +423,14 @@ const translations: Record<Language, Record<string, string>> = {
   },
 
   fr: {
+    // Geral
+    wallet: "Portefeuille",
+    airdrop_zone: "Zone Airdrop",
+    menu: "Menu",
+    select_option: "Sélectionnez une option pour continuer",
+    send: "Envoyer",
+    receive: "Recevoir",
+
     // Outras traduções existentes...
 
     // FiSquare
@@ -488,6 +528,14 @@ const translations: Record<Language, Record<string, string>> = {
   },
 
   pt: {
+    // Geral
+    wallet: "Carteira",
+    airdrop_zone: "Zona de Airdrop",
+    menu: "Menu",
+    select_option: "Selecione uma opção para continuar",
+    send: "Enviar",
+    receive: "Receber",
+
     // Outras traduções existentes...
 
     // FiSquare
