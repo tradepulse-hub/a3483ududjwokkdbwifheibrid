@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import type { Post, UserProfile } from "@/types/square"
-import { getPosts, createPost } from "@/lib/squareStorage"
+import { getPosts } from "@/lib/squareStorage"
 import { sortPostsByDate } from "@/lib/squareService"
 import PostItem from "./PostItem"
 import CreatePostForm from "./CreatePostForm"
@@ -52,10 +52,30 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
       }, 3000)
 
       try {
-        // Buscar posts e ordenar por data (mais recentes primeiro)
-        console.log("Fetching posts")
-        const allPosts = await getPosts()
-        console.log(`Fetched ${allPosts.length} posts`)
+        // Verificar se há posts no localStorage primeiro
+        const localPosts = JSON.parse(localStorage.getItem("fisquare_posts") || "[]")
+
+        // Buscar posts do Firebase
+        let allPosts: Post[] = []
+        try {
+          allPosts = await getPosts()
+          console.log(`Fetched ${allPosts.length} posts from Firebase`)
+
+          // Mesclar posts locais com posts do Firebase, removendo duplicatas
+          const mergedPosts = [...localPosts]
+
+          // Adicionar posts do Firebase que não estão no localStorage
+          allPosts.forEach((firebasePost) => {
+            if (!mergedPosts.some((localPost) => localPost.id === firebasePost.id)) {
+              mergedPosts.push(firebasePost)
+            }
+          })
+
+          allPosts = mergedPosts
+        } catch (firebaseError) {
+          console.warn("Error fetching posts from Firebase, using local posts:", firebaseError)
+          allPosts = localPosts
+        }
 
         if (!isMountedRef.current) return
 
@@ -87,38 +107,10 @@ export default function RecentPosts({ userAddress, userProfile, isBanned, onPost
   }, [refreshTrigger, t])
 
   // Função para lidar com a criação de posts
-  const handlePostCreated = async (postData: Omit<Post, "id" | "likes" | "comments">) => {
-    try {
-      console.log("Creating post in RecentPosts component")
-
-      // Criar post no Firebase
-      const postId = await createPost(postData)
-      console.log(`Post created with ID: ${postId}`)
-
-      // Atualizar a lista de posts localmente para feedback imediato
-      const newPost: Post = {
-        ...postData,
-        id: postId,
-        likes: [],
-        comments: [],
-      }
-
-      setPosts((prev) => sortPostsByDate([newPost, ...prev]))
-      console.log("Local posts state updated")
-
-      // Notificar o componente pai
-      if (onPostCreated) {
-        onPostCreated()
-      }
-
-      // Forçar uma atualização após um breve atraso para garantir que os dados estejam sincronizados
-      setTimeout(() => {
-        setRefreshTrigger((prev) => prev + 1)
-      }, 1000)
-    } catch (error) {
-      console.error("Error creating post:", error)
-      setError(t("failed_to_create_post", "Failed to create post. Please try again."))
-    }
+  const handlePostCreated = () => {
+    console.log("Post created, refreshing posts")
+    // Forçar atualização imediata
+    setRefreshTrigger((prev) => prev + 1)
   }
 
   const handlePostDeleted = () => {

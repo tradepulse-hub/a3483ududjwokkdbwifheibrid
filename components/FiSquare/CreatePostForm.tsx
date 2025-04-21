@@ -4,7 +4,6 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import { extractHashtags, SUPPORTED_CRYPTOS, isCryptoSupported } from "@/lib/squareService"
-import { createPost } from "@/lib/squareStorage"
 import { motion } from "framer-motion"
 
 interface CreatePostFormProps {
@@ -86,38 +85,57 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
     setIsSubmitting(true)
     setError(null)
 
-    // Adicionar um timeout de segurança para evitar carregamento infinito
-    const timeoutId = setTimeout(() => {
-      if (isMountedRef.current && isSubmitting) {
-        setIsSubmitting(false)
-        setError(t("timeout_error", "Request timed out. Please try again."))
-        console.error("Post creation timed out")
-      }
-    }, 10000) // 10 segundos de timeout
-
     try {
       // Extrair hashtags de criptomoedas
       const allTags = extractHashtags(content)
       const cryptoTags = allTags.filter((tag) => isCryptoSupported(tag))
 
-      // Criar o post diretamente no Firebase
-      const postData = {
+      // Criar o post diretamente no localStorage para evitar problemas com Firebase
+      const postId = Date.now().toString(36) + Math.random().toString(36).substring(2)
+
+      const newPost = {
+        id: postId,
         authorAddress: userAddress,
         content: content.trim(),
-        images: images.length > 0 ? images : undefined,
+        images: images.length > 0 ? images : [],
         cryptoTags,
         trend,
         createdAt: Date.now(),
+        likes: [],
+        comments: [],
       }
 
-      console.log("Creating post with data:", postData)
+      console.log("Creating post locally:", newPost)
 
-      // Criar o post no Firebase
-      await createPost(postData)
-      console.log("Post created successfully")
+      // Salvar no localStorage para persistência local
+      const existingPosts = JSON.parse(localStorage.getItem("fisquare_posts") || "[]")
+      existingPosts.unshift(newPost)
+      localStorage.setItem("fisquare_posts", JSON.stringify(existingPosts))
 
-      // Limpar o timeout após sucesso
-      clearTimeout(timeoutId)
+      // Tentar salvar no Firebase em segundo plano
+      try {
+        const response = await fetch("/api/create-post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            authorAddress: userAddress,
+            content: content.trim(),
+            images: images.length > 0 ? images : [],
+            cryptoTags,
+            trend,
+          }),
+        })
+
+        if (!response.ok) {
+          console.warn("Failed to save post to server, but post was saved locally")
+        } else {
+          console.log("Post saved to server successfully")
+        }
+      } catch (serverError) {
+        console.warn("Error saving to server, but post was saved locally:", serverError)
+      }
 
       // Notificar que um post foi criado
       onPostCreated()
@@ -131,12 +149,12 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
       console.error("Error creating post:", error)
       setError(t("error_creating_post", "Error creating post. Please try again."))
     } finally {
-      // Limpar o timeout em caso de erro também
-      clearTimeout(timeoutId)
-
-      if (isMountedRef.current) {
-        setIsSubmitting(false)
-      }
+      // Garantir que o estado de submissão seja resetado
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setIsSubmitting(false)
+        }
+      }, 300) // Pequeno atraso para feedback visual
     }
   }
 
