@@ -1,8 +1,7 @@
 // Serviço para armazenar dados do Square no Firebase
 import type { UserProfile, Post, BannedUser, Comment } from "@/types/square"
-import { generateId } from "./squareService"
 import { database } from "./firebaseConfig"
-import { ref, set, get, remove, onValue, off } from "firebase/database"
+import { ref, set, get, update, remove, onValue, off } from "firebase/database"
 
 // Referências para os nós do Firebase
 const PROFILES_REF = "square_profiles"
@@ -21,6 +20,11 @@ let bannedUsersListener: any = null
 
 // Flag para controlar se os listeners já foram inicializados
 let listenersInitialized = false
+
+// Função para gerar ID único
+export function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2)
+}
 
 // Inicializar listeners para atualizações em tempo real
 export function initializeRealTimeListeners(onPostsUpdate?: () => void) {
@@ -44,7 +48,11 @@ export function initializeRealTimeListeners(onPostsUpdate?: () => void) {
       (snapshot) => {
         console.log("Profiles updated")
         const data = snapshot.val()
-        profilesCache = data ? Object.values(data) : []
+        if (data) {
+          profilesCache = Object.keys(data).map((key) => data[key])
+        } else {
+          profilesCache = []
+        }
       },
       (error) => {
         console.error("Error in profiles listener:", error)
@@ -61,7 +69,11 @@ export function initializeRealTimeListeners(onPostsUpdate?: () => void) {
       (snapshot) => {
         console.log("Posts updated")
         const data = snapshot.val()
-        postsCache = data ? Object.values(data) : []
+        if (data) {
+          postsCache = Object.keys(data).map((key) => data[key])
+        } else {
+          postsCache = []
+        }
         if (onPostsUpdate) {
           console.log("Calling posts update callback")
           onPostsUpdate()
@@ -82,7 +94,11 @@ export function initializeRealTimeListeners(onPostsUpdate?: () => void) {
       (snapshot) => {
         console.log("Banned users updated")
         const data = snapshot.val()
-        bannedUsersCache = data ? Object.values(data) : []
+        if (data) {
+          bannedUsersCache = Object.keys(data).map((key) => data[key])
+        } else {
+          bannedUsersCache = []
+        }
       },
       (error) => {
         console.error("Error in banned users listener:", error)
@@ -99,7 +115,6 @@ export function initializeRealTimeListeners(onPostsUpdate?: () => void) {
     profilesCache = profilesCache || []
     postsCache = postsCache || []
     bannedUsersCache = bannedUsersCache || []
-    throw error
   }
 }
 
@@ -144,16 +159,24 @@ export function removeRealTimeListeners() {
 export async function saveProfile(profile: UserProfile): Promise<void> {
   try {
     console.log(`Saving profile for address: ${profile.address}`)
+
+    // Garantir que arrays vazios sejam representados corretamente
+    const safeProfile = {
+      ...profile,
+      followers: profile.followers || [],
+      following: profile.following || [],
+    }
+
     const profileRef = ref(database, `${PROFILES_REF}/${profile.address}`)
-    await set(profileRef, profile)
+    await set(profileRef, safeProfile)
 
     // Atualizar cache local
     if (profilesCache) {
       const existingIndex = profilesCache.findIndex((p) => p.address === profile.address)
       if (existingIndex >= 0) {
-        profilesCache[existingIndex] = profile
+        profilesCache[existingIndex] = safeProfile
       } else {
-        profilesCache.push(profile)
+        profilesCache.push(safeProfile)
       }
     }
     console.log("Profile saved successfully")
@@ -179,7 +202,12 @@ export async function getProfiles(): Promise<UserProfile[]> {
     const data = snapshot.val()
 
     // Atualizar cache
-    profilesCache = data ? Object.values(data) : []
+    if (data) {
+      profilesCache = Object.keys(data).map((key) => data[key])
+    } else {
+      profilesCache = []
+    }
+
     console.log(`Fetched ${profilesCache.length} profiles`)
     return profilesCache
   } catch (error) {
@@ -284,7 +312,12 @@ export async function getPosts(): Promise<Post[]> {
     const data = snapshot.val()
 
     // Atualizar cache
-    postsCache = data ? Object.values(data) : []
+    if (data) {
+      postsCache = Object.keys(data).map((key) => data[key])
+    } else {
+      postsCache = []
+    }
+
     console.log(`Fetched ${postsCache.length} posts`)
     return postsCache
   } catch (error) {
@@ -294,24 +327,31 @@ export async function getPosts(): Promise<Post[]> {
   }
 }
 
-export async function createPost(post: Omit<Post, "id" | "likes" | "comments">): Promise<void> {
+export async function createPost(post: Omit<Post, "id" | "likes" | "comments">): Promise<string> {
   try {
     console.log(`Creating post for author: ${post.authorAddress}`)
+
+    // Gerar ID único para o post
     const postId = generateId()
+    console.log(`Generated post ID: ${postId}`)
+
+    // Criar objeto do post com valores padrão para evitar erros
     const newPost: Post = {
       id: postId,
       authorAddress: post.authorAddress,
       content: post.content,
-      images: post.images,
-      cryptoTags: post.cryptoTags,
-      trend: post.trend,
+      images: post.images || [],
+      cryptoTags: post.cryptoTags || [],
+      trend: post.trend || null,
       createdAt: Date.now(),
       likes: [],
       comments: [],
     }
 
+    // Salvar o post no Firebase
     const postRef = ref(database, `${POSTS_REF}/${postId}`)
     await set(postRef, newPost)
+    console.log(`Post saved to Firebase with ID: ${postId}`)
 
     // Atualizar cache local
     if (postsCache) {
@@ -319,19 +359,26 @@ export async function createPost(post: Omit<Post, "id" | "likes" | "comments">):
     }
 
     // Atualizar contagem de posts do usuário
-    const profile = await getProfile(post.authorAddress)
-    if (profile) {
-      const updatedProfile: UserProfile = {
-        ...profile,
-        postCount: profile.postCount + 1,
+    try {
+      const profile = await getProfile(post.authorAddress)
+      if (profile) {
+        const updatedProfile: UserProfile = {
+          ...profile,
+          postCount: (profile.postCount || 0) + 1,
+        }
+        await saveProfile(updatedProfile)
+        console.log(`Updated post count for user: ${post.authorAddress}`)
       }
-      await saveProfile(updatedProfile)
+    } catch (profileError) {
+      console.error("Error updating profile post count:", profileError)
+      // Continuar mesmo se falhar ao atualizar o perfil
     }
 
     console.log("Post created successfully")
+    return postId
   } catch (error) {
     console.error("Error creating post:", error)
-    throw error
+    throw new Error(`Failed to create post: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 
@@ -356,9 +403,8 @@ export async function likePost(postId: string, userAddress: string): Promise<voi
     }
 
     // Adicionar o like
-    const likesRef = ref(database, `${POSTS_REF}/${postId}/likes`)
     const newLikes = [...(post.likes || []), userAddress]
-    await set(likesRef, newLikes)
+    await update(postRef, { likes: newLikes })
 
     // Atualizar cache local
     if (postsCache) {
@@ -396,9 +442,8 @@ export async function unlikePost(postId: string, userAddress: string): Promise<v
     }
 
     // Remover o like
-    const likesRef = ref(database, `${POSTS_REF}/${postId}/likes`)
     const newLikes = post.likes.filter((addr) => addr !== userAddress)
-    await set(likesRef, newLikes)
+    await update(postRef, { likes: newLikes })
 
     // Atualizar cache local
     if (postsCache) {
@@ -439,13 +484,18 @@ export async function deletePost(postId: string): Promise<void> {
 
     // Atualizar contagem de posts do usuário
     if (post) {
-      const profile = await getProfile(post.authorAddress)
-      if (profile) {
-        const updatedProfile: UserProfile = {
-          ...profile,
-          postCount: profile.postCount > 0 ? profile.postCount - 1 : 0,
+      try {
+        const profile = await getProfile(post.authorAddress)
+        if (profile) {
+          const updatedProfile: UserProfile = {
+            ...profile,
+            postCount: profile.postCount > 0 ? profile.postCount - 1 : 0,
+          }
+          await saveProfile(updatedProfile)
         }
-        await saveProfile(updatedProfile)
+      } catch (profileError) {
+        console.error("Error updating profile post count:", profileError)
+        // Continuar mesmo se falhar ao atualizar o perfil
       }
     }
 
@@ -481,9 +531,8 @@ export async function addComment(postId: string, comment: Omit<Comment, "id" | "
     }
 
     // Adicionar o comentário ao post
-    const commentsRef = ref(database, `${POSTS_REF}/${postId}/comments`)
     const newComments = [...(post.comments || []), newComment]
-    await set(commentsRef, newComments)
+    await update(postRef, { comments: newComments })
 
     // Atualizar cache local
     if (postsCache) {
@@ -501,36 +550,37 @@ export async function addComment(postId: string, comment: Omit<Comment, "id" | "
 }
 
 // Funções para seguir/deixar de seguir usuários
-export async function followUser(userAddress: string, profileAddress: string): Promise<void> {
+export async function followUser(followerAddress: string, targetAddress: string): Promise<void> {
   try {
-    console.log(`Following user ${profileAddress} by user ${userAddress}`)
+    console.log(`User ${followerAddress} following ${targetAddress}`)
 
-    // Verificar se o usuário já está seguindo o perfil
-    const userProfile = await getProfile(userAddress)
-    const targetProfile = await getProfile(profileAddress)
+    // Obter perfis
+    const followerProfile = await getOrCreateProfile(followerAddress)
+    const targetProfile = await getOrCreateProfile(targetAddress)
 
-    if (!userProfile || !targetProfile) {
-      throw new Error("User or target profile not found")
+    // Atualizar lista de following do seguidor
+    const updatedFollowing = [...(followerProfile.following || [])]
+    if (!updatedFollowing.includes(targetAddress)) {
+      updatedFollowing.push(targetAddress)
     }
 
-    if (userProfile.following && userProfile.following.includes(profileAddress)) {
-      console.log("User already follows this profile")
-      return
+    // Atualizar lista de followers do alvo
+    const updatedFollowers = [...(targetProfile.followers || [])]
+    if (!updatedFollowers.includes(followerAddress)) {
+      updatedFollowers.push(followerAddress)
     }
 
-    // Adicionar o profileAddress à lista de following do usuário
-    const userFollowing = [...(userProfile.following || []), profileAddress]
-    await saveProfile({
-      ...userProfile,
-      following: userFollowing,
-    })
-
-    // Adicionar o userAddress à lista de followers do profile
-    const profileFollowers = [...(targetProfile.followers || []), userAddress]
-    await saveProfile({
-      ...targetProfile,
-      followers: profileFollowers,
-    })
+    // Salvar as alterações
+    await Promise.all([
+      saveProfile({
+        ...followerProfile,
+        following: updatedFollowing,
+      }),
+      saveProfile({
+        ...targetProfile,
+        followers: updatedFollowers,
+      }),
+    ])
 
     console.log("Follow relationship created successfully")
   } catch (error) {
@@ -539,36 +589,35 @@ export async function followUser(userAddress: string, profileAddress: string): P
   }
 }
 
-export async function unfollowUser(userAddress: string, profileAddress: string): Promise<void> {
+export async function unfollowUser(followerAddress: string, targetAddress: string): Promise<void> {
   try {
-    console.log(`Unfollowing user ${profileAddress} by user ${userAddress}`)
+    console.log(`User ${followerAddress} unfollowing ${targetAddress}`)
 
-    // Verificar se o usuário está seguindo o perfil
-    const userProfile = await getProfile(userAddress)
-    const targetProfile = await getProfile(profileAddress)
+    // Obter perfis
+    const followerProfile = await getProfile(followerAddress)
+    const targetProfile = await getProfile(targetAddress)
 
-    if (!userProfile || !targetProfile) {
+    if (!followerProfile || !targetProfile) {
       throw new Error("User or target profile not found")
     }
 
-    if (!userProfile.following || !userProfile.following.includes(profileAddress)) {
-      console.log("User does not follow this profile")
-      return
-    }
+    // Atualizar lista de following do seguidor
+    const updatedFollowing = (followerProfile.following || []).filter((addr) => addr !== targetAddress)
 
-    // Remover o profileAddress da lista de following do usuário
-    const userFollowing = (userProfile.following || []).filter((addr) => addr !== profileAddress)
-    await saveProfile({
-      ...userProfile,
-      following: userFollowing,
-    })
+    // Atualizar lista de followers do alvo
+    const updatedFollowers = (targetProfile.followers || []).filter((addr) => addr !== followerAddress)
 
-    // Remover o userAddress da lista de followers do profile
-    const profileFollowers = (targetProfile.followers || []).filter((addr) => addr !== userAddress)
-    await saveProfile({
-      ...targetProfile,
-      followers: profileFollowers,
-    })
+    // Salvar as alterações
+    await Promise.all([
+      saveProfile({
+        ...followerProfile,
+        following: updatedFollowing,
+      }),
+      saveProfile({
+        ...targetProfile,
+        followers: updatedFollowers,
+      }),
+    ])
 
     console.log("Follow relationship removed successfully")
   } catch (error) {
@@ -581,13 +630,13 @@ export async function unfollowUser(userAddress: string, profileAddress: string):
 export async function banUser(
   userAddress: string,
   adminAddress: string,
-  duration: number,
+  durationMs: number,
   reason: string,
 ): Promise<void> {
   try {
     console.log(`Banning user ${userAddress} by admin ${adminAddress}`)
 
-    const banUntil = Date.now() + duration
+    const banUntil = Date.now() + durationMs
     const bannedUser: BannedUser = {
       address: userAddress,
       until: banUntil,

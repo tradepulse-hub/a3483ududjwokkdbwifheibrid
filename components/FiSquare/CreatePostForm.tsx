@@ -4,12 +4,12 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useLanguage } from "@/lib/languageContext"
 import { extractHashtags, SUPPORTED_CRYPTOS, isCryptoSupported } from "@/lib/squareService"
+import { createPost } from "@/lib/squareStorage"
 import { motion } from "framer-motion"
-import type { Post } from "@/types/square"
 
 interface CreatePostFormProps {
   userAddress: string
-  onPostCreated: (post: Omit<Post, "id" | "likes" | "comments">) => void
+  onPostCreated: () => void
 }
 
 export default function CreatePostForm({ userAddress, onPostCreated }: CreatePostFormProps) {
@@ -22,6 +22,7 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [cursorPosition, setCursorPosition] = useState(0)
+  const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const isMountedRef = useRef(true)
 
@@ -83,14 +84,15 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
     if (!content.trim() || isSubmitting) return
 
     setIsSubmitting(true)
+    setError(null)
 
     try {
       // Extrair hashtags de criptomoedas
       const allTags = extractHashtags(content)
       const cryptoTags = allTags.filter((tag) => isCryptoSupported(tag))
 
-      // Criar o post
-      const newPost = {
+      // Criar o post diretamente no Firebase
+      const postData = {
         authorAddress: userAddress,
         content: content.trim(),
         images: images.length > 0 ? images : undefined,
@@ -99,8 +101,11 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
         createdAt: Date.now(),
       }
 
+      // Criar o post no Firebase
+      await createPost(postData)
+
       // Notificar que um post foi criado
-      onPostCreated(newPost)
+      onPostCreated()
 
       // Limpar o formulário
       setContent("")
@@ -109,7 +114,7 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
       setIsExpanded(false)
     } catch (error) {
       console.error("Error creating post:", error)
-      alert(t("error_creating_post", "Error creating post. Please try again."))
+      setError(t("error_creating_post", "Error creating post. Please try again."))
     } finally {
       if (isMountedRef.current) {
         setIsSubmitting(false)
@@ -195,6 +200,12 @@ export default function CreatePostForm({ userAddress, onPostCreated }: CreatePos
           exit={{ height: 0, opacity: 0 }}
           className="p-3"
         >
+          {error && (
+            <div className="bg-red-900/30 border border-red-800/50 rounded-lg p-2 mb-3 text-red-300 text-xs">
+              {error}
+            </div>
+          )}
+
           <div className="relative">
             <textarea
               ref={textareaRef}
