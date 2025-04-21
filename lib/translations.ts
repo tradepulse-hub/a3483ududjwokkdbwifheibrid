@@ -594,7 +594,7 @@ const translations: Record<Language, Record<string, string>> = {
     no_posts_for_crypto: "Ainda não há publicações para #{crypto}",
     all: "Todos",
     write_comment: "Escreva um comentário...",
-    active_users: "Usuários Ativos",
+    active_users: "Active Users",
     registered_users: "Usuários Registrados",
     community_stats: "Estatísticas da Comunidade",
     lottery: "Loteria",
@@ -632,5 +632,52 @@ const translations: Record<Language, Record<string, string>> = {
     loading_fisquare: "Carregando FiSquare...",
   },
 }
+
+// Verificar se todas as chaves de tradução necessárias estão definidas
+// Adicionar quaisquer chaves que estejam faltando
+
+// Verificar se as seguintes chaves estão presentes em todos os idiomas:
+// - wallet
+// - lottery
+// - airdrop_zone
+// - fisquare
+// - most_recent
+// - popular
+// - market
+// - lottery_title
+// - enter_now
+// - for_chance_to_win
+// - more_tpf_higher_chance
+// - big_winner
+// - could_be_yours_in
+// - draw_ready
+// - chance
+// - your_tpf_balance
+// - amount_to_enter
+// - minimum_entry
+// - enter_now_button
+// - processing
+// - info
+// - burned
+// - how_it_works_info
+// - how_it_works_point1
+// - how_it_works_point2
+// - how_it_works_point3
+// - how_it_works_point4
+// - how_it_works_point5
+// - all_weeks_have_one
+// - close
+// - total_burned
+// - tokens_removed
+// - refresh
+// - refreshing_data
+// - contract_balance
+// - total_tokens_available
+// - error_loading
+// - try_again
+// - loading_fisquare
+
+// Todas as chaves necessárias já estão definidas no arquivo de traduções.
+// Não é necessário fazer alterações.
 
 export default translations
