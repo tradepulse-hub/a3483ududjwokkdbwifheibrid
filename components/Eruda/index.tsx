@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import type { ReactNode } from "react"
 
-const ErudaComponent = dynamic(() => import("./eruda-provider").then((c) => c.Eruda), {
+const Eruda = dynamic(() => import("./eruda-provider").then((c) => c.Eruda), {
   ssr: false,
 })
 
@@ -11,7 +11,5 @@ export const ErudaProvider = (props: { children: ReactNode }) => {
   if (process.env.NEXT_PUBLIC_APP_ENV === "production") {
     return props.children
   }
-  return <ErudaComponent>{props.children}</ErudaComponent>
+  return <Eruda>{props.children}</Eruda>
 }
-
-export default ErudaProvider

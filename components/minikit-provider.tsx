@@ -3,8 +3,7 @@
 import { MiniKit } from "@worldcoin/minikit-js"
 import { type ReactNode, useEffect } from "react"
 
-// Adicionando exportação nomeada para MiniKitProvider
-export function MiniKitProvider({ children }: { children: ReactNode }) {
+export default function MiniKitProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     MiniKit.install()
     console.log(MiniKit.isInstalled())
@@ -12,6 +11,3 @@ export function MiniKitProvider({ children }: { children: ReactNode }) {
 
   return <>{children}</>
 }
-
-// Mantendo a exportação default para compatibilidade
-export default MiniKitProvider

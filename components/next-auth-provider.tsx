@@ -3,10 +3,6 @@
 import { SessionProvider } from "next-auth/react"
 import type { ReactNode } from "react"
 
-// Adicionando exportação nomeada para NextAuthProvider
-export function NextAuthProvider({ children }: { children: ReactNode }) {
+export default function NextAuthProvider({ children }: { children: ReactNode }) {
   return <SessionProvider>{children}</SessionProvider>
 }
-
-// Mantendo a exportação default para compatibilidade
-export default NextAuthProvider

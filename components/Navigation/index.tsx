@@ -24,7 +24,6 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       wallet: 0,
       lottery: 1,
       airdrop: 2,
-      square: 3, // Adicionando o novo tab Square
     }
     setActiveIndex(tabToIndex[activeTab as keyof typeof tabToIndex] || 0)
   }, [activeTab])
@@ -36,7 +35,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
 
   // Handle tab change based on index
   const handleTabChange = (index: number) => {
-    const indexToTab = ["wallet", "lottery", "airdrop", "square"] // Adicionando "square" ao array
+    const indexToTab = ["wallet", "lottery", "airdrop"]
     onTabChange(indexToTab[index])
     setActiveIndex(index)
   }
@@ -72,8 +71,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       if (currentX > 0 && activeIndex > 0) {
         // Swipe right, go to previous tab
         handleTabChange(activeIndex - 1)
-      } else if (currentX < 0 && activeIndex < 3) {
-        // Atualizado para 3 para incluir o novo tab
+      } else if (currentX < 0 && activeIndex < 2) {
         // Swipe left, go to next tab
         handleTabChange(activeIndex + 1)
       }
@@ -84,7 +82,6 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
 
   if (!mounted) return null
 
-  // Atualizar a referência ao Square para FiSquare
   const tabs = [
     {
       id: "wallet",
@@ -142,27 +139,6 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
         </svg>
       ),
     },
-    // Atualizar o nome de Square para FiSquare
-    {
-      id: "square",
-      label: t("fisquare", "FiSquare"),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
-          />
-        </svg>
-      ),
-    },
   ]
 
   return (
@@ -179,7 +155,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700 relative">
         {/* Sliding indicator */}
         <div
-          className="absolute h-full w-1/4 bg-gradient-to-r from-blue-600/80 to-purple-600/80 rounded-xl transition-all duration-300 ease-out"
+          className="absolute h-full w-1/3 bg-gradient-to-r from-blue-600/80 to-purple-600/80 rounded-xl transition-all duration-300 ease-out"
           style={{
             transform: `translateX(${activeIndex * 100}%)`,
             left: 0,
@@ -188,7 +164,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
         />
 
         {/* Tabs */}
-        <div className="grid grid-cols-4 relative z-10">
+        <div className="grid grid-cols-3 relative z-10">
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
@@ -213,7 +189,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       {/* Swipe indicator */}
       <div className="flex justify-center mt-2">
         <div className="flex space-x-1">
-          {[0, 1, 2, 3].map((index) => (
+          {[0, 1, 2].map((index) => (
             <div
               key={index}
               className={`h-1.5 rounded-full transition-all duration-300 ${

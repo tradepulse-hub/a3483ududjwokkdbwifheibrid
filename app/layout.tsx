@@ -1,20 +1,19 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Sora } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import Navigation from "@/components/Navigation"
-import { MiniKitProvider } from "@/components/MiniKitProvider"
-import { NextAuthProvider } from "@/components/NextAuthProvider"
-import Eruda from "@/components/Eruda"
-import { LanguageProvider } from "@/lib/languageContext"
+import MiniKitProvider from "@/components/minikit-provider"
+import NextAuthProvider from "@/components/next-auth-provider"
+import LanguageProvider from "@/components/LanguageProvider"
+import LanguageSelector from "@/components/LanguageSelector"
+import "@worldcoin/mini-apps-ui-kit-react/styles.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const sora = Sora({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "World App Airdrop",
-  description: "Claim your World App Airdrop",
-    generator: 'v0.dev'
+  title: "WLD101",
+  description: "Template mini app for Worldcoin",
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -23,21 +22,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <NextAuthProvider>
-            <MiniKitProvider>
-              <LanguageProvider>
-                <div className="pb-16">
-                  {children}
-                  <Navigation />
-                </div>
-                <Eruda />
-              </LanguageProvider>
-            </MiniKitProvider>
-          </NextAuthProvider>
-        </ThemeProvider>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className={sora.className}>
+        <NextAuthProvider>
+          <MiniKitProvider>
+            <LanguageProvider>
+              <LanguageSelector />
+              {children}
+            </LanguageProvider>
+          </MiniKitProvider>
+        </NextAuthProvider>
       </body>
     </html>
   )

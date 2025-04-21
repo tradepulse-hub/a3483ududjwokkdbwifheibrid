@@ -354,12 +354,9 @@ type Participant = {
 // Modificar a estrutura do componente para remover as abas e reorganizar o conteúdo
 export function Lottery({ userAddress }: { userAddress: string }) {
   const { t } = useLanguage()
-  const [activeTab, setActiveTab] = useState("claim")
-  const [isClaimingAirdrop, setIsClaimingAirdrop] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [txId, setTxId] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | boolean>(false)
+  const [success, setSuccess] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -492,7 +489,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
       })
     } catch (err) {
       console.error("Error fetching lottery data:", err)
-      setError(t("error_connecting", "Error connecting to lottery contract. Please try refreshing."))
+      setError("Error connecting to lottery contract. Please try refreshing.")
     }
   }
 
@@ -512,14 +509,14 @@ export function Lottery({ userAddress }: { userAddress: string }) {
   // Atualizar contador regressivo
   useEffect(() => {
     if (!lotteryInfo.timeUntilNextDraw || lotteryInfo.timeUntilNextDraw === "0") {
-      setCountdown(t("draw_ready", "Draw ready!"))
+      setCountdown("Draw ready!")
       return
     }
 
     const updateCountdown = () => {
       const timeLeft = Number(lotteryInfo.timeUntilNextDraw)
       if (timeLeft <= 0) {
-        setCountdown(t("draw_ready", "Draw ready!"))
+        setCountdown("Draw ready!")
         return
       }
 
@@ -529,12 +526,9 @@ export function Lottery({ userAddress }: { userAddress: string }) {
       const seconds = timeLeft % 60
 
       setCountdown(
-        `${days}${t("days_separator", "d")} ${hours.toString().padStart(2, "0")}${t(
-          "hours_separator",
-          "h",
-        )} ${minutes.toString().padStart(2, "0")}${t("minutes_separator", "m")} ${seconds
+        `${days}d ${hours.toString().padStart(2, "0")}h ${minutes.toString().padStart(2, "0")}m ${seconds
           .toString()
-          .padStart(2, "0")}${t("seconds_separator", "s")}`,
+          .padStart(2, "0")}s`,
       )
     }
 
@@ -544,23 +538,23 @@ export function Lottery({ userAddress }: { userAddress: string }) {
     // E depois a cada segundo
     const interval = setInterval(updateCountdown, 1000)
     return () => clearInterval(interval)
-  }, [lotteryInfo.timeUntilNextDraw, t])
+  }, [lotteryInfo.timeUntilNextDraw])
 
   const handleParticipate = async () => {
     if (!participationAmount || Number(participationAmount) <= 0) {
-      setError(t("please_enter_amount", "Please enter an amount"))
+      setError("Please enter an amount")
       return
     }
 
     const minEntry = Number(lotteryInfo.minEntryTPF)
     if (Number(participationAmount) < minEntry) {
-      setError(t("minimum_entry_is", "Minimum entry is {minEntry} TPF").replace("{minEntry}", minEntry.toString()))
+      setError(`Minimum entry is ${minEntry} TPF`)
       return
     }
 
     setIsProcessing(true)
     setError(null)
-    setSuccess(false)
+    setSuccess(null)
     setTxHash(null)
 
     try {
@@ -605,17 +599,8 @@ export function Lottery({ userAddress }: { userAddress: string }) {
         )
       }
 
-      setSuccess(t("successfully_entered", "Successfully entered the lottery! Refreshing data..."))
+      setSuccess("Successfully entered the lottery! Refreshing data...")
       setTxHash(transferResponse.finalPayload.transaction_id || null)
-
-      // Atualizar o estado local
-      lotteryInfo.userParticipating = true
-      lotteryInfo.userTickets = (
-        Number(lotteryInfo.userTickets) +
-        Number(participationAmount) / Number(lotteryInfo.minEntryTPF)
-      ).toString()
-
-      // Limpar o formulário
       setParticipationAmount("")
 
       // Implementar estratégia de atualização mais agressiva
@@ -631,8 +616,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
       setRefreshTrigger((prev) => prev + 1)
     } catch (err) {
       console.error("Error participating in lottery:", err)
-      const errorMessage =
-        err instanceof Error ? err.message : t("failed_to_participate", "Failed to participate in lottery")
+      const errorMessage = err instanceof Error ? err.message : "Failed to participate in lottery"
       setError(errorMessage)
     } finally {
       setIsProcessing(false)
@@ -1032,7 +1016,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
                     onClick={() => {
                       setSuccess(t("refreshing_data", "Atualizando dados..."))
                       fetchLotteryData().then(() => {
-                        setSuccess(false)
+                        setSuccess(null)
                       })
                     }}
                     className="text-xs bg-orange-700 hover:bg-orange-600 text-white px-2 py-1 rounded-full transition-colors flex items-center shadow-md hover:shadow-orange-500/30"
