@@ -55,6 +55,19 @@ export default function Home() {
     }
   }, [isMenuVisible])
 
+  // Desabilitar rolagem quando logado
+  useEffect(() => {
+    if (isLoggedIn) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [isLoggedIn])
+
   const truncateAddress = (address: string) => {
     if (!address) return ""
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
@@ -202,53 +215,58 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-md mx-auto space-y-4 py-4 sm:py-6 px-4 relative z-10 pb-24">
+          <div className="w-full max-w-md mx-auto space-y-2 py-2 px-3 relative z-10 h-screen flex flex-col">
             {/* Background overlay for better readability when logged in */}
             <div className="fixed inset-0 bg-black/70 -z-5"></div>
 
-            <div className="text-center mb-4 sm:mb-6">
-              <div className="inline-block rounded-full shadow-lg mb-3 p-2 bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse">
+            <div className="text-center mb-2">
+              <div className="inline-block rounded-full shadow-lg mb-2 p-1 bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse">
                 <Image
                   src="/images/tpf-logo.png"
-                  width={40}
-                  height={40}
-                  className="h-8 w-8 sm:h-10 sm:w-10 rounded-full"
+                  width={32}
+                  height={32}
+                  className="h-6 w-6 rounded-full"
                   alt="TPulseFi Logo"
                 />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+              <h1 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
                 TPulseFi
               </h1>
-              <p className="mt-1 text-sm sm:text-base text-gray-400">Global Crypto Bridge</p>
+              <p className="text-xs text-gray-400">Global Crypto Bridge</p>
             </div>
 
-            <section className="bg-gray-900/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-700">
+            <section className="bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl p-2 border border-gray-700">
               <div className="flex justify-end">
                 <div className="flex items-center">
-                  <span className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full inline-block animate-pulse mr-1.5"></span>
+                  <span className="w-2 h-2 bg-green-500 rounded-full inline-block animate-pulse mr-1"></span>
                   <span className="text-xs text-gray-300">{t("connected", "Connected")}</span>
                 </div>
               </div>
             </section>
 
-            {/* Content based on active tab */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="min-h-[300px]"
-                onAnimationComplete={ensureMenuVisible}
-              >
-                {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
+            {/* Content based on active tab - Ajustado para altura fixa */}
+            <div className="flex-1 overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                  onAnimationComplete={ensureMenuVisible}
+                >
+                  {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
 
-                {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
+                  {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
 
-                {activeTab === "airdrop" && user.walletAddress && <ClaimCoin userAddress={user.walletAddress} />}
-              </motion.div>
-            </AnimatePresence>
+                  {activeTab === "airdrop" && user.walletAddress && <ClaimCoin userAddress={user.walletAddress} />}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Espaço para o menu inferior */}
+            <div className="h-24"></div>
 
             {/* Bottom Menu com a prop de visibilidade */}
             <BottomMenu activeTab={activeTab} onTabChange={handleTabChange} isVisible={isMenuVisible} />
