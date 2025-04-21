@@ -25,6 +25,7 @@ export default function PopularPosts({ userAddress, userProfile, isBanned }: Pop
     async function loadPosts() {
       console.log("Loading popular posts")
       setIsLoading(true)
+      setError(null)
 
       try {
         // Buscar posts e ordenar por popularidade (mais curtidos primeiro)
@@ -38,7 +39,7 @@ export default function PopularPosts({ userAddress, userProfile, isBanned }: Pop
         setPosts(sortedPosts)
       } catch (error) {
         console.error("Error loading popular posts:", error)
-        setError("Failed to load posts")
+        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
       } finally {
         // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
         setIsLoading(false)
@@ -47,7 +48,7 @@ export default function PopularPosts({ userAddress, userProfile, isBanned }: Pop
     }
 
     loadPosts()
-  }, [refreshTrigger])
+  }, [refreshTrigger, t])
 
   const handlePostCreated = () => {
     console.log("Post created, refreshing")

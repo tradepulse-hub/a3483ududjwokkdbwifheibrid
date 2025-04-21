@@ -25,6 +25,7 @@ export default function RecentPosts({ userAddress, userProfile, isBanned }: Rece
     async function loadPosts() {
       console.log("Loading recent posts")
       setIsLoading(true)
+      setError(null)
 
       try {
         // Buscar posts e ordenar por data (mais recentes primeiro)
@@ -38,7 +39,7 @@ export default function RecentPosts({ userAddress, userProfile, isBanned }: Rece
         setPosts(sortedPosts)
       } catch (error) {
         console.error("Error loading recent posts:", error)
-        setError("Failed to load posts")
+        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
       } finally {
         // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
         setIsLoading(false)
@@ -47,7 +48,7 @@ export default function RecentPosts({ userAddress, userProfile, isBanned }: Rece
     }
 
     loadPosts()
-  }, [refreshTrigger])
+  }, [refreshTrigger, t])
 
   const handlePostCreated = () => {
     console.log("Post created, refreshing")

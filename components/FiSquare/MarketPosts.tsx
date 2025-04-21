@@ -26,6 +26,7 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
     async function loadPosts() {
       console.log(`Loading market posts for crypto: ${selectedCrypto}`)
       setIsLoading(true)
+      setError(null)
 
       try {
         // Buscar todos os posts
@@ -45,7 +46,7 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
         }
       } catch (error) {
         console.error("Error loading market posts:", error)
-        setError("Failed to load posts")
+        setError(t("failed_to_load_posts", "Failed to load posts. Please try again."))
       } finally {
         // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
         setIsLoading(false)
@@ -54,7 +55,7 @@ export default function MarketPosts({ userAddress, userProfile, isBanned }: Mark
     }
 
     loadPosts()
-  }, [selectedCrypto, refreshTrigger])
+  }, [selectedCrypto, refreshTrigger, t])
 
   const handlePostCreated = () => {
     console.log("Post created, refreshing")

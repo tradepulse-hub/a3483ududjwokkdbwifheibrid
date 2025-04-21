@@ -34,28 +34,38 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     registeredUsers: 0,
   })
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [listenersInitialized, setListenersInitialized] = useState(false)
 
   // Inicializar listeners em tempo real
   useEffect(() => {
     try {
       console.log("Initializing real-time listeners")
-      initializeRealTimeListeners(() => {
-        // Callback quando os posts são atualizados
-        console.log("Posts updated, triggering refresh")
-        setRefreshTrigger((prev) => prev + 1)
-      })
+
+      // Verificar se os listeners já foram inicializados para evitar duplicação
+      if (!listenersInitialized) {
+        initializeRealTimeListeners(() => {
+          // Callback quando os posts são atualizados
+          console.log("Posts updated, triggering refresh")
+          setRefreshTrigger((prev) => prev + 1)
+        })
+        setListenersInitialized(true)
+      }
 
       // Limpar listeners quando o componente for desmontado
       return () => {
         console.log("Removing real-time listeners")
         removeRealTimeListeners()
+        setListenersInitialized(false)
       }
     } catch (err) {
       console.error("Error initializing listeners:", err)
-      setError("Failed to initialize listeners")
+      setError(
+        t("error_initializing_listeners", "Failed to initialize data listeners. Please try refreshing the page."),
+      )
+      // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
       setIsLoading(false)
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
     async function loadData() {
@@ -66,38 +76,62 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
 
       console.log("Loading FiSquare data for address:", userAddress)
       setIsLoading(true)
+      setError(null)
 
       try {
         // Verificar se podemos acessar os dados básicos
-        const testPosts = await getPosts()
-        console.log(`Successfully fetched ${testPosts.length} posts`)
+        let testPosts = []
+        try {
+          testPosts = await getPosts()
+          console.log(`Successfully fetched ${testPosts.length} posts`)
+        } catch (postError) {
+          console.error("Error fetching posts:", postError)
+          throw new Error(t("error_fetching_posts", "Could not load posts. Please try again."))
+        }
 
         // Obter ou criar perfil do usuário
-        console.log("Getting or creating user profile")
-        const profile = await getOrCreateProfile(userAddress)
-        setUserProfile(profile)
-        console.log("User profile loaded:", profile)
+        let profile = null
+        try {
+          console.log("Getting or creating user profile")
+          profile = await getOrCreateProfile(userAddress)
+          setUserProfile(profile)
+          console.log("User profile loaded:", profile)
+        } catch (profileError) {
+          console.error("Error loading profile:", profileError)
+          throw new Error(t("error_loading_profile", "Could not load your profile. Please try again."))
+        }
 
         // Calcular estatísticas da comunidade
-        console.log("Fetching all profiles for community stats")
-        const allProfiles = await getProfiles()
-        console.log(`Fetched ${allProfiles.length} profiles`)
+        try {
+          console.log("Fetching all profiles for community stats")
+          const allProfiles = await getProfiles()
+          console.log(`Fetched ${allProfiles.length} profiles`)
 
-        // Usuários ativos (todos os perfis)
-        const activeUsers = allProfiles.length
+          // Usuários ativos (todos os perfis)
+          const activeUsers = allProfiles.length
 
-        // Usuários registrados (com foto de perfil ou nickname)
-        const registeredUsers = allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length
+          // Usuários registrados (com foto de perfil ou nickname)
+          const registeredUsers = allProfiles.filter((p) => p.profilePicture !== null || p.nickname !== null).length
 
-        setCommunityStats({
-          activeUsers,
-          registeredUsers,
-        })
+          setCommunityStats({
+            activeUsers,
+            registeredUsers,
+          })
+        } catch (statsError) {
+          console.error("Error loading community stats:", statsError)
+          // Não lançar erro aqui, apenas registrar, pois não é crítico
+          setCommunityStats({
+            activeUsers: 0,
+            registeredUsers: 0,
+          })
+        }
 
         console.log("FiSquare data loaded successfully")
       } catch (error) {
         console.error("Error loading FiSquare data:", error)
-        setError("Failed to load data. Please try again.")
+        setError(
+          error instanceof Error ? error.message : t("error_loading_data", "Failed to load data. Please try again."),
+        )
       } finally {
         // Garantir que o estado de carregamento seja desativado mesmo em caso de erro
         setIsLoading(false)
@@ -105,7 +139,7 @@ export default function FiSquare({ userAddress }: FiSquareProps) {
     }
 
     loadData()
-  }, [userAddress, refreshTrigger])
+  }, [userAddress, refreshTrigger, t])
 
   // Verificar se o usuário está banido
   const isBanned = userProfile ? isUserBanned(userProfile) : false
