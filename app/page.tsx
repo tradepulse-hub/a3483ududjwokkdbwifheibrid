@@ -11,6 +11,8 @@ import ChartBackground from "@/components/ChartBackground"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
 import { motion, AnimatePresence } from "framer-motion"
+import SafeArea from "@/components/SafeArea"
+import { useDeviceDetect } from "@/lib/useDeviceDetect"
 
 interface User {
   walletAddress: string
@@ -26,6 +28,8 @@ export default function Home() {
   const [copySuccess, setCopySuccess] = useState(false)
   // Adicionar estado para controlar a visibilidade do menu
   const [isMenuVisible, setIsMenuVisible] = useState(true)
+
+  const deviceInfo = useDeviceDetect()
 
   const truncateAddress = (address: string) => {
     if (!address) return ""
@@ -123,95 +127,97 @@ export default function Home() {
   // No retorno da função, passar o estado para o BottomMenu
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-0 bg-black text-white overflow-hidden">
-      {/* Animated chart background */}
-      <ChartBackground />
+      <SafeArea top bottom>
+        {/* Animated chart background */}
+        <ChartBackground />
 
-      {!isLoggedIn ? (
-        <div className="w-full h-screen flex flex-col items-center justify-center relative">
-          {/* Background overlay for better readability */}
-          <div className="absolute w-full h-full bg-black/50"></div>
+        {!isLoggedIn ? (
+          <div className="w-full h-screen flex flex-col items-center justify-center relative">
+            {/* Background overlay for better readability */}
+            <div className="absolute w-full h-full bg-black/50"></div>
 
-          {/* Logo with glow effect */}
-          <div className="relative z-10 mb-8">
-            <div className="absolute inset-0 rounded-full bg-white/20 blur-xl animate-pulse"></div>
-            <div className="relative z-20 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-1 shadow-2xl shadow-blue-500/20">
-              <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center">
-                <Image
-                  src="/images/tpf-logo.png"
-                  width={120}
-                  height={120}
-                  alt="TPulseFi Logo"
-                  className="w-4/5 h-4/5 object-contain"
-                />
+            {/* Logo with glow effect */}
+            <div className="relative z-10 mb-8">
+              <div className="absolute inset-0 rounded-full bg-white/20 blur-xl animate-pulse"></div>
+              <div className="relative z-20 w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-1 shadow-2xl shadow-blue-500/20">
+                <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center">
+                  <Image
+                    src="/images/tpf-logo.png"
+                    width={120}
+                    height={120}
+                    alt="TPulseFi Logo"
+                    className="w-4/5 h-4/5 object-contain"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Title with animated gradient */}
-          <h1 className="text-5xl sm:text-7xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 animate-gradient relative z-10">
-            TPulseFi
-          </h1>
-
-          <p className="text-xl sm:text-2xl text-gray-300 mb-12 relative z-10">Global Crypto Bridge</p>
-
-          {/* Login button with enhanced styling */}
-          <div className="w-full max-w-xs sm:max-w-sm relative z-10">
-            <Login onLoginSuccess={handleLoginSuccess} />
-            {loginError && <p className="text-red-400 text-center mt-4 text-sm">{loginError}</p>}
-          </div>
-        </div>
-      ) : (
-        <div className="w-full max-w-md mx-auto space-y-4 py-4 sm:py-6 px-4 relative z-10 pb-24">
-          {/* Background overlay for better readability when logged in */}
-          <div className="fixed inset-0 bg-black/70 -z-5"></div>
-
-          <div className="text-center mb-4 sm:mb-6">
-            <div className="inline-block rounded-full shadow-lg mb-3 p-2 bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse">
-              <Image
-                src="/images/tpf-logo.png"
-                width={40}
-                height={40}
-                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full"
-                alt="TPulseFi Logo"
-              />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+            {/* Title with animated gradient */}
+            <h1 className="text-5xl sm:text-7xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 animate-gradient relative z-10">
               TPulseFi
             </h1>
-            <p className="mt-1 text-sm sm:text-base text-gray-400">Global Crypto Bridge</p>
-          </div>
 
-          <section className="bg-gray-900/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-700">
-            <div className="flex justify-end">
-              <div className="flex items-center">
-                <span className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full inline-block animate-pulse mr-1.5"></span>
-                <span className="text-xs text-gray-300">{t("connected", "Connected")}</span>
-              </div>
+            <p className="text-xl sm:text-2xl text-gray-300 mb-12 relative z-10">Global Crypto Bridge</p>
+
+            {/* Login button with enhanced styling */}
+            <div className="w-full max-w-xs sm:max-w-sm relative z-10">
+              <Login onLoginSuccess={handleLoginSuccess} />
+              {loginError && <p className="text-red-400 text-center mt-4 text-sm">{loginError}</p>}
             </div>
-          </section>
+          </div>
+        ) : (
+          <div className="w-full max-w-md mx-auto space-y-4 py-4 sm:py-6 px-4 relative z-10 pb-24">
+            {/* Background overlay for better readability when logged in */}
+            <div className="fixed inset-0 bg-black/70 -z-5"></div>
 
-          {/* Content based on active tab */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="min-h-[300px]"
-            >
-              {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="inline-block rounded-full shadow-lg mb-3 p-2 bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse">
+                <Image
+                  src="/images/tpf-logo.png"
+                  width={40}
+                  height={40}
+                  className="h-8 w-8 sm:h-10 sm:w-10 rounded-full"
+                  alt="TPulseFi Logo"
+                />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+                TPulseFi
+              </h1>
+              <p className="mt-1 text-sm sm:text-base text-gray-400">Global Crypto Bridge</p>
+            </div>
 
-              {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
+            <section className="bg-gray-900/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-gray-700">
+              <div className="flex justify-end">
+                <div className="flex items-center">
+                  <span className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full inline-block animate-pulse mr-1.5"></span>
+                  <span className="text-xs text-gray-300">{t("connected", "Connected")}</span>
+                </div>
+              </div>
+            </section>
 
-              {activeTab === "airdrop" && user.walletAddress && <ClaimCoin userAddress={user.walletAddress} />}
-            </motion.div>
-          </AnimatePresence>
+            {/* Content based on active tab */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="min-h-[300px]"
+              >
+                {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
 
-          {/* Bottom Menu com a prop de visibilidade */}
-          <BottomMenu activeTab={activeTab} onTabChange={setActiveTab} isVisible={isMenuVisible} />
-        </div>
-      )}
+                {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
+
+                {activeTab === "airdrop" && user.walletAddress && <ClaimCoin userAddress={user.walletAddress} />}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Bottom Menu com a prop de visibilidade */}
+            <BottomMenu activeTab={activeTab} onTabChange={setActiveTab} isVisible={isMenuVisible} />
+          </div>
+        )}
+      </SafeArea>
     </main>
   )
 }

@@ -21,22 +21,27 @@ export default function ChartBackground() {
     resizeCanvas()
     window.addEventListener("resize", resizeCanvas)
 
-    // Chart line properties
-    const lines = Array.from({ length: 8 }, (_, i) => ({
+    // Detectar se é um dispositivo móvel
+    const isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+    // Chart line properties - reduzir a complexidade em dispositivos móveis
+    const lineCount = isMobile ? 4 : 8
+    const lines = Array.from({ length: lineCount }, (_, i) => ({
       points: [],
       speed: 0.5 + Math.random() * 1.5,
       amplitude: 50 + Math.random() * 100,
       frequency: 0.01 + Math.random() * 0.02,
       phase: Math.random() * Math.PI * 2,
-      y: canvas.height * (0.3 + (i * 0.5) / 8), // Distribute lines across the screen
+      y: canvas.height * (0.3 + (i * 0.5) / lineCount),
       opacity: 0.1 + Math.random() * 0.2,
       width: 1 + Math.random() * 2,
     }))
 
-    // Generate initial points for each line
+    // Generate initial points for each line - reduzir a densidade de pontos em dispositivos móveis
+    const pointSpacing = isMobile ? 10 : 5
     lines.forEach((line) => {
-      line.points = Array.from({ length: Math.ceil(canvas.width / 5) }, (_, i) => {
-        const x = i * 5
+      line.points = Array.from({ length: Math.ceil(canvas.width / pointSpacing) }, (_, i) => {
+        const x = i * pointSpacing
         const y = line.y + Math.sin(x * line.frequency + line.phase) * line.amplitude * (0.5 + Math.random() * 0.5)
         return { x, y }
       })

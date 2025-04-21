@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/languageContext"
 import { motion, AnimatePresence } from "framer-motion"
 import SendTokensModal from "./SendTokensModal"
 import ReceiveTokensModal from "./ReceiveTokensModal"
+import { useDeviceDetect } from "@/lib/useDeviceDetect"
 
 type BottomMenuProps = {
   activeTab: string
@@ -18,6 +19,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
   // Adicionar estados para os modais
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
+  const deviceInfo = useDeviceDetect()
 
   // Fechar o menu ao clicar fora dele
   useEffect(() => {
@@ -117,7 +119,10 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
   return (
     <>
       {/* Botões de ação fixos na parte inferior */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center space-x-4">
+      <div
+        className={`fixed bottom-${deviceInfo.isIOS ? "safe" : "6"} left-1/2 transform -translate-x-1/2 z-50 flex items-center space-x-4`}
+      >
+        {/* Botões de ação fixos na parte inferior */}
         {/* Botão Receive (à esquerda) */}
         <button
           onClick={() => setIsReceiveModalOpen(true)}
@@ -238,6 +243,11 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
 
       {/* Modal de Receive */}
       <ReceiveTokensModal isOpen={isReceiveModalOpen} onClose={() => setIsReceiveModalOpen(false)} />
+      <style jsx>{`
+        .bottom-safe {
+          bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+        }
+      `}</style>
     </>
   )
 }

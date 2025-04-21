@@ -7,6 +7,7 @@ import SendTPFModal from "./SendTPFModal"
 import ReceiveTokenModal from "./ReceiveTokenModal"
 import TokenDetailModal from "./TokenDetailModal"
 import { useLanguage } from "@/lib/languageContext"
+import { useDeviceDetect } from "@/lib/useDeviceDetect"
 
 type TokenWalletProps = {
   walletAddress: string
@@ -61,6 +62,8 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
   const [isSendTPFModalOpen, setIsSendTPFModalOpen] = useState(false)
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+
+  const deviceInfo = useDeviceDetect()
 
   useEffect(() => {
     const fetchTokenBalances = async () => {
@@ -314,7 +317,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
             {tokensWithBalance.map((token) => (
               <div
                 key={token.symbol}
-                className="relative overflow-hidden p-4 sm:p-5 rounded-xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer border border-gray-700/50 hover:border-gray-600/80 shadow-lg hover:shadow-xl group"
+                className={`relative overflow-hidden p-${deviceInfo.isMobile ? "3" : "4"} sm:p-5 rounded-xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer border border-gray-700/50 hover:border-gray-600/80 shadow-lg hover:shadow-xl group`}
                 onClick={() => handleTokenClick(token)}
               >
                 {/* Efeito de brilho no hover */}
