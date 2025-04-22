@@ -27,7 +27,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${sora.className} bg-white text-black`}>
+      <body className={sora.className}>
         <NextAuthProvider>
           <MiniKitProvider>
             <LanguageProvider>

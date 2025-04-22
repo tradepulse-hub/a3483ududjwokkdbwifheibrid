@@ -7,6 +7,7 @@ import Image from "next/image"
 import { ClaimCoin } from "@/components/ClaimCoin"
 import TokenWallet from "@/components/TokenWallet"
 import BottomMenu from "@/components/BottomMenu"
+import ChartBackground from "@/components/ChartBackground"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
 import { motion, AnimatePresence } from "framer-motion"
@@ -159,7 +160,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="fixed inset-0 flex items-center justify-center bg-white text-black">
+      <main className="fixed inset-0 flex items-center justify-center bg-black text-white">
         <div className="flex flex-col items-center justify-center text-center">
           <svg
             className="animate-spin h-12 w-12 text-blue-500"
@@ -182,53 +183,51 @@ export default function Home() {
   }
 
   return (
-    <main className="fixed inset-0 flex flex-col items-center justify-center bg-white text-black overflow-hidden">
+    <main className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white overflow-hidden">
       {/* Animated chart background */}
+      <ChartBackground />
 
       {!isLoggedIn ? (
         <div className="w-full h-full flex flex-col items-center justify-center relative">
           {/* Background overlay for better readability */}
+          <div className="absolute w-full h-full bg-black/50"></div>
 
-          {/* Área de login com fundo branco */}
-          <div className="relative z-10 bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4">
-            {/* Logo with glow effect */}
-            <div className="flex flex-col items-center mb-6">
-              <div className="relative mb-4">
-                <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-xl"></div>
-                <div className="relative z-20 w-20 h-20 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-1 shadow-2xl shadow-blue-500/20">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
-                    <Image
-                      src="/images/tpf-logo.png"
-                      width={80}
-                      height={80}
-                      alt="TPulseFi Logo"
-                      className="w-4/5 h-4/5 object-contain"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Title with animated gradient */}
-              <h1 className="text-3xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600">
-                TPulseFi
-              </h1>
-
-              <p className="text-lg text-gray-600 mb-8">Global Crypto Bridge</p>
-
-              {/* Login button with enhanced styling */}
-              <div className="w-full">
-                <Login onLoginSuccess={handleLoginSuccess} />
-                {loginError && <p className="text-red-500 text-center mt-4 text-sm">{loginError}</p>}
+          {/* Logo with glow effect */}
+          <div className="relative z-10 mb-6">
+            <div className="absolute inset-0 rounded-full bg-white/20 blur-xl"></div>
+            <div className="relative z-20 w-20 h-20 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-1 shadow-2xl shadow-blue-500/20">
+              <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center">
+                <Image
+                  src="/images/tpf-logo.png"
+                  width={80}
+                  height={80}
+                  alt="TPulseFi Logo"
+                  className="w-4/5 h-4/5 object-contain"
+                />
               </div>
             </div>
+          </div>
+
+          {/* Title with animated gradient */}
+          <h1 className="text-4xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 relative z-10">
+            TPulseFi
+          </h1>
+
+          <p className="text-lg text-gray-300 mb-8 relative z-10">Global Crypto Bridge</p>
+
+          {/* Login button with enhanced styling */}
+          <div className="w-full max-w-xs relative z-10">
+            <Login onLoginSuccess={handleLoginSuccess} />
+            {loginError && <p className="text-red-400 text-center mt-4 text-sm">{loginError}</p>}
           </div>
         </div>
       ) : (
         <div className="w-full h-full flex flex-col relative">
           {/* Background overlay for better readability when logged in */}
+          <div className="fixed inset-0 bg-black/70 -z-5"></div>
 
           {/* Header - Mais compacto e único para toda a aplicação */}
-          <div className="text-center pt-1 pb-1 bg-white rounded-lg shadow-md border border-gray-200 mb-1">
+          <div className="text-center pt-1 pb-1 bg-black/80 backdrop-blur-sm rounded-lg shadow-md border border-gray-800 mb-1">
             <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-blue-500 to-purple-600">
               <Image
                 src="/images/tpf-logo.png"
@@ -238,21 +237,21 @@ export default function Home() {
                 alt="TPulseFi Logo"
               />
             </div>
-            <h1 className="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            <h1 className="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
               TPulseFi
             </h1>
-            <p className="text-xs text-gray-500">Global Crypto Bridge</p>
+            <p className="text-xs text-gray-400">Global Crypto Bridge</p>
           </div>
 
           {/* Status bar - Mais compacto */}
-          <div className="bg-white rounded-lg shadow-md p-1 border border-gray-200 mb-1">
+          <div className="bg-black/80 backdrop-blur-sm rounded-lg shadow-md p-1 border border-gray-700 mb-1">
             <div className="flex justify-end">
               <div className="flex items-center">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block mr-1"></span>
-                <span className="text-xs text-gray-600 mr-2">{t("connected", "Connected")}</span>
+                <span className="text-xs text-gray-300 mr-2">{t("connected", "Connected")}</span>
                 <button
                   onClick={handleLogout}
-                  className="text-xxs bg-red-500 hover:bg-red-600 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center"
+                  className="text-xxs bg-red-900/80 hover:bg-red-800 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -274,38 +273,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Tabs de navegação com fundo branco */}
-          <div className="bg-white rounded-lg shadow-md p-2 border border-gray-200 mb-2">
-            <div className="flex justify-around">
-              <button
-                onClick={() => handleTabChange("wallet")}
-                className={`px-4 py-1 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === "wallet" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {t("wallet", "Wallet")}
-              </button>
-              <button
-                onClick={() => handleTabChange("lottery")}
-                className={`px-4 py-1 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === "lottery" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {t("lottery", "Lottery")}
-              </button>
-              <button
-                onClick={() => handleTabChange("airdrop")}
-                className={`px-4 py-1 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === "airdrop" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {t("airdrop_zone", "Airdrop Zone")}
-              </button>
-            </div>
-          </div>
-
           {/* Content based on active tab - Altura fixa e sem rolagem */}
-          <div className="flex-1 overflow-hidden bg-white rounded-lg shadow-md border border-gray-200 p-2 mb-2">
+          <div className="flex-1 overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
