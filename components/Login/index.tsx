@@ -85,9 +85,9 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
         onClick={handleLogin}
         disabled={loading}
         className="w-full py-4 px-8 text-lg font-bold rounded-full transition-all duration-500 
-                  bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-size-200 
-                  hover:bg-pos-100 text-white shadow-lg hover:shadow-blue-500/30 
-                  transform hover:scale-105 relative overflow-hidden"
+                 bg-gradient-to-r from-gray-600 to-gray-700 bg-size-200 
+                 hover:bg-pos-100 text-white shadow-lg hover:shadow-gray-500/30 
+                 transform hover:scale-105 relative overflow-hidden"
       >
         {/* Animated glow effect */}
         <span className="absolute inset-0 w-full h-full bg-white/20 animate-shimmer"></span>

@@ -639,7 +639,7 @@ export function Lottery({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-white backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-indigo-200 animate-fadeIn -mt-1">
+    <div className="bg-white backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-indigo-200 animate-fadeIn -mt-2">
       {/* Seção do Grande Prêmio - reduzir tamanho */}
       <div className="bg-gradient-to-r from-indigo-100 to-blue-100 backdrop-blur-sm rounded-xl p-2 mb-3 border border-indigo-200 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
         <div className="relative overflow-hidden">

@@ -240,9 +240,10 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
   )
 
   return (
+    // Ajustar a margem superior do componente TokenWallet para puxar o conteúdo mais para cima
     <div className="h-full flex flex-col overflow-hidden">
       {/* Cabeçalho da wallet mais compacto */}
-      <div className="bg-white backdrop-blur-sm rounded-lg shadow-md p-2 border border-gray-200 mb-1 -mt-1">
+      <div className="bg-white backdrop-blur-sm rounded-lg shadow-md p-2 border border-gray-200 mb-1 -mt-2">
         <div className="flex justify-between items-center mb-1">
           <h3 className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-600">
             {t("my_tokens", "My Tokens")}

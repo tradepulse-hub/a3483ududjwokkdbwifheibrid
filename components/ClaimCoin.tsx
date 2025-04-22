@@ -200,7 +200,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-white backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-gray-200 -mt-1">
+    <div className="bg-white backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-gray-200 -mt-2">
       <div className="text-center mb-4">
         <h1 className="text-lg sm:text-xl font-bold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-500 to-indigo-600 animate-gradient">
           {t("daily_airdrop", "Daily Airdrop")}
@@ -668,7 +668,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                   strokeLinejoin="round"
                   className="text-gray-500 group-hover:text-indigo-600 transition-colors duration-300"
                 >
-                  <path d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-8.609 3.33c-2.068.8-4.133 1.598-5.724 2.21a405.15 405.15 0 0 1-2.849 1.09c-.42.147-.99.332-1.473.901-.728.968.193 1.798.919 2.286 1.61.516 3.275 1.009 4.654 1.472.846 1.467 1.767 3.029 2.662 4.839.106.116.207.174.313.174.3 0 .536-.261.72-.484.386-.466.775-.935 1.164-1.403l1.67-2.055c.862-.817 1.792-1.602 2.877-2.34 1.04-.707 2.213-1.555 3.114-2.375.801-.729 1.376-1.591 1.69-2.454.315-.864.192-1.734-.172-2.465-.363-.73-1.049-1.187-1.769-1.283a4.326 4.326 0 0 0-.728-.05" />
+                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
                 </svg>
               </a>
             </div>

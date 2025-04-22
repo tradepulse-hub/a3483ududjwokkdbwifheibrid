@@ -266,7 +266,7 @@ export default function Home() {
           </div>
 
           {/* Content based on active tab - Altura fixa e sem rolagem */}
-          <div className="flex-1 overflow-hidden bg-white rounded-lg shadow-md border border-gray-200 p-2 mb-2">
+          <div className="flex-1 overflow-hidden bg-white rounded-lg shadow-md border border-gray-200 p-2 mb-2 -mt-1">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
