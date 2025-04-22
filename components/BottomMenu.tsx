@@ -147,13 +147,13 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
           <motion.div
             animate={{ rotate: isMenuOpen ? 180 : 0 }}
             transition={{ duration: 0.5 }}
-            className="w-14 h-14 rounded-full overflow-hidden"
+            className="w-12 h-12" // Ajustado para um tamanho um pouco menor para melhor encaixe
           >
             <Image
               src="/images/logo-menu.png"
               alt="Menu Logo"
-              width={56}
-              height={56}
+              width={48}
+              height={48}
               className="w-full h-full object-contain"
             />
           </motion.div>
