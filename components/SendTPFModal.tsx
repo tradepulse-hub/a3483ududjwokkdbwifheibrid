@@ -226,16 +226,16 @@ export default function SendTPFModal({
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-700/50 rounded-xl w-full max-w-md overflow-hidden shadow-2xl"
+        className="bg-gradient-to-br from-gray-200 to-gray-300 border border-gray-400/50 rounded-xl w-full max-w-md overflow-hidden shadow-2xl"
       >
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-purple-600/80 to-blue-600/80 p-5 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-gray-600 to-gray-700 p-5 relative overflow-hidden">
           {/* Animated shine effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer bg-size-200"></div>
 
           <div className="flex justify-between items-center relative z-10">
             <div className="flex items-center">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 border-2 border-white/20 flex-shrink-0 mr-3 shadow-lg">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border-2 border-white/20 flex-shrink-0 mr-3 shadow-lg">
                 <Image
                   src={tokenLogo || "/placeholder.svg"}
                   alt="TPF logo"
@@ -281,7 +281,7 @@ export default function SendTPFModal({
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
-                    className="text-red-400 text-sm p-3 bg-red-900/20 rounded-lg border border-red-800/50 mb-4"
+                    className="text-red-600 text-sm p-3 bg-red-100 rounded-lg border border-red-300 mb-4"
                   >
                     {error}
                   </motion.div>
@@ -295,8 +295,8 @@ export default function SendTPFModal({
                   }}
                 >
                   <div>
-                    <label htmlFor="recipient" className="block text-sm font-medium text-gray-300 mb-1">
-                      {t("to", "To")} <span className="text-red-400">*</span>
+                    <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-1">
+                      {t("to", "To")} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -305,15 +305,15 @@ export default function SendTPFModal({
                         value={recipientAddress}
                         onChange={(e) => setRecipientAddress(e.target.value)}
                         placeholder="0x..."
-                        className={`w-full px-3 py-3 bg-gray-800/80 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          validationErrors.recipient ? "border-red-500" : "border-gray-700"
+                        className={`w-full px-3 py-3 bg-gray-100 border rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 ${
+                          validationErrors.recipient ? "border-red-500" : "border-gray-300"
                         }`}
                       />
                       {recipientAddress && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-400"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -331,13 +331,13 @@ export default function SendTPFModal({
                       )}
                     </div>
                     {validationErrors.recipient && (
-                      <p className="mt-1 text-xs text-red-400">{validationErrors.recipient}</p>
+                      <p className="mt-1 text-xs text-red-600">{validationErrors.recipient}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-1">
-                      {t("amount", "Amount")} <span className="text-red-400">*</span>
+                    <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+                      {t("amount", "Amount")} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -348,15 +348,15 @@ export default function SendTPFModal({
                         placeholder="0.0"
                         min="0"
                         step="0.01"
-                        className={`w-full px-3 py-3 bg-gray-800/80 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          validationErrors.amount ? "border-red-500" : "border-gray-700"
+                        className={`w-full px-3 py-3 bg-gray-100 border rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 ${
+                          validationErrors.amount ? "border-red-500" : "border-gray-300"
                         }`}
                       />
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 font-medium">
                         TPF
                       </div>
                     </div>
-                    {validationErrors.amount && <p className="mt-1 text-xs text-red-400">{validationErrors.amount}</p>}
+                    {validationErrors.amount && <p className="mt-1 text-xs text-red-600">{validationErrors.amount}</p>}
                   </div>
 
                   <div className="pt-2">
@@ -365,7 +365,7 @@ export default function SendTPFModal({
                       whileTap={{ scale: 0.98 }}
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition-colors flex items-center justify-center font-medium shadow-lg shadow-purple-600/20"
+                      className="w-full py-3 px-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:opacity-90 transition-colors flex items-center justify-center font-medium shadow-lg shadow-gray-500/20"
                     >
                       {isLoading ? (
                         <>
@@ -421,7 +421,7 @@ export default function SendTPFModal({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-gradient-to-br from-green-900/30 to-blue-900/30 border border-green-700/50 rounded-lg p-5 text-center"
+                className="bg-gradient-to-br from-green-100 to-blue-100 border border-green-300 rounded-lg p-5 text-center"
               >
                 <motion.div
                   initial={{ scale: 0 }}
@@ -440,15 +440,15 @@ export default function SendTPFModal({
                   </svg>
                 </motion.div>
 
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
                   {t("transaction_sent_success", "Transaction sent successfully!")}
                 </h3>
-                <p className="text-green-300 text-sm mb-3">{t("tokens_on_way", "Your tokens are on the way!")}</p>
+                <p className="text-green-700 text-sm mb-3">{t("tokens_on_way", "Your tokens are on the way!")}</p>
 
                 {txId && (
-                  <div className="bg-gray-800/80 p-3 rounded-lg mb-4 overflow-hidden">
-                    <p className="text-xs text-gray-400 mb-1">{t("transaction_id", "Transaction ID:")}</p>
-                    <p className="text-xs font-mono text-gray-300 truncate">{txId}</p>
+                  <div className="bg-white p-3 rounded-lg mb-4 overflow-hidden">
+                    <p className="text-xs text-gray-600 mb-1">{t("transaction_id", "Transaction ID:")}</p>
+                    <p className="text-xs font-mono text-gray-700 truncate">{txId}</p>
                   </div>
                 )}
 
@@ -458,7 +458,7 @@ export default function SendTPFModal({
                       href={`https://worldscan.org/tx/${txId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors inline-flex items-center shadow-md"
+                      className="text-sm bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors inline-flex items-center shadow-md"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

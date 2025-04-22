@@ -105,11 +105,11 @@ export default function ReceiveTokenModal({
 
   const getTokenGradient = () => {
     if (tokenSymbol === "TPF") {
-      return "from-blue-600 via-purple-600 to-blue-600"
+      return "from-gray-600 via-gray-500 to-gray-600"
     } else if (tokenSymbol === "WLD") {
-      return "from-green-600 via-blue-600 to-green-600"
+      return "from-gray-600 via-gray-500 to-gray-600"
     }
-    return "from-blue-600 to-purple-600"
+    return "from-gray-600 to-gray-700"
   }
 
   if (!isOpen) return null
@@ -121,15 +121,15 @@ export default function ReceiveTokenModal({
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 rounded-xl w-full max-w-md p-5 shadow-2xl m-4"
+        className="bg-gradient-to-br from-gray-200 to-gray-300 border border-gray-400/50 rounded-xl w-full max-w-md p-5 shadow-2xl m-4"
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-white flex items-center">
+          <h3 className="text-lg font-bold text-gray-800 flex items-center">
             {t("receive", "Receive")} {tokenSymbol}
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-600 hover:text-gray-800 transition-colors"
             aria-label={t("close", "Close")}
           >
             <svg
@@ -148,7 +148,7 @@ export default function ReceiveTokenModal({
         <div
           className={`bg-gradient-to-r ${getTokenGradient()} animate-gradient bg-size-200 p-4 rounded-lg mb-5 flex items-center`}
         >
-          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-800 flex-shrink-0 mr-4 border-2 border-white/20">
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mr-4 border-2 border-white/20">
             <Image
               src={tokenLogo || "/placeholder.svg"}
               alt={`${tokenSymbol} logo`}
@@ -164,21 +164,21 @@ export default function ReceiveTokenModal({
         </div>
 
         {/* Token description */}
-        <div className="bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 mb-5 border border-gray-700/50">
-          <p className="text-xs text-gray-300 leading-relaxed">{getTokenDescription()}</p>
-          {getTokenContact() && <p className="text-sm text-blue-400 mt-2">{getTokenContact()}</p>}
+        <div className="bg-gray-100/80 backdrop-blur-sm rounded-lg p-4 mb-5 border border-gray-300/50">
+          <p className="text-xs text-gray-700 leading-relaxed">{getTokenDescription()}</p>
+          {getTokenContact() && <p className="text-sm text-gray-600 mt-2">{getTokenContact()}</p>}
         </div>
 
         {/* Wallet address section */}
         <div className="mb-5">
-          <label className="block text-xs font-medium text-gray-300 mb-2">
+          <label className="block text-xs font-medium text-gray-700 mb-2">
             {t("your_wallet_address", "Your Wallet Address")}
           </label>
-          <div className="w-full bg-gray-800 p-3 rounded-lg flex items-center justify-between border border-gray-700/50 group hover:border-gray-600 transition-colors">
-            <div className="font-mono text-xs text-gray-300 truncate max-w-[80%]">{walletAddress}</div>
+          <div className="w-full bg-gray-100 p-3 rounded-lg flex items-center justify-between border border-gray-300/50 group hover:border-gray-400 transition-colors">
+            <div className="font-mono text-xs text-gray-700 truncate max-w-[80%]">{walletAddress}</div>
             <button
               onClick={copyToClipboard}
-              className="ml-2 p-1.5 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
+              className="ml-2 p-1.5 bg-gray-300 hover:bg-gray-400 rounded-md transition-colors"
               title={t("copy_address", "Copy address")}
             >
               {copySuccess ? (
@@ -192,7 +192,7 @@ export default function ReceiveTokenModal({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-green-400"
+                  className="text-green-600"
                 >
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
@@ -207,7 +207,7 @@ export default function ReceiveTokenModal({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-gray-400 group-hover:text-white transition-colors"
+                  className="text-gray-600 group-hover:text-gray-800 transition-colors"
                 >
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                   <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
@@ -215,7 +215,7 @@ export default function ReceiveTokenModal({
               )}
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-600 mt-2">
             {t("copy_address_to_receive", "Copy the address above to receive")} {tokenSymbol}{" "}
             {t("on_worldchain", "on Worldchain")}.
           </p>
@@ -225,7 +225,7 @@ export default function ReceiveTokenModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm rounded-lg hover:opacity-90 transition-colors"
+            className="px-3 py-1.5 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm rounded-lg hover:opacity-90 transition-colors"
           >
             {t("close", "Close")}
           </button>

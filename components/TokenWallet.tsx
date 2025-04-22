@@ -36,7 +36,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
       symbol: "TPF",
       name: "TPulseFi",
       quantity: null,
-      gradient: "from-blue-500 to-purple-600",
+      gradient: "from-gray-600 to-gray-700",
       logo: "/images/tpf-logo.png",
       loading: true,
       address: "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45",
@@ -46,7 +46,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
       symbol: "WLD",
       name: "WorldCoin",
       quantity: null,
-      gradient: "from-green-500 to-blue-600",
+      gradient: "from-gray-600 to-gray-700",
       logo: "/images/worldcoin-logo.jpeg",
       loading: true,
       address: "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
@@ -244,12 +244,12 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
       {/* Cabeçalho da wallet mais compacto */}
       <div className="bg-white backdrop-blur-sm rounded-lg shadow-md p-2 border border-gray-200 mb-1 -mt-1">
         <div className="flex justify-between items-center mb-1">
-          <h3 className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
+          <h3 className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-600">
             {t("my_tokens", "My Tokens")}
           </h3>
           <button
             onClick={handleRefresh}
-            className="text-xxs bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center shadow-sm hover:shadow-indigo-500/20"
+            className="text-xxs bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center shadow-sm hover:shadow-gray-500/20"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -296,16 +296,16 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
           {isLoading ? (
             <div className="space-y-1">
               {[1, 2].map((i) => (
-                <div key={i} className="p-1.5 rounded-lg bg-gray-800/80 backdrop-blur-sm animate-pulse">
+                <div key={i} className="p-1.5 rounded-lg bg-gray-200 backdrop-blur-sm animate-pulse">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full mr-1.5 bg-gray-700"></div>
+                      <div className="w-6 h-6 rounded-full mr-1.5 bg-gray-300"></div>
                       <div>
-                        <div className="h-2 bg-gray-700 rounded w-10 mb-0.5"></div>
-                        <div className="h-1.5 bg-gray-700 rounded w-14"></div>
+                        <div className="h-2 bg-gray-300 rounded w-10 mb-0.5"></div>
+                        <div className="h-1.5 bg-gray-300 rounded w-14"></div>
                       </div>
                     </div>
-                    <div className="h-3 w-10 bg-gray-700 rounded"></div>
+                    <div className="h-3 w-10 bg-gray-300 rounded"></div>
                   </div>
                 </div>
               ))}
@@ -315,11 +315,11 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
               {tokensWithBalance.map((token) => (
                 <div
                   key={token.symbol}
-                  className="relative overflow-hidden p-1.5 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 backdrop-blur-sm hover:from-gray-100 hover:to-gray-200 transition-all duration-300 cursor-pointer border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md group"
+                  className="relative overflow-hidden p-1.5 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 backdrop-blur-sm hover:from-gray-200 hover:to-gray-300 transition-all duration-300 cursor-pointer border border-gray-300 hover:border-gray-400 shadow-sm hover:shadow-md group"
                   onClick={() => handleTokenClick(token)}
                 >
                   {/* Efeito de brilho no hover */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 bg-size-200 transition-opacity duration-700"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-400/10 to-transparent opacity-0 group-hover:opacity-100 bg-size-200 transition-opacity duration-700"></div>
 
                   <div className="flex items-center justify-between relative z-10">
                     <div className="flex items-center">
@@ -327,7 +327,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                         <div
                           className={`w-6 h-6 rounded-full overflow-hidden bg-gradient-to-br ${token.gradient} p-0.5 shadow-sm`}
                         >
-                          <div className="w-full h-full rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+                          <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
                             <Image
                               src={token.logo || "/placeholder.svg"}
                               alt={`${token.symbol} logo`}
@@ -340,7 +340,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
 
                         {/* Selo de verificação menor */}
                         {token.verified && (
-                          <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-2 h-2 flex items-center justify-center border border-gray-800">
+                          <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-2 h-2 flex items-center justify-center border border-white">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-1 w-1 text-white"
@@ -372,7 +372,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
 
                     <div className="text-right">
                       {token.loading ? (
-                        <div className="h-3 w-8 bg-gray-700 rounded animate-pulse"></div>
+                        <div className="h-3 w-8 bg-gray-300 rounded animate-pulse"></div>
                       ) : token.quantity ? (
                         <div className="font-bold text-gray-800 text-xs">{token.quantity}</div>
                       ) : (
@@ -384,8 +384,8 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-3 bg-gradient-to-br from-gray-50 to-gray-100 backdrop-blur-sm rounded-lg border border-gray-200 shadow-md p-2">
-              <div className="w-8 h-8 mx-auto bg-gradient-to-br from-indigo-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-1">
+            <div className="text-center py-3 bg-gradient-to-br from-gray-100 to-gray-200 backdrop-blur-sm rounded-lg border border-gray-300 shadow-md p-2">
+              <div className="w-8 h-8 mx-auto bg-gradient-to-br from-gray-400/20 to-gray-500/20 rounded-full flex items-center justify-center mb-1">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4 text-gray-500"
@@ -413,9 +413,9 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                   <button
                     key={token.symbol}
                     onClick={() => handleReceiveClick(token)}
-                    className="px-1.5 py-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white rounded-lg transition-all duration-300 flex items-center shadow-sm text-xxs"
+                    className="px-1.5 py-0.5 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all duration-300 flex items-center shadow-sm text-xxs"
                   >
-                    <div className="w-3 h-3 rounded-full overflow-hidden mr-0.5 bg-gray-600">
+                    <div className="w-3 h-3 rounded-full overflow-hidden mr-0.5 bg-white">
                       <Image
                         src={token.logo || "/placeholder.svg"}
                         alt={`${token.symbol} logo`}

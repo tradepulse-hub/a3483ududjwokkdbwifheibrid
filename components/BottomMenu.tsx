@@ -121,7 +121,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
         {/* Botão Receive (à esquerda) */}
         <button
           onClick={() => setIsReceiveModalOpen(true)}
-          className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-600/30 hover:scale-110 transition-all duration-300"
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center shadow-lg shadow-gray-500/30 hover:scale-110 transition-all duration-300"
           aria-label={t("receive", "Receive")}
         >
           <svg
@@ -140,7 +140,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
         {/* Botão de menu principal */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-600/30 hover:scale-110 transition-all duration-300"
+          className="w-16 h-16 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center shadow-lg shadow-gray-600/30 hover:scale-110 transition-all duration-300"
           aria-label="Menu"
         >
           <motion.div animate={{ rotate: isMenuOpen ? 45 : 0 }} transition={{ duration: 0.3 }}>
@@ -163,7 +163,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
         {/* Botão Send (à direita) */}
         <button
           onClick={() => setIsSendModalOpen(true)}
-          className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-600/30 hover:scale-110 transition-all duration-300"
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center shadow-lg shadow-gray-500/30 hover:scale-110 transition-all duration-300"
           aria-label={t("send", "Send")}
         >
           <svg
@@ -194,13 +194,13 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-gradient-to-r from-gray-900/90 to-purple-950/90 backdrop-blur-sm rounded-t-2xl w-full max-w-md p-6 border-t border-x border-purple-700/50 shadow-2xl"
+              className="bg-gradient-to-r from-gray-800/90 to-gray-900/90 backdrop-blur-sm rounded-t-2xl w-full max-w-md p-6 border-t border-x border-gray-600/50 shadow-2xl"
             >
               <div className="flex justify-center mb-2">
                 <div className="w-12 h-1.5 bg-gray-600 rounded-full"></div>
               </div>
 
-              <h3 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-4">
+              <h3 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 mb-4">
                 {t("menu", "Menu")}
               </h3>
 
@@ -213,7 +213,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
                     onClick={() => handleTabSelect(tab.id)}
                     className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-300 ${
                       activeTab === tab.id
-                        ? "bg-gradient-to-r from-blue-600/80 to-purple-600/80 shadow-lg shadow-purple-600/20"
+                        ? "bg-gradient-to-r from-gray-600/80 to-gray-700/80 shadow-lg shadow-gray-600/20"
                         : "bg-gray-800/80 hover:bg-gray-700/80"
                     }`}
                   >
