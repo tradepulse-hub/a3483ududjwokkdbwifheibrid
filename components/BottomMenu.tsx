@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/languageContext"
 import { motion, AnimatePresence } from "framer-motion"
 import SendTokensModal from "./SendTokensModal"
 import ReceiveTokensModal from "./ReceiveTokensModal"
+import Image from "next/image"
 
 type BottomMenuProps = {
   activeTab: string
@@ -137,26 +138,24 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
           </svg>
         </button>
 
-        {/* Botão de menu principal */}
+        {/* Botão de menu principal com o logotipo */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="w-16 h-16 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center shadow-lg shadow-gray-600/30 hover:scale-110 transition-all duration-300"
+          className="w-16 h-16 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center shadow-lg shadow-gray-600/30 hover:scale-110 transition-all duration-300 overflow-hidden"
           aria-label="Menu"
         >
-          <motion.div animate={{ rotate: isMenuOpen ? 45 : 0 }} transition={{ duration: 0.3 }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
+          <motion.div
+            animate={{ rotate: isMenuOpen ? 180 : 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-14 h-14 rounded-full overflow-hidden"
+          >
+            <Image
+              src="/images/logo-menu.png"
+              alt="Menu Logo"
+              width={56}
+              height={56}
+              className="w-full h-full object-contain"
+            />
           </motion.div>
         </button>
 
