@@ -242,14 +242,14 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Cabeçalho da wallet mais compacto */}
-      <div className="bg-black/80 backdrop-blur-sm rounded-lg shadow-md p-2 border border-gray-700/50 mb-1 -mt-1">
+      <div className="bg-white backdrop-blur-sm rounded-lg shadow-md p-2 border border-gray-200 mb-1 -mt-1">
         <div className="flex justify-between items-center mb-1">
-          <h3 className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+          <h3 className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
             {t("my_tokens", "My Tokens")}
           </h3>
           <button
             onClick={handleRefresh}
-            className="text-xxs bg-gradient-to-r from-blue-600/90 to-purple-600/90 hover:from-blue-500 hover:to-purple-500 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center shadow-sm hover:shadow-blue-600/20"
+            className="text-xxs bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center shadow-sm hover:shadow-indigo-500/20"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -315,11 +315,11 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
               {tokensWithBalance.map((token) => (
                 <div
                   key={token.symbol}
-                  className="relative overflow-hidden p-1.5 rounded-lg bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm hover:from-gray-800 hover:to-gray-800 transition-all duration-300 cursor-pointer border border-gray-700/50 hover:border-gray-600/80 shadow-sm hover:shadow-md group"
+                  className="relative overflow-hidden p-1.5 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 backdrop-blur-sm hover:from-gray-100 hover:to-gray-200 transition-all duration-300 cursor-pointer border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md group"
                   onClick={() => handleTokenClick(token)}
                 >
                   {/* Efeito de brilho no hover */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600/10 to-transparent opacity-0 group-hover:opacity-100 bg-size-200 transition-opacity duration-700"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 bg-size-200 transition-opacity duration-700"></div>
 
                   <div className="flex items-center justify-between relative z-10">
                     <div className="flex items-center">
@@ -359,11 +359,11 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
 
                       <div className="ml-1.5">
                         <div className="flex items-center">
-                          <div className="font-bold text-white text-xs">{token.symbol}</div>
+                          <div className="font-bold text-gray-800 text-xs">{token.symbol}</div>
                         </div>
-                        <div className="text-xxs text-gray-400">{token.name}</div>
+                        <div className="text-xxs text-gray-500">{token.name}</div>
                         {token.error && (
-                          <div className="text-xxs text-red-400">
+                          <div className="text-xxs text-red-500">
                             {t("error", "Error:")} {token.error}
                           </div>
                         )}
@@ -374,9 +374,9 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                       {token.loading ? (
                         <div className="h-3 w-8 bg-gray-700 rounded animate-pulse"></div>
                       ) : token.quantity ? (
-                        <div className="font-bold text-white text-xs">{token.quantity}</div>
+                        <div className="font-bold text-gray-800 text-xs">{token.quantity}</div>
                       ) : (
-                        <div className="text-red-400 text-xxs">{t("unavailable_token", "Unavailable")}</div>
+                        <div className="text-red-500 text-xxs">{t("unavailable_token", "Unavailable")}</div>
                       )}
                     </div>
                   </div>
@@ -384,11 +384,11 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-3 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm rounded-lg border border-gray-700/50 shadow-md p-2">
-              <div className="w-8 h-8 mx-auto bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mb-1">
+            <div className="text-center py-3 bg-gradient-to-br from-gray-50 to-gray-100 backdrop-blur-sm rounded-lg border border-gray-200 shadow-md p-2">
+              <div className="w-8 h-8 mx-auto bg-gradient-to-br from-indigo-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-1">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-gray-400"
+                  className="h-4 w-4 text-gray-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -401,8 +401,8 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                   />
                 </svg>
               </div>
-              <h3 className="text-xs font-medium text-white mb-0.5">{t("no_tokens_found", "No Tokens Found")}</h3>
-              <p className="text-xxs text-gray-400 mb-2">
+              <h3 className="text-xs font-medium text-gray-700 mb-0.5">{t("no_tokens_found", "No Tokens Found")}</h3>
+              <p className="text-xxs text-gray-500 mb-2">
                 {t(
                   "no_tokens_description",
                   'You don\'t have any tokens in your wallet yet. Use the "Receive" button to get started.',
@@ -413,7 +413,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                   <button
                     key={token.symbol}
                     onClick={() => handleReceiveClick(token)}
-                    className="px-1.5 py-0.5 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-sm text-xxs"
+                    className="px-1.5 py-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white rounded-lg transition-all duration-300 flex items-center shadow-sm text-xxs"
                   >
                     <div className="w-3 h-3 rounded-full overflow-hidden mr-0.5 bg-gray-600">
                       <Image

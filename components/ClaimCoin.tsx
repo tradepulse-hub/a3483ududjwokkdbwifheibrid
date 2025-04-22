@@ -200,27 +200,27 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-black/80 backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-gray-800 -mt-1">
+    <div className="bg-white backdrop-blur-sm rounded-2xl p-2 max-w-md mx-auto shadow-xl border border-gray-200 -mt-1">
       <div className="text-center mb-4">
-        <h1 className="text-lg sm:text-xl font-bold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 animate-gradient">
+        <h1 className="text-lg sm:text-xl font-bold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-500 to-indigo-600 animate-gradient">
           {t("daily_airdrop", "Daily Airdrop")}
         </h1>
-        <div className="h-1 w-16 mx-auto bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-2"></div>
+        <div className="h-1 w-16 mx-auto bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full mb-2"></div>
 
-        <div className="text-[10px] sm:text-xs text-gray-300 mb-1">
+        <div className="text-[10px] sm:text-xs text-gray-600 mb-1">
           {t("get_free_daily", "Get free daily airdrops, you just have to be following our social media.")}
         </div>
       </div>
 
       {/* Navegação por abas - Removendo o botão "Status" */}
       <div className="mb-4">
-        <div className="flex bg-gray-800/50 rounded-lg p-1 border border-gray-700/30">
+        <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
           <button
             onClick={() => setActiveTab("claim")}
             className={`flex-1 py-1 rounded-md transition-all duration-300 text-xs ${
               activeTab === "claim"
-                ? "bg-gradient-to-r from-blue-600/80 to-purple-600/80 text-white font-medium"
-                : "text-gray-400 hover:text-gray-200"
+                ? "bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-medium"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
             {t("claim", "Claim")}
@@ -229,8 +229,8 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             onClick={() => setActiveTab("social")}
             className={`flex-1 py-1 rounded-md transition-all duration-300 text-xs ${
               activeTab === "social"
-                ? "bg-gradient-to-r from-blue-600/80 to-purple-600/80 text-white font-medium"
-                : "text-gray-400 hover:text-gray-200"
+                ? "bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-medium"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
             {t("social", "Social")}
@@ -250,7 +250,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
           >
             {/* API Error Message */}
             {apiError && (
-              <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-2 text-center mb-3 animate-fadeIn">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-center mb-3 animate-fadeIn">
                 <div className="flex justify-center mb-1">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -268,10 +268,10 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                   </svg>
                 </div>
-                <p className="text-yellow-300 text-xs">
+                <p className="text-yellow-700 text-xs">
                   {t("error_connecting", "Error connecting to airdrop contract:")} {apiError}
                 </p>
-                <p className="text-[10px] text-yellow-200 mt-1">
+                <p className="text-[10px] text-yellow-600 mt-1">
                   {t(
                     "check_contract_deployed",
                     "Please check if the contract is deployed and accessible on the network.",
@@ -282,7 +282,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
 
             {/* Success Message */}
             {success && (
-              <div className="bg-green-900/30 border border-green-700 rounded-lg p-2 text-center mb-3 animate-fadeIn">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-2 text-center mb-3 animate-fadeIn">
                 <div className="flex justify-center mb-1">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -299,9 +299,9 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                   </svg>
                 </div>
-                <p className="text-green-300 text-xs">{t("claim_successful", "Claim successful!")}</p>
+                <p className="text-green-700 text-xs">{t("claim_successful", "Claim successful!")}</p>
                 {txId && (
-                  <p className="text-[10px] text-green-200 mt-1 font-mono bg-green-900/30 p-1 rounded overflow-hidden text-ellipsis">
+                  <p className="text-[10px] text-green-600 mt-1 font-mono bg-green-50 p-1 rounded overflow-hidden text-ellipsis">
                     TX: {txId}
                   </p>
                 )}
@@ -310,7 +310,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
 
             {/* Countdown Display */}
             {airdropStatus && !airdropStatus.canClaim && countdown && (
-              <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-2 text-center mb-3 animate-fadeIn">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-center mb-3 animate-fadeIn">
                 <div className="flex justify-center mb-1">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -327,9 +327,9 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                 </div>
-                <p className="text-blue-300 text-xs">{t("next_airdrop_in", "Next airdrop available in:")}</p>
-                <p className="text-sm font-mono text-white mt-1">{countdown}</p>
-                <p className="text-[10px] text-blue-200 mt-1">
+                <p className="text-blue-700 text-xs">{t("next_airdrop_in", "Next airdrop available in:")}</p>
+                <p className="text-sm font-mono text-gray-800 mt-1">{countdown}</p>
+                <p className="text-[10px] text-blue-600 mt-1">
                   {t("youll_receive", "You'll receive")} {airdropStatus.airdropAmount} TPF{" "}
                   {t("in_next_claim", "in the next claim")}
                 </p>
@@ -337,24 +337,22 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             )}
 
             {/* Contract Balance Display */}
-            <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg p-2 text-center mb-2 border border-gray-700">
-              <p className="text-xs text-gray-300 mb-1">{t("contract_balance", "Contract Balance:")}</p>
-              <div className="text-sm font-medium text-green-400">{contractBalance} TPF</div>
-              <p className="text-[10px] text-gray-400 mt-0.5">
+            <div className="bg-gray-50 backdrop-blur-sm rounded-lg p-2 text-center mb-2 border border-gray-200">
+              <p className="text-xs text-gray-600 mb-1">{t("contract_balance", "Contract Balance:")}</p>
+              <div className="text-sm font-medium text-green-600">{contractBalance} TPF</div>
+              <p className="text-[10px] text-gray-500 mt-0.5">
                 {t("total_tokens_available", "Total tokens available for airdrops")}
               </p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-900/30 text-red-300 text-xs p-2 rounded-lg mb-3 border border-red-800/50">
-                {error}
-              </div>
+              <div className="bg-red-50 text-red-600 text-xs p-2 rounded-lg mb-3 border border-red-200">{error}</div>
             )}
 
             {/* Follow Message */}
             {showFollowMessage && !allSocialsFollowed && (
-              <div className="bg-yellow-900/30 text-yellow-300 text-xs p-2 rounded-lg mb-3 border border-yellow-800/50 animate-fadeIn">
+              <div className="bg-yellow-50 text-yellow-700 text-xs p-2 rounded-lg mb-3 border border-yellow-200 animate-fadeIn">
                 {t("follow_all_social", "Please follow all our social media channels to unlock the airdrop!")}
               </div>
             )}
@@ -371,7 +369,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             ? "bg-gray-700 text-gray-400 cursor-not-allowed"
             : airdropStatus && !airdropStatus.canClaim
               ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-600/20 hover:scale-105"
+              : "bg-gradient-to-r from-indigo-500 to-blue-500 text-white hover:shadow-lg hover:shadow-indigo-500/20 hover:scale-105"
       }`}
             >
               {isClaimingAirdrop ? (
@@ -469,11 +467,11 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             transition={{ duration: 0.3 }}
           >
             {/* Social Media Follow Status - Atualizado com mini ícones */}
-            <div className="bg-gradient-to-r from-blue-900/70 to-purple-900/70 backdrop-blur-sm rounded-lg p-2 mb-2 border border-blue-600/50 shadow-lg">
-              <h3 className="text-base font-bold text-white mb-1 flex items-center justify-center">
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 backdrop-blur-sm rounded-lg p-2 mb-2 border border-indigo-200 shadow-lg">
+              <h3 className="text-base font-bold text-gray-800 mb-1 flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-1 text-blue-400"
+                  className="h-4 w-4 mr-1 text-indigo-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -488,16 +486,16 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                 {t("social_media", "Social Media")}
               </h3>
 
-              <p className="text-center text-gray-300 mb-2 text-xs">
+              <p className="text-center text-gray-600 mb-2 text-xs">
                 {t("follow_social_media", "Follow our social media to unlock the airdrop:")}
               </p>
 
               <div className="space-y-2">
                 {/* Twitter/X */}
-                <div className="bg-gray-800/80 rounded-lg p-1.5 border border-gray-700/50">
+                <div className="bg-white rounded-lg p-1.5 border border-gray-200">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center mr-2">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -508,18 +506,18 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-blue-400"
+                          className="text-indigo-600"
                         >
                           <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
                         </svg>
                       </div>
                       <div>
-                        <h4 className="font-medium text-white text-xs">{t("twitter_x", "Twitter/X")}</h4>
-                        <p className="text-[10px] text-gray-400">@TradePulseToken</p>
+                        <h4 className="font-medium text-gray-800 text-xs">{t("twitter_x", "Twitter/X")}</h4>
+                        <p className="text-[10px] text-gray-500">@TradePulseToken</p>
                       </div>
                     </div>
                     {followedTwitter ? (
-                      <div className="bg-green-900/30 text-green-400 text-[10px] px-2 py-1 rounded-full border border-green-700/50 flex items-center justify-center w-6 h-6">
+                      <div className="bg-green-100 text-green-600 text-[10px] px-2 py-1 rounded-full border border-green-200 flex items-center justify-center w-6 h-6">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="12"
@@ -537,7 +535,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                     ) : (
                       <button
                         onClick={handleTwitterFollow}
-                        className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-0.5 rounded-full transition-colors"
+                        className="bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full transition-colors"
                       >
                         {t("follow", "Follow")}
                       </button>
@@ -546,10 +544,10 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                 </div>
 
                 {/* Telegram */}
-                <div className="bg-gray-800/80 rounded-lg p-1.5 border border-gray-700/50">
+                <div className="bg-white rounded-lg p-1.5 border border-gray-200">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center mr-2">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -560,18 +558,18 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-blue-400"
+                          className="text-indigo-600"
                         >
                           <path d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-8.609 3.33c-2.068.8-4.133 1.598-5.724 2.21a405.15 405.15 0 0 1-2.849 1.09c-.42.147-.99.332-1.473.901-.728.968.193 1.798.919 2.286 1.61.516 3.275 1.009 4.654 1.472.846 1.467 1.767 3.029 2.662 4.839.106.116.207.174.313.174.3 0 .536-.261.72-.484.386-.466.775-.935 1.164-1.403l1.67-2.055c.862-.817 1.792-1.602 2.877-2.34 1.04-.707 2.213-1.555 3.114-2.375.801-.729 1.376-1.591 1.69-2.454.315-.864.192-1.734-.172-2.465-.363-.73-1.049-1.187-1.769-1.283a4.326 4.326 0 0 0-.728-.05" />
                         </svg>
                       </div>
                       <div>
-                        <h4 className="font-medium text-white text-xs">{t("telegram", "Telegram")}</h4>
-                        <p className="text-[10px] text-gray-400">@tpulsefi</p>
+                        <h4 className="font-medium text-gray-800 text-xs">{t("telegram", "Telegram")}</h4>
+                        <p className="text-[10px] text-gray-500">@tpulsefi</p>
                       </div>
                     </div>
                     {followedTelegram ? (
-                      <div className="bg-green-900/30 text-green-400 text-[10px] px-2 py-1 rounded-full border border-green-700/50 flex items-center justify-center w-6 h-6">
+                      <div className="bg-green-100 text-green-600 text-[10px] px-2 py-1 rounded-full border border-green-200 flex items-center justify-center w-6 h-6">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="12"
@@ -589,7 +587,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                     ) : (
                       <button
                         onClick={handleTelegramFollow}
-                        className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-0.5 rounded-full transition-colors"
+                        className="bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full transition-colors"
                       >
                         {t("follow", "Follow")}
                       </button>
@@ -602,8 +600,8 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                 <div
                   className={`inline-block px-4 py-2 rounded-lg ${
                     allSocialsFollowed
-                      ? "bg-green-900/30 text-green-400 border border-green-700/50"
-                      : "bg-yellow-900/30 text-yellow-300 border border-yellow-700/50"
+                      ? "bg-green-50 text-green-600 border border-green-200"
+                      : "bg-yellow-50 text-yellow-700 border border-yellow-200"
                   }`}
                 >
                   {allSocialsFollowed ? (
@@ -656,7 +654,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                 href="https://x.com/TradePulseToken?t=pVsX5va6z7eOJj70W9pSog&s=09"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 transition-all duration-300 group"
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 hover:border-indigo-500 transition-all duration-300 group"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -668,7 +666,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-gray-400 group-hover:text-blue-400 transition-colors duration-300"
+                  className="text-gray-500 group-hover:text-indigo-600 transition-colors duration-300"
                 >
                   <path d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-8.609 3.33c-2.068.8-4.133 1.598-5.724 2.21a405.15 405.15 0 0 1-2.849 1.09c-.42.147-.99.332-1.473.901-.728.968.193 1.798.919 2.286 1.61.516 3.275 1.009 4.654 1.472.846 1.467 1.767 3.029 2.662 4.839.106.116.207.174.313.174.3 0 .536-.261.72-.484.386-.466.775-.935 1.164-1.403l1.67-2.055c.862-.817 1.792-1.602 2.877-2.34 1.04-.707 2.213-1.555 3.114-2.375.801-.729 1.376-1.591 1.69-2.454.315-.864.192-1.734-.172-2.465-.363-.73-1.049-1.187-1.769-1.283a4.326 4.326 0 0 0-.728-.05" />
                 </svg>

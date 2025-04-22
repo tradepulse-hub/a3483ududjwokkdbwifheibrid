@@ -159,10 +159,10 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="fixed inset-0 flex items-center justify-center bg-white text-black">
+      <main className="fixed inset-0 flex items-center justify-center bg-white text-gray-800">
         <div className="flex flex-col items-center justify-center text-center">
           <svg
-            className="animate-spin h-12 w-12 text-blue-500"
+            className="animate-spin h-12 w-12 text-indigo-600"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -182,13 +182,14 @@ export default function Home() {
   }
 
   return (
-    <main className="fixed inset-0 flex flex-col items-center justify-center bg-white text-black overflow-hidden">
+    <main className="fixed inset-0 flex flex-col items-center justify-center bg-white text-gray-800 overflow-hidden">
       {!isLoggedIn ? (
         <div className="w-full h-full flex flex-col items-center justify-center relative bg-white">
+          <div className="absolute w-full h-full bg-gray-100/50"></div>
           {/* Logo with glow effect */}
           <div className="relative z-10 mb-6">
             <div className="absolute inset-0 rounded-full bg-white/20 blur-xl"></div>
-            <div className="relative z-20 w-20 h-20 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-1 shadow-2xl shadow-blue-500/20">
+            <div className="relative z-20 w-20 h-20 rounded-full bg-gradient-to-r from-indigo-500 to-blue-600 p-1 shadow-2xl shadow-indigo-500/20">
               <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
                 <Image
                   src="/images/tpf-logo.png"
@@ -202,7 +203,7 @@ export default function Home() {
           </div>
 
           {/* Title with animated gradient */}
-          <h1 className="text-4xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 relative z-10">
+          <h1 className="text-4xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-500 to-indigo-600 relative z-10">
             TPulseFi
           </h1>
 
@@ -216,9 +217,10 @@ export default function Home() {
         </div>
       ) : (
         <div className="w-full h-full flex flex-col relative">
+          <div className="fixed inset-0 bg-gray-50 -z-5"></div>
           {/* Header - Mais compacto e único para toda a aplicação */}
           <div className="text-center pt-1 pb-1 bg-white rounded-lg shadow-md border border-gray-200 mb-1">
-            <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-blue-500 to-purple-600">
+            <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-indigo-500 to-blue-500">
               <Image
                 src="/images/tpf-logo.png"
                 width={20}
@@ -227,10 +229,10 @@ export default function Home() {
                 alt="TPulseFi Logo"
               />
             </div>
-            <h1 className="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+            <h1 className="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
               TPulseFi
             </h1>
-            <p className="text-xs text-gray-400">Global Crypto Bridge</p>
+            <p className="text-xs text-gray-500">Global Crypto Bridge</p>
           </div>
 
           {/* Status bar - Mais compacto */}
