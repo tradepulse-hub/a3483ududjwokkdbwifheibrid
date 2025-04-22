@@ -7,7 +7,6 @@ import Image from "next/image"
 import { ClaimCoin } from "@/components/ClaimCoin"
 import TokenWallet from "@/components/TokenWallet"
 import BottomMenu from "@/components/BottomMenu"
-import ChartBackground from "@/components/ChartBackground"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
 import { motion, AnimatePresence } from "framer-motion"
@@ -160,7 +159,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="fixed inset-0 flex items-center justify-center bg-black text-white">
+      <main className="fixed inset-0 flex items-center justify-center bg-white text-black">
         <div className="flex flex-col items-center justify-center text-center">
           <svg
             className="animate-spin h-12 w-12 text-blue-500"
@@ -183,20 +182,14 @@ export default function Home() {
   }
 
   return (
-    <main className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white overflow-hidden">
-      {/* Animated chart background */}
-      <ChartBackground />
-
+    <main className="fixed inset-0 flex flex-col items-center justify-center bg-white text-black overflow-hidden">
       {!isLoggedIn ? (
-        <div className="w-full h-full flex flex-col items-center justify-center relative">
-          {/* Background overlay for better readability */}
-          <div className="absolute w-full h-full bg-black/50"></div>
-
+        <div className="w-full h-full flex flex-col items-center justify-center relative bg-white">
           {/* Logo with glow effect */}
           <div className="relative z-10 mb-6">
             <div className="absolute inset-0 rounded-full bg-white/20 blur-xl"></div>
             <div className="relative z-20 w-20 h-20 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-1 shadow-2xl shadow-blue-500/20">
-              <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center">
+              <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
                 <Image
                   src="/images/tpf-logo.png"
                   width={80}
@@ -213,7 +206,7 @@ export default function Home() {
             TPulseFi
           </h1>
 
-          <p className="text-lg text-gray-300 mb-8 relative z-10">Global Crypto Bridge</p>
+          <p className="text-lg text-gray-600 mb-8 relative z-10">Global Crypto Bridge</p>
 
           {/* Login button with enhanced styling */}
           <div className="w-full max-w-xs relative z-10">
@@ -223,11 +216,8 @@ export default function Home() {
         </div>
       ) : (
         <div className="w-full h-full flex flex-col relative">
-          {/* Background overlay for better readability when logged in */}
-          <div className="fixed inset-0 bg-black/70 -z-5"></div>
-
           {/* Header - Mais compacto e único para toda a aplicação */}
-          <div className="text-center pt-1 pb-1 bg-black/80 backdrop-blur-sm rounded-lg shadow-md border border-gray-800 mb-1">
+          <div className="text-center pt-1 pb-1 bg-white rounded-lg shadow-md border border-gray-200 mb-1">
             <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-blue-500 to-purple-600">
               <Image
                 src="/images/tpf-logo.png"
@@ -244,14 +234,14 @@ export default function Home() {
           </div>
 
           {/* Status bar - Mais compacto */}
-          <div className="bg-black/80 backdrop-blur-sm rounded-lg shadow-md p-1 border border-gray-700 mb-1">
+          <div className="bg-white rounded-lg shadow-md p-1 border border-gray-200 mb-1">
             <div className="flex justify-end">
               <div className="flex items-center">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block mr-1"></span>
-                <span className="text-xs text-gray-300 mr-2">{t("connected", "Connected")}</span>
+                <span className="text-xs text-gray-600 mr-2">{t("connected", "Connected")}</span>
                 <button
                   onClick={handleLogout}
-                  className="text-xxs bg-red-900/80 hover:bg-red-800 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center"
+                  className="text-xxs bg-red-500 hover:bg-red-600 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -274,7 +264,7 @@ export default function Home() {
           </div>
 
           {/* Content based on active tab - Altura fixa e sem rolagem */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden bg-white rounded-lg shadow-md border border-gray-200 p-2 mb-2">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
