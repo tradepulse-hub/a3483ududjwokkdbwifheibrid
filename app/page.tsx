@@ -7,7 +7,6 @@ import Image from "next/image"
 import { ClaimCoin } from "@/components/ClaimCoin"
 import TokenWallet from "@/components/TokenWallet"
 import BottomMenu from "@/components/BottomMenu"
-import ChartBackground from "@/components/ChartBackground"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
 import { motion, AnimatePresence } from "framer-motion"
@@ -160,7 +159,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="fixed inset-0 flex items-center justify-center bg-black text-white">
+      <main className="fixed inset-0 flex items-center justify-center bg-white text-black">
         <div className="flex flex-col items-center justify-center text-center">
           <svg
             className="animate-spin h-12 w-12 text-blue-500"
@@ -183,14 +182,12 @@ export default function Home() {
   }
 
   return (
-    <main className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white overflow-hidden">
+    <main className="fixed inset-0 flex flex-col items-center justify-center bg-white text-black overflow-hidden">
       {/* Animated chart background */}
-      <ChartBackground />
 
       {!isLoggedIn ? (
         <div className="w-full h-full flex flex-col items-center justify-center relative">
           {/* Background overlay for better readability */}
-          <div className="absolute w-full h-full bg-black/50"></div>
 
           {/* Área de login com fundo branco */}
           <div className="relative z-10 bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4">
@@ -229,7 +226,6 @@ export default function Home() {
       ) : (
         <div className="w-full h-full flex flex-col relative">
           {/* Background overlay for better readability when logged in */}
-          <div className="fixed inset-0 bg-black/70 -z-5"></div>
 
           {/* Header - Mais compacto e único para toda a aplicação */}
           <div className="text-center pt-1 pb-1 bg-white rounded-lg shadow-md border border-gray-200 mb-1">
