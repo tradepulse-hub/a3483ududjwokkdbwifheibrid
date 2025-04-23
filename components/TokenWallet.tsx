@@ -251,15 +251,15 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         }
       }
 
-      // Fetch WDD (Drachma) balance - Simulado
+      // Fetch WDD (Drachma) balance - Simulado com valores mais realistas
       const fetchWDDBalance = async () => {
         try {
           console.log(`Fetching WDD balance...`)
           // Simular um atraso para parecer uma chamada real
           await new Promise((resolve) => setTimeout(resolve, 500))
 
-          // Simular um valor aleatório para demonstração
-          const randomBalance = (Math.random() * 1000).toFixed(2)
+          // Gerar um valor mais realista entre 10 e 50
+          const randomBalance = (10 + Math.random() * 40).toFixed(2)
 
           return {
             quantity: randomBalance,
@@ -279,15 +279,15 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         }
       }
 
-      // Fetch CASH balance - Simulado
+      // Fetch CASH balance - Simulado com valores mais realistas
       const fetchCASHBalance = async () => {
         try {
           console.log(`Fetching CASH balance...`)
           // Simular um atraso para parecer uma chamada real
           await new Promise((resolve) => setTimeout(resolve, 600))
 
-          // Simular um valor aleatório para demonstração
-          const randomBalance = (Math.random() * 500).toFixed(2)
+          // Gerar um valor mais realista entre 5 e 25
+          const randomBalance = (5 + Math.random() * 20).toFixed(2)
 
           return {
             quantity: randomBalance,

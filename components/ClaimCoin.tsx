@@ -11,6 +11,8 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
   const [txId, setTxId] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const coinRef = useRef<HTMLDivElement>(null)
+  const coinFrontRef = useRef<HTMLDivElement>(null)
+  const coinBackRef = useRef<HTMLDivElement>(null)
 
   // Estados para o status do airdrop
   const [airdropStatus, setAirdropStatus] = useState<{
@@ -31,42 +33,62 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
   // Efeito para rotação 3D da moeda
   useEffect(() => {
     const coin = coinRef.current
-    if (!coin) return
+    const coinFront = coinFrontRef.current
+    const coinBack = coinBackRef.current
+
+    if (!coin || !coinFront || !coinBack) return
+
+    // Configurar a rotação inicial
+    coin.style.transform = "perspective(1000px) rotateY(0deg)"
+
+    // Função para animar a rotação da moeda
+    let angle = 0
+    let direction = 1
+    let isHovering = false
+
+    const animate = () => {
+      if (!isHovering) {
+        angle += 2 * direction
+
+        // Efeito de oscilação suave
+        if (angle > 25) direction = -1
+        if (angle < -25) direction = 1
+
+        coin.style.transform = `perspective(1000px) rotateY(${angle}deg)`
+      }
+      requestAnimationFrame(animate)
+    }
+
+    animate()
 
     const handleMouseMove = (e: MouseEvent) => {
+      isHovering = true
       const rect = coin.getBoundingClientRect()
       const x = e.clientX - rect.left - rect.width / 2
       const y = e.clientY - rect.top - rect.height / 2
 
       // Limitar a rotação a um ângulo máximo
-      const maxRotation = 15
-      const rotateX = Math.min(Math.max(-maxRotation, y / 10), maxRotation)
-      const rotateY = Math.min(Math.max(-maxRotation, -x / 10), maxRotation)
+      const maxRotation = 25
+      const rotateX = Math.min(Math.max(-maxRotation, y / 5), maxRotation)
+      const rotateY = Math.min(Math.max(-maxRotation, -x / 5), maxRotation)
 
       coin.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
     }
 
     const handleMouseLeave = () => {
-      coin.style.transform = "perspective(1000px) rotateX(0) rotateY(0)"
+      isHovering = false
       coin.style.transition = "transform 0.5s ease"
+      setTimeout(() => {
+        if (coin) coin.style.transition = ""
+      }, 500)
     }
 
     coin.addEventListener("mousemove", handleMouseMove)
     coin.addEventListener("mouseleave", handleMouseLeave)
 
-    // Iniciar animação automática de rotação
-    let angle = 0
-    const interval = setInterval(() => {
-      if (document.hasFocus() && !coin.matches(":hover")) {
-        angle += 1
-        coin.style.transform = `perspective(1000px) rotateY(${angle}deg)`
-      }
-    }, 50)
-
     return () => {
       coin.removeEventListener("mousemove", handleMouseMove)
-      coin.removeEventListener("mouseleave", handleMouseLeave)
-      clearInterval(interval)
+      coin.addEventListener("mouseleave", handleMouseLeave)
     }
   }, [])
 
@@ -220,13 +242,43 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
         {t("daily_airdrop", "Daily Airdrop")}
       </h1>
 
-      {/* Moeda girando */}
+      {/* Moeda 3D com efeito de espessura */}
       <div
         ref={coinRef}
-        className="relative w-48 h-48 mb-8 cursor-pointer transition-transform duration-200 ease-out"
-        style={{ transformStyle: "preserve-3d" }}
+        className="relative w-56 h-56 mb-8 cursor-pointer"
+        style={{
+          transformStyle: "preserve-3d",
+          perspective: "1000px",
+        }}
       >
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 shadow-xl border-4 border-white flex items-center justify-center overflow-hidden">
+        {/* Borda externa da moeda */}
+        <div
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-300 to-gray-200 shadow-xl flex items-center justify-center"
+          style={{
+            transform: "translateZ(-2px)",
+            boxShadow: "0 0 30px rgba(0,0,0,0.2)",
+          }}
+        ></div>
+
+        {/* Lateral da moeda - dá a sensação de espessura */}
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            transform: "translateZ(-1px)",
+            background: "linear-gradient(to right, #999, #eee, #999, #eee, #999)",
+            boxShadow: "inset 0 0 10px rgba(0,0,0,0.5)",
+          }}
+        ></div>
+
+        {/* Frente da moeda */}
+        <div
+          ref={coinFrontRef}
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 shadow-xl border-8 border-gray-300 flex items-center justify-center overflow-hidden"
+          style={{
+            transform: "translateZ(2px)",
+            boxShadow: "0 0 20px rgba(0,0,0,0.1)",
+          }}
+        >
           <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
             <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
               <Image
@@ -239,6 +291,31 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             </div>
           </div>
         </div>
+
+        {/* Verso da moeda */}
+        <div
+          ref={coinBackRef}
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 shadow-xl border-8 border-gray-300 flex items-center justify-center overflow-hidden"
+          style={{
+            transform: "translateZ(-2px) rotateY(180deg)",
+            backfaceVisibility: "hidden",
+          }}
+        >
+          <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
+            <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
+              <div className="text-2xl font-bold text-gray-700">TPF</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reflexo na moeda */}
+        <div
+          className="absolute inset-0 rounded-full bg-gradient-to-b from-white/20 to-transparent"
+          style={{
+            transform: "translateZ(3px)",
+            height: "50%",
+          }}
+        ></div>
       </div>
 
       {/* API Error Message */}
