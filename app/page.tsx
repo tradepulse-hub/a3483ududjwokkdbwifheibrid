@@ -9,6 +9,7 @@ import TokenWallet from "@/components/TokenWallet"
 import BottomMenu from "@/components/BottomMenu"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
+import { Staking } from "@/components/Staking"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface User {
@@ -256,7 +257,7 @@ export default function Home() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 013-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                     />
                   </svg>
                   {t("logout", "Logout")}
@@ -278,6 +279,8 @@ export default function Home() {
                 onAnimationComplete={ensureMenuVisible}
               >
                 {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
+
+                {activeTab === "staking" && user.walletAddress && <Staking userAddress={user.walletAddress} />}
 
                 {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
 
