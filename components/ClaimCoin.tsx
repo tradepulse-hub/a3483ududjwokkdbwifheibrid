@@ -233,16 +233,16 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-white backdrop-blur-sm rounded-2xl p-4 max-w-md mx-auto shadow-xl border border-gray-200 -mt-2 flex flex-col items-center justify-center">
+    <div className="bg-white backdrop-blur-sm rounded-2xl p-3 max-w-md mx-auto shadow-xl border border-gray-200 -mt-4 flex flex-col items-center justify-center">
       {/* Título */}
-      <h1 className="text-lg sm:text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800">
+      <h1 className="text-lg font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800">
         {t("daily_airdrop", "Daily Airdrop")}
       </h1>
 
       {/* Moeda 3D com efeito de espessura */}
       <div
         ref={coinRef}
-        className="relative w-56 h-56 mb-8 cursor-pointer"
+        className="relative w-48 h-48 mb-4 cursor-pointer"
         style={{
           transformStyle: "preserve-3d",
           perspective: "1000px",
@@ -276,14 +276,14 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             boxShadow: "0 0 20px rgba(0,0,0,0.1)",
           }}
         >
-          <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
+          <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
             <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
               <Image
                 src="/images/tpf-logo-new.png"
                 alt="TPF Logo"
-                width={120}
-                height={120}
-                className="w-32 h-32 object-contain"
+                width={100}
+                height={100}
+                className="w-28 h-28 object-contain"
               />
             </div>
           </div>
@@ -298,7 +298,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             backfaceVisibility: "hidden",
           }}
         >
-          <div className="w-40 h-40 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
+          <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
             <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
               <div className="text-2xl font-bold text-gray-700">TPF</div>
             </div>
@@ -371,9 +371,9 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
 
       {/* Countdown Display */}
       {airdropStatus && !airdropStatus.canClaim && countdown && (
-        <div className="text-center mb-6 w-full">
-          <p className="text-gray-500 text-sm mb-2">{getCountdownText()}</p>
-          <p className="text-3xl font-mono font-bold text-gray-800">{countdown}</p>
+        <div className="text-center mb-3 w-full">
+          <p className="text-gray-500 text-xs mb-1">{getCountdownText()}</p>
+          <p className="text-2xl font-mono font-bold text-gray-800">{countdown}</p>
         </div>
       )}
 
@@ -386,7 +386,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
       <button
         onClick={handleClaim}
         disabled={isClaimingAirdrop || (airdropStatus && !airdropStatus.canClaim)}
-        className={`w-full py-3 px-4 rounded-lg font-bold transition-all duration-300 flex items-center justify-center text-xs
+        className={`w-full py-2 px-4 rounded-lg font-bold transition-all duration-300 flex items-center justify-center text-xs
           ${
             isClaimingAirdrop
               ? "bg-gray-700 text-white cursor-wait"
@@ -453,7 +453,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
       </button>
 
       {/* Contract Balance Display - Mais discreto */}
-      <div className="mt-4 text-center">
+      <div className="mt-2 text-center">
         <p className="text-xs text-gray-500">{t("contract_balance", "Contract Balance:")}</p>
         <div className="text-sm font-medium text-gray-700">{contractBalance} TPF</div>
       </div>
