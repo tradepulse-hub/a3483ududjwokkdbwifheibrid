@@ -52,6 +52,16 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
       address: "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
       verified: true, // Token verificado
     },
+    {
+      symbol: "DNA",
+      name: "DNA Token",
+      quantity: null,
+      gradient: "from-amber-500 to-amber-600",
+      logo: "/images/dna-token-logo.png",
+      loading: true,
+      address: "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113",
+      verified: true, // Token verificado
+    },
   ])
   const [isLoading, setIsLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -62,6 +72,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
+  // Modificar a função fetchTokenBalances para incluir o DNA Token
   useEffect(() => {
     const fetchTokenBalances = async () => {
       if (!walletAddress) return
@@ -172,8 +183,54 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         }
       }
 
+      // Fetch DNA balance
+      const fetchDNABalance = async () => {
+        try {
+          console.log(`Fetching DNA balance...`)
+          const response = await fetch(`/api/dna-token-balance?address=${walletAddress}&_=${Date.now()}`)
+          const data = await response.json()
+
+          console.log(`DNA balance response:`, data)
+
+          if (data.error) {
+            return {
+              quantity: null,
+              error: data.error,
+              details: data.details,
+              loading: false,
+            }
+          }
+
+          // Format balance with 2 decimal places
+          const formattedBalance = data.balance.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+
+          return {
+            quantity: formattedBalance,
+            error: undefined,
+            details: undefined,
+            loading: false,
+            price: 0.25, // Valor fixo para demonstração
+            priceSource: "fixed",
+          }
+        } catch (error) {
+          console.error(`Error fetching DNA balance:`, error)
+          return {
+            quantity: null,
+            error: error instanceof Error ? error.message : "Failed to fetch DNA balance",
+            loading: false,
+          }
+        }
+      }
+
       // Fetch balances in parallel
-      const [tpfResult, wldResult] = await Promise.all([fetchTPFBalance(), fetchWLDBalance()])
+      const [tpfResult, wldResult, dnaResult] = await Promise.all([
+        fetchTPFBalance(),
+        fetchWLDBalance(),
+        fetchDNABalance(),
+      ])
 
       // Update tokens with results
       setTokens((prev) => [
@@ -184,6 +241,10 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         {
           ...prev[1],
           ...wldResult,
+        },
+        {
+          ...prev[2],
+          ...dnaResult,
         },
       ])
 

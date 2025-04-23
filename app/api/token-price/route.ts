@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { getTokenPrice } from "@/lib/worldcoinPriceService"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -12,14 +11,19 @@ export async function GET(request: Request) {
   try {
     console.log(`[API] Buscando preço para o token: ${symbol}`)
 
-    // Obter o preço do token da API oficial da Worldcoin
-    const { price, source } = await getTokenPrice(symbol)
+    // Preços fixos para demonstração
+    const prices = {
+      TPF: 0.0125,
+      WLD: 2.35,
+      DNA: 0.25,
+    }
 
-    // Retornar apenas o preço atual e a fonte
+    const price = prices[symbol as keyof typeof prices] || 0
+
     return NextResponse.json({
       symbol,
       price,
-      source,
+      source: "fixed",
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
