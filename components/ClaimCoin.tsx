@@ -247,6 +247,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
         style={{
           transformStyle: "preserve-3d",
           perspective: "1000px",
+          transform: "perspective(1000px) rotateY(0deg)",
         }}
       >
         {/* Borda externa ondulada da moeda */}
@@ -268,13 +269,61 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
           </defs>
         </svg>
 
-        {/* Lateral da moeda - dá a sensação de espessura maior */}
+        {/* Lateral da moeda - dá a sensação de espessura maior e borda preta ondulada */}
         <div
           className="absolute inset-0 rounded-full"
           style={{
             transform: "translateZ(-3px)",
             background: "linear-gradient(to right, #222, #444, #222, #444, #222)",
             boxShadow: "inset 0 0 15px rgba(0,0,0,0.8)",
+            clipPath: "url(#wavyBorder)",
+          }}
+        ></div>
+
+        {/* Borda lateral preta ondulada - visível quando a moeda está de lado */}
+        <div
+          className="absolute inset-0 rounded-full bg-black"
+          style={{
+            transform: "rotateY(90deg) translateZ(0px) scale(0.99, 0.99)",
+            height: "100%",
+            width: "8px",
+            left: "calc(50% - 4px)",
+            clipPath: "url(#wavyBorder)",
+          }}
+        ></div>
+
+        {/* Borda lateral preta ondulada - do outro lado */}
+        <div
+          className="absolute inset-0 rounded-full bg-black"
+          style={{
+            transform: "rotateY(-90deg) translateZ(0px) scale(0.99, 0.99)",
+            height: "100%",
+            width: "8px",
+            left: "calc(50% - 4px)",
+            clipPath: "url(#wavyBorder)",
+          }}
+        ></div>
+
+        {/* Borda lateral preta ondulada - topo */}
+        <div
+          className="absolute inset-0 rounded-full bg-black"
+          style={{
+            transform: "rotateX(90deg) translateZ(0px) scale(0.99, 0.99)",
+            width: "100%",
+            height: "8px",
+            top: "calc(50% - 4px)",
+            clipPath: "url(#wavyBorder)",
+          }}
+        ></div>
+
+        {/* Borda lateral preta ondulada - base */}
+        <div
+          className="absolute inset-0 rounded-full bg-black"
+          style={{
+            transform: "rotateX(-90deg) translateZ(0px) scale(0.99, 0.99)",
+            width: "100%",
+            height: "8px",
+            top: "calc(50% - 4px)",
             clipPath: "url(#wavyBorder)",
           }}
         ></div>
@@ -287,6 +336,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
             transform: "translateZ(4px)",
             boxShadow: "0 0 20px rgba(0,0,0,0.3)",
             clipPath: "url(#wavyBorder)",
+            backfaceVisibility: "hidden",
           }}
         >
           <div className="w-36 h-36 rounded-full overflow-hidden bg-black p-1 shadow-inner relative">
