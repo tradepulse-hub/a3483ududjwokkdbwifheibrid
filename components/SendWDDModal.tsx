@@ -414,6 +414,20 @@ export default function SendWDDModal({
                     {validationErrors.amount && <p className="mt-1 text-xs text-red-600">{validationErrors.amount}</p>}
                   </div>
 
+                  {/* Remover esta div que mostra o saldo e o botão MAX */}
+                  {/* <div className="text-xs text-gray-600 mt-1 flex justify-between">
+                    <span>
+                      {t("your_balance", "Your balance")}: {tokenBalance} WDD
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAmount(tokenBalance.replace(/,/g, ""))}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      {t("max", "MAX")}
+                    </button>
+                  </div> */}
+
                   {/* Adicionar o aviso de não enviar para exchanges após o aviso de Worldchain */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-700 flex items-start">
                     <svg

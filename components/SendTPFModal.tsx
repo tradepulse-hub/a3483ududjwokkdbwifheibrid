@@ -383,7 +383,7 @@ export default function SendTPFModal({
                   </div>
 
                   {/* Aviso para não enviar para exchanges */}
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-2 text-xs text-red-700 flex items-start">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-2 text-xs text-red-700 flex items-start mt-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-red-500 mr-1 flex-shrink-0 mt-0.5"
@@ -401,7 +401,7 @@ export default function SendTPFModal({
                     <span>
                       {t(
                         "exchange_warning",
-                        "Warning: Do not send your tokens to any exchange. Only send to personal wallets.",
+                        "WARNING: Do not send your tokens to any exchange. Only send to personal wallets.",
                       )}
                     </span>
                   </div>

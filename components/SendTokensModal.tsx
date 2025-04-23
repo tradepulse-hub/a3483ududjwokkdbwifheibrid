@@ -366,9 +366,7 @@ export default function SendTokensModal({
                       <div className="text-xs text-gray-600">{token.name}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium text-gray-800">{token.quantity}</div>
-                  </div>
+                  {/* Remover a div que mostra a quantidade */}
                 </div>
               </div>
             ))}
