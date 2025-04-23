@@ -196,8 +196,13 @@ export default function SendWDDModal({
       const tokenAddress = "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B"
 
       // Converter o valor para wei (assumindo 18 decimais para WDD)
-      const amountValue = Number.parseFloat(amount)
-      const amountInWei = BigInt(Math.floor(amountValue * 10 ** 18)).toString()
+      // Substituir:
+      // const amountValue = Number.parseFloat(amount)
+      // const amountInWei = BigInt(Math.floor(amountValue * 10 ** 18)).toString()
+
+      // Por esta implementação mais precisa:
+      // Usar ethers.parseUnits para uma conversão precisa de string para BigInt
+      const amountInWei = ethers.parseUnits(amount, 18).toString()
 
       console.log(`Sending ${amount} WDD (${amountInWei} in wei) to ${recipientAddress}`)
 

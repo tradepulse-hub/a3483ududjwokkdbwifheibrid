@@ -196,8 +196,8 @@ export default function SendCASHModal({
       const tokenAddress = "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575"
 
       // Converter o valor para wei (assumindo 18 decimais para CASH)
-      const amountValue = Number.parseFloat(amount)
-      const amountInWei = BigInt(Math.floor(amountValue * 10 ** 18)).toString()
+      // Usar ethers.parseUnits para uma conversão precisa de string para BigInt
+      const amountInWei = ethers.parseUnits(amount, 18).toString()
 
       console.log(`Sending ${amount} CASH (${amountInWei} in wei) to ${recipientAddress}`)
 

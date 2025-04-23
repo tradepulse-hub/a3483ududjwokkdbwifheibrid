@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { claimAirdrop } from "@/lib/airdropService"
 import { useLanguage } from "@/lib/languageContext"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 
 export function ClaimCoin({ userAddress }: { userAddress: string }) {
   const { t, language } = useLanguage()
@@ -289,7 +290,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
           </div>
         </div>
 
-        {/* Verso da moeda */}
+        {/* Verso da moeda - Agora com um gráfico subindo */}
         <div
           ref={coinBackRef}
           className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 shadow-xl border-8 border-gray-300 flex items-center justify-center overflow-hidden"
@@ -300,7 +301,22 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
         >
           <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
             <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
-              <div className="text-2xl font-bold text-gray-700">TPF</div>
+              {/* Gráfico subindo */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-green-600"
+              >
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
             </div>
           </div>
         </div>
@@ -341,33 +357,83 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
         </div>
       )}
 
-      {/* Success Message */}
-      {success && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-2 text-center mb-3 animate-fadeIn w-full">
-          <div className="flex justify-center mb-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#4CAF50"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+      {/* Success Message - Com nova mensagem e animação */}
+      <AnimatePresence>
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              transition: {
+                duration: 0.5,
+                type: "spring",
+                stiffness: 200,
+                damping: 15,
+              },
+            }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 text-center mb-3 w-full shadow-md"
+          >
+            <motion.div
+              animate={{
+                scale: [1, 1.05, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+              className="flex justify-center mb-2"
             >
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-          </div>
-          <p className="text-green-700 text-xs">{t("claim_successful", "Claim successful!")}</p>
-          {txId && (
-            <p className="text-[10px] text-green-600 mt-1 font-mono bg-green-50 p-1 rounded overflow-hidden text-ellipsis">
-              TX: {txId}
-            </p>
-          )}
-        </div>
-      )}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#10B981"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </motion.div>
+            <motion.p
+              className="text-green-700 text-sm font-medium"
+              animate={{
+                color: ["#047857", "#10B981", "#047857"],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "reverse",
+              }}
+            >
+              {t("tpf_redeemed_success", "O Token TPF foi redimido com sucesso!")}
+            </motion.p>
+            {txId && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-[10px] text-green-600 mt-2 font-mono bg-green-50/70 p-1.5 rounded overflow-hidden text-ellipsis border border-green-100"
+              >
+                TX: {txId}
+              </motion.p>
+            )}
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 2 }}
+              className="h-0.5 bg-gradient-to-r from-green-300 to-emerald-400 mt-2 rounded-full"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Countdown Display */}
       {airdropStatus && !airdropStatus.canClaim && countdown && (

@@ -28,6 +28,7 @@ const translations: Record<Language, Record<string, string>> = {
     twitter_x: "Twitter/X",
     telegram: "Telegram",
     claim_in: "Claim your TPF in",
+    tpf_redeemed_success: "TPF Token was successfully redeemed!",
 
     // Contract Status
     contract_status_check: "Contract Status Check",
@@ -199,6 +200,7 @@ const translations: Record<Language, Record<string, string>> = {
     twitter_x: "Twitter/X",
     telegram: "Telegram",
     claim_in: "Reclama tu TPF en",
+    tpf_redeemed_success: "¡El Token TPF fue canjeado con éxito!",
 
     // Contract Status
     contract_status_check: "Verificación de Estado del Contrato",
@@ -371,6 +373,7 @@ const translations: Record<Language, Record<string, string>> = {
     twitter_x: "Twitter/X",
     telegram: "Telegram",
     claim_in: "Richiedi il tuo TPF in",
+    tpf_redeemed_success: "Il Token TPF è stato riscattato con successo!",
 
     // Contract Status
     contract_status_check: "Verifica Stato del Contratto",
@@ -542,6 +545,7 @@ const translations: Record<Language, Record<string, string>> = {
     twitter_x: "推特/X",
     telegram: "电报",
     claim_in: "在此时间内领取您的TPF",
+    tpf_redeemed_success: "TPF 代币已成功兑换！",
 
     // Contract Status
     contract_status_check: "合约状态检查",
@@ -712,6 +716,7 @@ const translations: Record<Language, Record<string, string>> = {
     twitter_x: "Twitter/X",
     telegram: "Telegram",
     claim_in: "Réclamez votre TPF dans",
+    tpf_redeemed_success: "Le jeton TPF a été échangé avec succès !",
 
     // Contract Status
     contract_status_check: "Vérification de l'État du Contrat",
@@ -886,6 +891,7 @@ const translations: Record<Language, Record<string, string>> = {
     twitter_x: "Twitter/X",
     telegram: "Telegram",
     claim_in: "Reivindique seu TPF em",
+    tpf_redeemed_success: "O Token TPF foi redimido com sucesso!",
 
     // Contract Status
     contract_status_check: "Verificação de Status do Contrato",
