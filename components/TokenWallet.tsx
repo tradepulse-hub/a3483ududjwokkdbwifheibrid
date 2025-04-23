@@ -10,6 +10,7 @@ import SendCASHModal from "./SendCASHModal"
 import ReceiveTokenModal from "./ReceiveTokenModal"
 import TokenDetailModal from "./TokenDetailModal"
 import { useLanguage } from "@/lib/languageContext"
+import { ethers } from "ethers"
 
 type TokenWalletProps = {
   walletAddress: string
@@ -251,23 +252,57 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         }
       }
 
-      // Fetch WDD (Drachma) balance - Simulado com valores mais realistas
+      // Modificar as funções fetchWDDBalance e fetchCASHBalance para buscar saldos reais
+
+      // Fetch WDD (Drachma) balance - Agora buscando valor real
       const fetchWDDBalance = async () => {
         try {
           console.log(`Fetching WDD balance...`)
-          // Simular um atraso para parecer uma chamada real
-          await new Promise((resolve) => setTimeout(resolve, 500))
 
-          // Usar um valor fixo em vez de aleatório
-          const fixedBalance = "25.00"
+          // Endereço do contrato WDD na World Chain
+          const wddTokenAddress = "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B"
+
+          // Usar o RPC público da Worldchain
+          const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
+
+          // ABI mínimo para consultar o saldo de um token ERC20
+          const tokenAbi = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function decimals() view returns (uint8)",
+          ]
+
+          // Criar uma instância do contrato
+          const wddContract = new ethers.Contract(wddTokenAddress, tokenAbi, provider)
+
+          // Buscar os decimais do token
+          let decimals
+          try {
+            decimals = await wddContract.decimals()
+            console.log(`WDD token decimals: ${decimals}`)
+          } catch (error) {
+            console.error("Error fetching WDD token decimals:", error)
+            decimals = 18 // Valor padrão para tokens ERC-20
+          }
+
+          // Buscar o saldo do token
+          const balance = await wddContract.balanceOf(walletAddress)
+          console.log(`Raw WDD balance: ${balance.toString()}`)
+
+          // Converter o saldo para um formato legível
+          const formattedBalance = Number(ethers.formatUnits(balance, decimals)).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+
+          console.log(`Formatted WDD balance: ${formattedBalance}`)
 
           return {
-            quantity: fixedBalance,
+            quantity: formattedBalance,
             error: undefined,
             details: undefined,
             loading: false,
             price: 0.05, // Valor fixo para demonstração
-            priceSource: "simulated",
+            priceSource: "blockchain",
           }
         } catch (error) {
           console.error(`Error fetching WDD balance:`, error)
@@ -279,23 +314,55 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         }
       }
 
-      // Fetch CASH balance - Simulado com valores mais realistas
+      // Fetch CASH balance - Agora buscando valor real
       const fetchCASHBalance = async () => {
         try {
           console.log(`Fetching CASH balance...`)
-          // Simular um atraso para parecer uma chamada real
-          await new Promise((resolve) => setTimeout(resolve, 600))
 
-          // Usar um valor fixo em vez de aleatório
-          const fixedBalance = "15.00"
+          // Endereço do contrato CASH na World Chain
+          const cashTokenAddress = "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575"
+
+          // Usar o RPC público da Worldchain
+          const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
+
+          // ABI mínimo para consultar o saldo de um token ERC20
+          const tokenAbi = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function decimals() view returns (uint8)",
+          ]
+
+          // Criar uma instância do contrato
+          const cashContract = new ethers.Contract(cashTokenAddress, tokenAbi, provider)
+
+          // Buscar os decimais do token
+          let decimals
+          try {
+            decimals = await cashContract.decimals()
+            console.log(`CASH token decimals: ${decimals}`)
+          } catch (error) {
+            console.error("Error fetching CASH token decimals:", error)
+            decimals = 18 // Valor padrão para tokens ERC-20
+          }
+
+          // Buscar o saldo do token
+          const balance = await cashContract.balanceOf(walletAddress)
+          console.log(`Raw CASH balance: ${balance.toString()}`)
+
+          // Converter o saldo para um formato legível
+          const formattedBalance = Number(ethers.formatUnits(balance, decimals)).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+
+          console.log(`Formatted CASH balance: ${formattedBalance}`)
 
           return {
-            quantity: fixedBalance,
+            quantity: formattedBalance,
             error: undefined,
             details: undefined,
             loading: false,
             price: 0.1, // Valor fixo para demonstração
-            priceSource: "simulated",
+            priceSource: "blockchain",
           }
         } catch (error) {
           console.error(`Error fetching CASH balance:`, error)

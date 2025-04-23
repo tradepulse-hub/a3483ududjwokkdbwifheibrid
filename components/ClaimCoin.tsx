@@ -43,16 +43,13 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
 
     // Função para animar a rotação da moeda
     let angle = 0
-    let direction = 1
     let isHovering = false
 
     const animate = () => {
       if (!isHovering) {
-        angle += 2 * direction
-
-        // Efeito de oscilação suave
-        if (angle > 25) direction = -1
-        if (angle < -25) direction = 1
+        // Rotação contínua em vez de oscilação
+        angle += 0.5
+        if (angle >= 360) angle = 0
 
         coin.style.transform = `perspective(1000px) rotateY(${angle}deg)`
       }
@@ -389,7 +386,7 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
       <button
         onClick={handleClaim}
         disabled={isClaimingAirdrop || (airdropStatus && !airdropStatus.canClaim)}
-        className={`w-full py-3 px-4 rounded-lg font-bold transition-all duration-300 flex items-center justify-center text-base
+        className={`w-full py-3 px-4 rounded-lg font-bold transition-all duration-300 flex items-center justify-center text-xs
           ${
             isClaimingAirdrop
               ? "bg-gray-700 text-white cursor-wait"
