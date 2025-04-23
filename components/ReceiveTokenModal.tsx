@@ -88,11 +88,7 @@ export default function ReceiveTokenModal({
 
   // Token-specific content
   const getTokenDescription = () => {
-    if (tokenSymbol === "TPF") {
-      return "TPulseFi (TPF) is a cryptocurrency designed for traders and DeFi enthusiasts, operating on WorldChain. With a focus on rewarding the registered community and building a sustainable economy, TPF aims to create long-term value for its users."
-    } else if (tokenSymbol === "WLD") {
-      return "Na era da IA, World é uma rede de humanos reais construída sobre uma prova anônima de humano e uma rede financeira globalmente inclusiva."
-    }
+    // Removendo os longos textos descritivos
     return ""
   }
 
@@ -164,10 +160,12 @@ export default function ReceiveTokenModal({
         </div>
 
         {/* Token description */}
-        <div className="bg-gray-100/80 backdrop-blur-sm rounded-lg p-4 mb-5 border border-gray-300/50">
-          <p className="text-xs text-gray-700 leading-relaxed">{getTokenDescription()}</p>
-          {getTokenContact() && <p className="text-sm text-gray-600 mt-2">{getTokenContact()}</p>}
-        </div>
+        {getTokenDescription() && (
+          <div className="bg-gray-100/80 backdrop-blur-sm rounded-lg p-4 mb-5 border border-gray-300/50">
+            <p className="text-xs text-gray-700 leading-relaxed">{getTokenDescription()}</p>
+            {getTokenContact() && <p className="text-sm text-gray-600 mt-2">{getTokenContact()}</p>}
+          </div>
+        )}
 
         {/* Wallet address section */}
         <div className="mb-5">

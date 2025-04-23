@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import SendTokenModal from "./SendTokenModal"
 import SendTPFModal from "./SendTPFModal"
+import SendDNAModal from "./SendDNAModal"
+import SendWDDModal from "./SendWDDModal"
+import SendCASHModal from "./SendCASHModal"
 import ReceiveTokenModal from "./ReceiveTokenModal"
 import TokenDetailModal from "./TokenDetailModal"
 import { useLanguage } from "@/lib/languageContext"
@@ -62,6 +65,26 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
       address: "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113",
       verified: true, // Token verificado
     },
+    {
+      symbol: "WDD",
+      name: "Drachma",
+      quantity: null,
+      gradient: "from-purple-500 to-purple-600",
+      logo: "/images/drachma-logo.png",
+      loading: true,
+      address: "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B",
+      verified: false, // Token não verificado
+    },
+    {
+      symbol: "CASH",
+      name: "Cash",
+      quantity: null,
+      gradient: "from-gray-400 to-gray-500",
+      logo: "/images/cash-logo.png",
+      loading: true,
+      address: "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575",
+      verified: false, // Token não verificado
+    },
   ])
   const [isLoading, setIsLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -69,10 +92,13 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [isSendTPFModalOpen, setIsSendTPFModalOpen] = useState(false)
+  const [isSendDNAModalOpen, setIsSendDNAModalOpen] = useState(false)
+  const [isSendWDDModalOpen, setIsSendWDDModalOpen] = useState(false)
+  const [isSendCASHModalOpen, setIsSendCASHModalOpen] = useState(false)
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
-  // Modificar a função fetchTokenBalances para incluir o DNA Token
+  // Modificar a função fetchTokenBalances para incluir o CASH Token
   useEffect(() => {
     const fetchTokenBalances = async () => {
       if (!walletAddress) return
@@ -225,11 +251,69 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         }
       }
 
+      // Fetch WDD (Drachma) balance - Simulado
+      const fetchWDDBalance = async () => {
+        try {
+          console.log(`Fetching WDD balance...`)
+          // Simular um atraso para parecer uma chamada real
+          await new Promise((resolve) => setTimeout(resolve, 500))
+
+          // Simular um valor aleatório para demonstração
+          const randomBalance = (Math.random() * 1000).toFixed(2)
+
+          return {
+            quantity: randomBalance,
+            error: undefined,
+            details: undefined,
+            loading: false,
+            price: 0.05, // Valor fixo para demonstração
+            priceSource: "simulated",
+          }
+        } catch (error) {
+          console.error(`Error fetching WDD balance:`, error)
+          return {
+            quantity: null,
+            error: error instanceof Error ? error.message : "Failed to fetch WDD balance",
+            loading: false,
+          }
+        }
+      }
+
+      // Fetch CASH balance - Simulado
+      const fetchCASHBalance = async () => {
+        try {
+          console.log(`Fetching CASH balance...`)
+          // Simular um atraso para parecer uma chamada real
+          await new Promise((resolve) => setTimeout(resolve, 600))
+
+          // Simular um valor aleatório para demonstração
+          const randomBalance = (Math.random() * 500).toFixed(2)
+
+          return {
+            quantity: randomBalance,
+            error: undefined,
+            details: undefined,
+            loading: false,
+            price: 0.1, // Valor fixo para demonstração
+            priceSource: "simulated",
+          }
+        } catch (error) {
+          console.error(`Error fetching CASH balance:`, error)
+          return {
+            quantity: null,
+            error: error instanceof Error ? error.message : "Failed to fetch CASH balance",
+            loading: false,
+          }
+        }
+      }
+
       // Fetch balances in parallel
-      const [tpfResult, wldResult, dnaResult] = await Promise.all([
+      const [tpfResult, wldResult, dnaResult, wddResult, cashResult] = await Promise.all([
         fetchTPFBalance(),
         fetchWLDBalance(),
         fetchDNABalance(),
+        fetchWDDBalance(),
+        fetchCASHBalance(),
       ])
 
       // Update tokens with results
@@ -245,6 +329,14 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         {
           ...prev[2],
           ...dnaResult,
+        },
+        {
+          ...prev[3],
+          ...wddResult,
+        },
+        {
+          ...prev[4],
+          ...cashResult,
         },
       ])
 
@@ -272,6 +364,12 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
     setSelectedToken(token)
     if (token.symbol === "TPF") {
       setIsSendTPFModalOpen(true)
+    } else if (token.symbol === "DNA") {
+      setIsSendDNAModalOpen(true)
+    } else if (token.symbol === "WDD") {
+      setIsSendWDDModalOpen(true)
+    } else if (token.symbol === "CASH") {
+      setIsSendCASHModalOpen(true)
     } else {
       setIsSendModalOpen(true)
     }
@@ -513,6 +611,39 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
         <SendTPFModal
           isOpen={isSendTPFModalOpen}
           onClose={() => setIsSendTPFModalOpen(false)}
+          walletAddress={walletAddress}
+          tokenLogo={selectedToken.logo}
+          onSuccess={handleTransactionSuccess}
+        />
+      )}
+
+      {/* Send DNA Modal */}
+      {selectedToken && selectedToken.symbol === "DNA" && (
+        <SendDNAModal
+          isOpen={isSendDNAModalOpen}
+          onClose={() => setIsSendDNAModalOpen(false)}
+          walletAddress={walletAddress}
+          tokenLogo={selectedToken.logo}
+          onSuccess={handleTransactionSuccess}
+        />
+      )}
+
+      {/* Send WDD Modal */}
+      {selectedToken && selectedToken.symbol === "WDD" && (
+        <SendWDDModal
+          isOpen={isSendWDDModalOpen}
+          onClose={() => setIsSendWDDModalOpen(false)}
+          walletAddress={walletAddress}
+          tokenLogo={selectedToken.logo}
+          onSuccess={handleTransactionSuccess}
+        />
+      )}
+
+      {/* Send CASH Modal */}
+      {selectedToken && selectedToken.symbol === "CASH" && (
+        <SendCASHModal
+          isOpen={isSendCASHModalOpen}
+          onClose={() => setIsSendCASHModalOpen(false)}
           walletAddress={walletAddress}
           tokenLogo={selectedToken.logo}
           onSuccess={handleTransactionSuccess}

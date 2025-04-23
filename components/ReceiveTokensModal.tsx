@@ -50,6 +50,22 @@ export default function ReceiveTokensModal({
       address: "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113",
       verified: true,
     },
+    {
+      symbol: "WDD",
+      name: "Drachma",
+      gradient: "from-purple-500 to-purple-600",
+      logo: "/images/drachma-logo.png",
+      address: "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B",
+      verified: false, // Token não verificado
+    },
+    {
+      symbol: "CASH",
+      name: "Cash",
+      gradient: "from-gray-400 to-gray-500",
+      logo: "/images/cash-logo.png",
+      address: "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575",
+      verified: false, // Token não verificado
+    },
   ])
   const [walletAddress, setWalletAddress] = useState("")
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)

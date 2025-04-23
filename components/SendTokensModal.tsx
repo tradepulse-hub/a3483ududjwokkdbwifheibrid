@@ -6,6 +6,8 @@ import { useLanguage } from "@/lib/languageContext"
 import SendTokenModal from "./SendTokenModal"
 import SendTPFModal from "./SendTPFModal"
 import SendDNAModal from "./SendDNAModal"
+import SendWDDModal from "./SendWDDModal"
+import SendCASHModal from "./SendCASHModal"
 
 type TokenInfo = {
   symbol: string
@@ -30,13 +32,61 @@ export default function SendTokensModal({
   setMenuVisible?: (visible: boolean) => void // Nova prop
 }) {
   const { t } = useLanguage()
-  const [tokens, setTokens] = useState<TokenInfo[]>([])
+  const [tokens, setTokens] = useState<TokenInfo[]>([
+    {
+      symbol: "TPF",
+      name: "TPulseFi",
+      quantity: null,
+      gradient: "from-gray-600 to-gray-700",
+      logo: "/images/tpf-logo-new.png",
+      address: "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45",
+      verified: true,
+    },
+    {
+      symbol: "WLD",
+      name: "WorldCoin",
+      quantity: null,
+      gradient: "from-gray-600 to-gray-700",
+      logo: "/images/worldcoin-logo.jpeg",
+      address: "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+      verified: true,
+    },
+    {
+      symbol: "DNA",
+      name: "DNA Token",
+      quantity: null,
+      gradient: "from-amber-500 to-amber-600",
+      logo: "/images/dna-token-logo.png",
+      address: "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113",
+      verified: true,
+    },
+    {
+      symbol: "WDD",
+      name: "Drachma",
+      quantity: null,
+      gradient: "from-purple-500 to-purple-600",
+      logo: "/images/drachma-logo.png",
+      address: "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B",
+      verified: false,
+    },
+    {
+      symbol: "CASH",
+      name: "Cash",
+      quantity: null,
+      gradient: "from-gray-400 to-gray-500",
+      logo: "/images/cash-logo.png",
+      address: "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575",
+      verified: false,
+    },
+  ])
   const [isLoading, setIsLoading] = useState(true)
   const [walletAddress, setWalletAddress] = useState("")
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [isSendTPFModalOpen, setIsSendTPFModalOpen] = useState(false)
   const [isSendDNAModalOpen, setIsSendDNAModalOpen] = useState(false)
+  const [isSendWDDModalOpen, setIsSendWDDModalOpen] = useState(false)
+  const [isSendCASHModalOpen, setIsSendCASHModalOpen] = useState(false)
 
   // Ocultar o menu quando o modal abrir
   useEffect(() => {
@@ -113,6 +163,12 @@ export default function SendTokensModal({
           const dnaResponse = await fetch(`/api/dna-token-balance?address=${userData.user.walletAddress}`)
           const dnaData = await dnaResponse.json()
 
+          // Simular saldo de WDD
+          const wddBalance = (Math.random() * 1000).toFixed(2)
+
+          // Simular saldo de CASH
+          const cashBalance = (Math.random() * 500).toFixed(2)
+
           // Formatar os dados dos tokens
           const tokensData: TokenInfo[] = [
             {
@@ -157,6 +213,24 @@ export default function SendTokensModal({
               address: "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113",
               verified: true,
             },
+            {
+              symbol: "WDD",
+              name: "Drachma",
+              quantity: wddBalance,
+              gradient: "from-purple-500 to-purple-600",
+              logo: "/images/drachma-logo.png",
+              address: "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B",
+              verified: false,
+            },
+            {
+              symbol: "CASH",
+              name: "Cash",
+              quantity: cashBalance,
+              gradient: "from-gray-400 to-gray-500",
+              logo: "/images/cash-logo.png",
+              address: "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575",
+              verified: false,
+            },
           ]
 
           setTokens(tokensData)
@@ -177,6 +251,10 @@ export default function SendTokensModal({
       setIsSendTPFModalOpen(true)
     } else if (token.symbol === "DNA") {
       setIsSendDNAModalOpen(true)
+    } else if (token.symbol === "WDD") {
+      setIsSendWDDModalOpen(true)
+    } else if (token.symbol === "CASH") {
+      setIsSendCASHModalOpen(true)
     } else {
       setIsSendModalOpen(true)
     }
@@ -340,6 +418,36 @@ export default function SendTokensModal({
           isOpen={isSendDNAModalOpen}
           onClose={() => {
             setIsSendDNAModalOpen(false)
+            setSelectedToken(null)
+          }}
+          walletAddress={walletAddress}
+          tokenLogo={selectedToken.logo}
+          onSuccess={handleTransactionSuccess}
+          setMenuVisible={setMenuVisible}
+        />
+      )}
+
+      {/* Send WDD Modal */}
+      {selectedToken && selectedToken.symbol === "WDD" && (
+        <SendWDDModal
+          isOpen={isSendWDDModalOpen}
+          onClose={() => {
+            setIsSendWDDModalOpen(false)
+            setSelectedToken(null)
+          }}
+          walletAddress={walletAddress}
+          tokenLogo={selectedToken.logo}
+          onSuccess={handleTransactionSuccess}
+          setMenuVisible={setMenuVisible}
+        />
+      )}
+
+      {/* Send CASH Modal */}
+      {selectedToken && selectedToken.symbol === "CASH" && (
+        <SendCASHModal
+          isOpen={isSendCASHModalOpen}
+          onClose={() => {
+            setIsSendCASHModalOpen(false)
             setSelectedToken(null)
           }}
           walletAddress={walletAddress}
