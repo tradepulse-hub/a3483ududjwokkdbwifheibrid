@@ -44,7 +44,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
     setIsMenuOpen(false)
   }
 
-  // Modify the tabs array to remove or hide the lottery tab
+  // Find the tabs array and remove the lottery tab
   const tabs = [
     {
       id: "wallet",
@@ -102,7 +102,6 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
         </svg>
       ),
     },
-    // Lottery tab removed
   ]
 
   if (!isVisible) {
