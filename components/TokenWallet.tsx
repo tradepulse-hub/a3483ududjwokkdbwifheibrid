@@ -326,14 +326,14 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                     <div className="flex items-center">
                       <div className="relative">
                         <div
-                          className={`w-6 h-6 rounded-full overflow-hidden bg-gradient-to-br ${token.gradient} p-0.5 shadow-sm`}
+                          className={`w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br ${token.gradient} p-0.5 shadow-sm`}
                         >
                           <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
                             <Image
                               src={token.logo || "/placeholder.svg"}
                               alt={`${token.symbol} logo`}
-                              width={20}
-                              height={20}
+                              width={28}
+                              height={28}
                               className="w-full h-full object-cover"
                             />
                           </div>
@@ -341,10 +341,10 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
 
                         {/* Selo de verificação menor */}
                         {token.verified && (
-                          <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-2 h-2 flex items-center justify-center border border-white">
+                          <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-3 h-3 flex items-center justify-center border border-white">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              className="h-1 w-1 text-white"
+                              className="h-1.5 w-1.5 text-white"
                               viewBox="0 0 20 20"
                               fill="currentColor"
                             >
@@ -416,12 +416,12 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
                     onClick={() => handleReceiveClick(token)}
                     className="px-1.5 py-0.5 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all duration-300 flex items-center shadow-sm text-xxs"
                   >
-                    <div className="w-3 h-3 rounded-full overflow-hidden mr-0.5 bg-white">
+                    <div className="w-4 h-4 rounded-full overflow-hidden mr-0.5 bg-white">
                       <Image
                         src={token.logo || "/placeholder.svg"}
                         alt={`${token.symbol} logo`}
-                        width={12}
-                        height={12}
+                        width={16}
+                        height={16}
                         className="w-full h-full object-cover"
                       />
                     </div>

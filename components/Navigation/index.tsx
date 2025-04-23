@@ -22,8 +22,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
   useEffect(() => {
     const tabToIndex = {
       wallet: 0,
-      lottery: 1,
-      airdrop: 2,
+      airdrop: 1,
     }
     setActiveIndex(tabToIndex[activeTab as keyof typeof tabToIndex] || 0)
   }, [activeTab])
@@ -35,7 +34,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
 
   // Handle tab change based on index
   const handleTabChange = (index: number) => {
-    const indexToTab = ["wallet", "lottery", "airdrop"]
+    const indexToTab = ["wallet", "airdrop"]
     onTabChange(indexToTab[index])
     setActiveIndex(index)
   }
@@ -71,7 +70,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       if (currentX > 0 && activeIndex > 0) {
         // Swipe right, go to previous tab
         handleTabChange(activeIndex - 1)
-      } else if (currentX < 0 && activeIndex < 2) {
+      } else if (currentX < 0 && activeIndex < 1) {
         // Swipe left, go to next tab
         handleTabChange(activeIndex + 1)
       }
@@ -99,26 +98,6 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
             strokeLinecap="round"
             strokeLinejoin="round"
             d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "lottery",
-      label: t("lottery", "Lottery"),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
       ),
@@ -155,7 +134,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700 relative">
         {/* Sliding indicator */}
         <div
-          className="absolute h-full w-1/3 bg-gradient-to-r from-blue-600/80 to-purple-600/80 rounded-xl transition-all duration-300 ease-out"
+          className="absolute h-full w-1/2 bg-gradient-to-r from-blue-600/80 to-purple-600/80 rounded-xl transition-all duration-300 ease-out"
           style={{
             transform: `translateX(${activeIndex * 100}%)`,
             left: 0,
@@ -164,7 +143,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
         />
 
         {/* Tabs */}
-        <div className="grid grid-cols-3 relative z-10">
+        <div className="grid grid-cols-2 relative z-10">
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
@@ -189,7 +168,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
       {/* Swipe indicator */}
       <div className="flex justify-center mt-2">
         <div className="flex space-x-1">
-          {[0, 1, 2].map((index) => (
+          {[0, 1].map((index) => (
             <div
               key={index}
               className={`h-1.5 rounded-full transition-all duration-300 ${
