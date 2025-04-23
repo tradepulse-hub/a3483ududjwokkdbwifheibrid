@@ -174,8 +174,7 @@ const translations: Record<Language, Record<string, string>> = {
     worldchain_only_receive_notice:
       "Important: This wallet only supports receiving tokens on the Worldchain network. Sending tokens from other networks may result in permanent loss of funds.",
 
-    // Adicionar estas novas traduções ao objeto translations existente para cada idioma
-    // Para o inglês (en)
+    // Settings Modal
     settings: "Settings",
     developer_mode: "Developer Mode",
     dev_mode_locked: "Developer mode is locked",
@@ -189,6 +188,27 @@ const translations: Record<Language, Record<string, string>> = {
     token_tester: "Token Tester",
     api_explorer: "API Explorer",
     exit_dev_mode: "Exit Developer Mode",
+
+    // Token Details
+    token_details: "Token Details",
+    token_price: "Token Price",
+    loading_price: "Loading price...",
+    price_unavailable: "Price unavailable",
+    price_source: "Source",
+    total_value: "Total Value",
+
+    // Token Price Tester
+    fetch_price: "Fetch Price",
+    test_all: "Test All Tokens",
+    price_result: "Price Result",
+    token: "Token",
+    price: "Price",
+    source: "Source",
+    timestamp: "Timestamp",
+    test_results: "Test Results",
+    status: "Status",
+    success: "Success",
+    failed: "Failed",
   },
 
   es: {
@@ -363,6 +383,42 @@ const translations: Record<Language, Record<string, string>> = {
       "Esta aplicación solo admite el envío de tokens en la red Worldchain. Asegúrate de que el destinatario esté en Worldchain.",
     worldchain_only_receive_notice:
       "Importante: Esta billetera solo admite recibir tokens en la red Worldchain. Enviar tokens desde otras redes puede resultar en la pérdida permanente de fondos.",
+
+    // Settings Modal
+    settings: "Configuración",
+    developer_mode: "Modo Desarrollador",
+    dev_mode_locked: "Modo desarrollador bloqueado",
+    enter_password: "Introducir contraseña",
+    incorrect_password: "Contraseña incorrecta",
+    unlock: "Desbloquear",
+    dev_mode_unlocked: "Modo desarrollador desbloqueado",
+    dev_tools: "Herramientas de Desarrollo",
+    contract_debug: "Depurador de Contratos",
+    network_inspector: "Inspector de Red",
+    token_tester: "Probador de Tokens",
+    api_explorer: "Explorador de API",
+    exit_dev_mode: "Salir del Modo Desarrollador",
+
+    // Token Details
+    token_details: "Detalles del Token",
+    token_price: "Precio del Token",
+    loading_price: "Cargando precio...",
+    price_unavailable: "Precio no disponible",
+    price_source: "Fuente",
+    total_value: "Valor Total",
+
+    // Token Price Tester
+    fetch_price: "Obtener Precio",
+    test_all: "Probar Todos los Tokens",
+    price_result: "Resultado del Precio",
+    token: "Token",
+    price: "Precio",
+    source: "Fuente",
+    timestamp: "Marca de tiempo",
+    test_results: "Resultados de Prueba",
+    status: "Estado",
+    success: "Éxito",
+    failed: "Fallido",
   },
 
   it: {
@@ -536,6 +592,42 @@ const translations: Record<Language, Record<string, string>> = {
       "Questa applicazione supporta solo l'invio di token sulla rete Worldchain. Assicurati che il destinatario sia su Worldchain.",
     worldchain_only_receive_notice:
       "Importante: Questo portafoglio supporta solo la ricezione di token sulla rete Worldchain. L'invio di token da altre reti potrebbe comportare la perdita permanente di fondi.",
+
+    // Settings Modal
+    settings: "Impostazioni",
+    developer_mode: "Modalità Sviluppatore",
+    dev_mode_locked: "Modalità sviluppatore bloccata",
+    enter_password: "Inserisci password",
+    incorrect_password: "Password errata",
+    unlock: "Sblocca",
+    dev_mode_unlocked: "Modalità sviluppatore sbloccata",
+    dev_tools: "Strumenti di Sviluppo",
+    contract_debug: "Debugger Contratti",
+    network_inspector: "Ispettore di Rete",
+    token_tester: "Tester Token",
+    api_explorer: "Esploratore API",
+    exit_dev_mode: "Esci dalla Modalità Sviluppatore",
+
+    // Token Details
+    token_details: "Dettagli Token",
+    token_price: "Prezzo Token",
+    loading_price: "Caricamento prezzo...",
+    price_unavailable: "Prezzo non disponibile",
+    price_source: "Fonte",
+    total_value: "Valore Totale",
+
+    // Token Price Tester
+    fetch_price: "Ottieni Prezzo",
+    test_all: "Testa Tutti i Token",
+    price_result: "Risultato Prezzo",
+    token: "Token",
+    price: "Prezzo",
+    source: "Fonte",
+    timestamp: "Timestamp",
+    test_results: "Risultati Test",
+    status: "Stato",
+    success: "Successo",
+    failed: "Fallito",
   },
 
   zh: {
@@ -708,6 +800,42 @@ const translations: Record<Language, Record<string, string>> = {
     worldchain_only_notice: "此应用程序仅支持在 Worldchain 网络上发送代币。请确保接收者在 Worldchain 上。",
     worldchain_only_receive_notice:
       "重要提示：此钱包仅支持在 Worldchain 网络上接收代币。从其他网络发送代币可能会导致资金永久丢失。",
+
+    // Settings Modal
+    settings: "设置",
+    developer_mode: "开发者模式",
+    dev_mode_locked: "开发者模式已锁定",
+    enter_password: "输入密码",
+    incorrect_password: "密码错误",
+    unlock: "解锁",
+    dev_mode_unlocked: "开发者模式已解锁",
+    dev_tools: "开发工具",
+    contract_debug: "合约调试器",
+    network_inspector: "网络检查器",
+    token_tester: "代币测试器",
+    api_explorer: "API 浏览器",
+    exit_dev_mode: "退出开发者模式",
+
+    // Token Details
+    token_details: "代币详情",
+    token_price: "代币价格",
+    loading_price: "加载价格中...",
+    price_unavailable: "价格不可用",
+    price_source: "来源",
+    total_value: "总价值",
+
+    // Token Price Tester
+    fetch_price: "获取价格",
+    test_all: "测试所有代币",
+    price_result: "价格结果",
+    token: "代币",
+    price: "价格",
+    source: "来源",
+    timestamp: "时间戳",
+    test_results: "测试结果",
+    status: "状态",
+    success: "成功",
+    failed: "失败",
   },
 
   fr: {
@@ -885,6 +1013,42 @@ const translations: Record<Language, Record<string, string>> = {
       "Cette application ne prend en charge que l'envoi de jetons sur le réseau Worldchain. Assurez-vous que le destinataire est sur Worldchain.",
     worldchain_only_receive_notice:
       "Important : Ce portefeuille ne prend en charge que la réception de jetons sur le réseau Worldchain. L'envoi de jetons depuis d'autres réseaux peut entraîner une perte permanente de fonds.",
+
+    // Settings Modal
+    settings: "Paramètres",
+    developer_mode: "Mode Développeur",
+    dev_mode_locked: "Mode développeur verrouillé",
+    enter_password: "Entrer le mot de passe",
+    incorrect_password: "Mot de passe incorrect",
+    unlock: "Déverrouiller",
+    dev_mode_unlocked: "Mode développeur déverrouillé",
+    dev_tools: "Outils de Développement",
+    contract_debug: "Débogueur de Contrat",
+    network_inspector: "Inspecteur Réseau",
+    token_tester: "Testeur de Jetons",
+    api_explorer: "Explorateur d'API",
+    exit_dev_mode: "Quitter le Mode Développeur",
+
+    // Token Details
+    token_details: "Détails du Jeton",
+    token_price: "Prix du Jeton",
+    loading_price: "Chargement du prix...",
+    price_unavailable: "Prix indisponible",
+    price_source: "Source",
+    total_value: "Valeur Totale",
+
+    // Token Price Tester
+    fetch_price: "Obtenir le Prix",
+    test_all: "Tester Tous les Jetons",
+    price_result: "Résultat du Prix",
+    token: "Jeton",
+    price: "Prix",
+    source: "Source",
+    timestamp: "Horodatage",
+    test_results: "Résultats des Tests",
+    status: "Statut",
+    success: "Succès",
+    failed: "Échec",
   },
 
   pt: {
@@ -1071,9 +1235,30 @@ const translations: Record<Language, Record<string, string>> = {
     dev_tools: "Ferramentas de Desenvolvimento",
     contract_debug: "Depurador de Contrato",
     network_inspector: "Inspetor de Rede",
-    token_tester: "Testador de Token",
+    token_tester: "Testador de Tokens",
     api_explorer: "Explorador de API",
     exit_dev_mode: "Sair do Modo Desenvolvedor",
+
+    // Token Details
+    token_details: "Detalhes do Token",
+    token_price: "Preço do Token",
+    loading_price: "Carregando preço...",
+    price_unavailable: "Preço indisponível",
+    price_source: "Fonte",
+    total_value: "Valor Total",
+
+    // Token Price Tester
+    fetch_price: "Buscar Preço",
+    test_all: "Testar Todos os Tokens",
+    price_result: "Resultado do Preço",
+    token: "Token",
+    price: "Preço",
+    source: "Fonte",
+    timestamp: "Data e Hora",
+    test_results: "Resultados dos Testes",
+    status: "Status",
+    success: "Sucesso",
+    failed: "Falha",
   },
 }
 

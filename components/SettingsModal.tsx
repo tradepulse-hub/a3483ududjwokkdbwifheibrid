@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useLanguage, type Language } from "@/lib/languageContext"
 import { Settings, Check, Lock, Unlock, X, AlertCircle } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import TokenPriceTester from "./developer/TokenPriceTester"
 
 // Mapeamento de idiomas para bandeiras e nomes
 const languageInfo: Record<Language, { flag: string; name: string }> = {
@@ -26,6 +27,7 @@ export default function SettingsModal() {
   const [devMode, setDevMode] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
   const [showDevMenu, setShowDevMenu] = useState(false)
+  const [activeDevTool, setActiveDevTool] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
   // Fechar o modal quando clicar fora dele
@@ -77,6 +79,17 @@ export default function SettingsModal() {
     setDevMode(false)
     setDevPassword("")
     setShowDevMenu(false)
+    setActiveDevTool(null)
+  }
+
+  // Abrir uma ferramenta de desenvolvedor
+  const openDevTool = (tool: string) => {
+    setActiveDevTool(tool)
+  }
+
+  // Voltar ao menu de ferramentas
+  const backToDevMenu = () => {
+    setActiveDevTool(null)
   }
 
   return (
@@ -97,42 +110,81 @@ export default function SettingsModal() {
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             className="absolute right-0 mt-2 w-72 rounded-lg shadow-lg bg-gray-900/90 backdrop-blur-sm border border-gray-700 overflow-hidden"
+            style={{ width: activeDevTool === "token-tester" ? "500px" : "300px" }}
           >
             {/* Header */}
             <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
-              <h3 className="text-gray-200 font-medium">{t("settings", "Settings")}</h3>
+              <h3 className="text-gray-200 font-medium">
+                {activeDevTool ? (
+                  <div className="flex items-center">
+                    <button onClick={backToDevMenu} className="mr-2 text-gray-400 hover:text-gray-200">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    {activeDevTool === "token-tester" && t("token_tester", "Token Tester")}
+                    {activeDevTool === "contract-debug" && t("contract_debug", "Contract Debugger")}
+                    {activeDevTool === "network-inspector" && t("network_inspector", "Network Inspector")}
+                    {activeDevTool === "api-explorer" && t("api_explorer", "API Explorer")}
+                  </div>
+                ) : (
+                  t("settings", "Settings")
+                )}
+              </h3>
               <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-200 transition-colors">
                 <X size={18} />
               </button>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b border-gray-700">
-              <button
-                onClick={() => setActiveTab("language")}
-                className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                  activeTab === "language"
-                    ? "text-white border-b-2 border-blue-500"
-                    : "text-gray-400 hover:text-gray-200"
-                }`}
-              >
-                {t("language", "Language")}
-              </button>
-              <button
-                onClick={() => setActiveTab("developer")}
-                className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                  activeTab === "developer"
-                    ? "text-white border-b-2 border-blue-500"
-                    : "text-gray-400 hover:text-gray-200"
-                }`}
-              >
-                {t("developer_mode", "Developer Mode")}
-              </button>
-            </div>
+            {/* Tabs - Mostrar apenas se não estiver em uma ferramenta específica */}
+            {!activeDevTool && (
+              <div className="flex border-b border-gray-700">
+                <button
+                  onClick={() => setActiveTab("language")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    activeTab === "language"
+                      ? "text-white border-b-2 border-blue-500"
+                      : "text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  {t("language", "Language")}
+                </button>
+                <button
+                  onClick={() => setActiveTab("developer")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    activeTab === "developer"
+                      ? "text-white border-b-2 border-blue-500"
+                      : "text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  {t("developer_mode", "Developer Mode")}
+                </button>
+              </div>
+            )}
 
-            {/* Tab Content */}
+            {/* Tab Content ou Ferramenta Específica */}
             <div className="p-4">
-              {activeTab === "language" && (
+              {activeDevTool ? (
+                // Mostrar a ferramenta específica
+                <>
+                  {activeDevTool === "token-tester" && <TokenPriceTester />}
+                  {activeDevTool === "contract-debug" && (
+                    <div className="text-gray-300 text-sm">Contract Debugger Tool (Coming Soon)</div>
+                  )}
+                  {activeDevTool === "network-inspector" && (
+                    <div className="text-gray-300 text-sm">Network Inspector Tool (Coming Soon)</div>
+                  )}
+                  {activeDevTool === "api-explorer" && (
+                    <div className="text-gray-300 text-sm">API Explorer Tool (Coming Soon)</div>
+                  )}
+                </>
+              ) : activeTab === "language" ? (
                 <div className="space-y-2">
                   {Object.entries(languageInfo).map(([code, { flag, name }]) => (
                     <button
@@ -150,9 +202,7 @@ export default function SettingsModal() {
                     </button>
                   ))}
                 </div>
-              )}
-
-              {activeTab === "developer" && (
+              ) : (
                 <div className="space-y-4">
                   {!devMode ? (
                     <>
@@ -224,19 +274,31 @@ export default function SettingsModal() {
                           >
                             <p className="text-sm text-gray-300 mb-2">{t("dev_tools", "Developer Tools")}</p>
 
-                            <button className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors">
+                            <button
+                              onClick={() => openDevTool("contract-debug")}
+                              className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                            >
                               {t("contract_debug", "Contract Debugger")}
                             </button>
 
-                            <button className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors">
+                            <button
+                              onClick={() => openDevTool("network-inspector")}
+                              className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                            >
                               {t("network_inspector", "Network Inspector")}
                             </button>
 
-                            <button className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors">
+                            <button
+                              onClick={() => openDevTool("token-tester")}
+                              className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                            >
                               {t("token_tester", "Token Tester")}
                             </button>
 
-                            <button className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors">
+                            <button
+                              onClick={() => openDevTool("api-explorer")}
+                              className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                            >
                               {t("api_explorer", "API Explorer")}
                             </button>
                           </motion.div>
