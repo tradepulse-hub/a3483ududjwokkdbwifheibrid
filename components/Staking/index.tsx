@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { MiniKit } from "@worldcoin/minikit-js"
 import { ethers } from "ethers"
 import { useLanguage } from "@/lib/languageContext"
@@ -18,7 +18,9 @@ const TPF_ABI = [
 ]
 
 export function Staking({ userAddress }: { userAddress: string }) {
+  console.log("STAKING COMPONENT RENDERING", { userAddress })
   const { t } = useLanguage()
+  const componentRef = useRef<HTMLDivElement>(null)
 
   // State for balances and amounts
   const [tpfBalance, setTpfBalance] = useState<string>("0")
@@ -37,11 +39,33 @@ export function Staking({ userAddress }: { userAddress: string }) {
   const [success, setSuccess] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0)
+  const [visibilityCount, setVisibilityCount] = useState<number>(0)
+
+  // Log when component mounts and unmounts to debug visibility issues
+  useEffect(() => {
+    console.log("STAKING COMPONENT MOUNTED")
+
+    // Add a periodic console log to check if component is still rendered
+    const interval = setInterval(() => {
+      console.log("STAKING COMPONENT STILL MOUNTED", {
+        visibilityCount,
+        isComponentVisible: componentRef.current !== null,
+        componentRect: componentRef.current?.getBoundingClientRect(),
+      })
+      setVisibilityCount((prev) => prev + 1)
+    }, 2000)
+
+    return () => {
+      console.log("STAKING COMPONENT UNMOUNTED")
+      clearInterval(interval)
+    }
+  }, [visibilityCount])
 
   // Fetch balances
   useEffect(() => {
     const fetchBalances = async () => {
       if (!userAddress) return
+      console.log("FETCHING BALANCES FOR", userAddress)
 
       setIsLoading(true)
       setError(null)
@@ -50,6 +74,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
         // Fetch TPF balance
         const tpfResponse = await fetch(`/api/token-balance?address=${userAddress}`)
         const tpfData = await tpfResponse.json()
+        console.log("TPF BALANCE RESPONSE:", tpfData)
 
         if (tpfData.error) {
           console.error("Error fetching TPF balance:", tpfData.error)
@@ -326,7 +351,15 @@ export function Staking({ userAddress }: { userAddress: string }) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-md h-full overflow-hidden flex flex-col">
+    <div
+      ref={componentRef}
+      className="bg-white rounded-lg border border-gray-200 shadow-md h-full overflow-hidden flex flex-col"
+      style={{
+        position: "relative",
+        minHeight: "300px",
+        zIndex: 10,
+      }}
+    >
       {/* Header */}
       <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-4 text-white">
         <h2 className="text-xl font-bold text-center">{t("staking_account", "Staking Account")}</h2>
