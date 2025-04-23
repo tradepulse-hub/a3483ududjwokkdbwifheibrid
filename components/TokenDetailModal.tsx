@@ -1,10 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import { useLanguage } from "@/lib/languageContext"
 import { motion } from "framer-motion"
-import { Loader2, ExternalLink, RefreshCw } from "lucide-react"
+import { Loader2, ExternalLink, RefreshCw, TrendingUp, TrendingDown } from "lucide-react"
+import { generateSwapLink } from "@/lib/unoService"
+
+type PriceHistoryPoint = {
+  time: string
+  price: number
+}
 
 type TokenDetailModalProps = {
   isOpen: boolean
@@ -22,20 +28,27 @@ type TokenDetailModalProps = {
   onSwap?: () => void
 }
 
-export default function TokenDetailModal({ isOpen, onClose, token, walletAddress }: TokenDetailModalProps) {
+export default function TokenDetailModal({ isOpen, onClose, token, walletAddress, onSwap }: TokenDetailModalProps) {
   const { t } = useLanguage()
   const [tokenPrice, setTokenPrice] = useState<number | null>(token.price || null)
   const [priceSource, setPriceSource] = useState<string>(token.priceSource || "loading")
   const [isLoadingPrice, setIsLoadingPrice] = useState<boolean>(false)
   const [priceError, setPriceError] = useState<string | null>(null)
   const [totalValue, setTotalValue] = useState<string | null>(null)
+  const [priceHistory, setPriceHistory] = useState<PriceHistoryPoint[]>([])
+  const [priceChange, setPriceChange] = useState<number>(0)
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1h")
+  const [showSwapOptions, setShowSwapOptions] = useState<boolean>(false)
+
+  const chartRef = useRef<HTMLCanvasElement>(null)
+  const chartInstanceRef = useRef<any>(null)
 
   // Buscar o preço real do token quando o modal abrir
   useEffect(() => {
     if (isOpen) {
       fetchTokenPrice()
     }
-  }, [isOpen, token.symbol])
+  }, [isOpen, token.symbol, selectedTimeframe])
 
   // Calcular o valor total quando o preço ou a quantidade mudar
   useEffect(() => {
@@ -55,6 +68,13 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
     }
   }, [tokenPrice, token.quantity])
 
+  // Desenhar o gráfico quando os dados de preço histórico mudarem
+  useEffect(() => {
+    if (priceHistory.length > 0 && chartRef.current) {
+      drawChart()
+    }
+  }, [priceHistory])
+
   // Função para buscar o preço real do token
   const fetchTokenPrice = async () => {
     if (!token.symbol) return
@@ -63,7 +83,8 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
     setPriceError(null)
 
     try {
-      const response = await fetch(`/api/token-real-price?symbol=${token.symbol}`)
+      // Usar a API do UNO para buscar o preço
+      const response = await fetch(`/api/uno-token-price?symbol=${token.symbol}&timeframe=${selectedTimeframe}`)
 
       if (!response.ok) {
         throw new Error(`Failed to fetch price: ${response.status}`)
@@ -77,12 +98,93 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
 
       setTokenPrice(data.price)
       setPriceSource(data.source)
+      setPriceHistory(data.history || [])
+      setPriceChange(data.priceChange || 0)
     } catch (error) {
       console.error(`Error fetching ${token.symbol} price:`, error)
       setPriceError(error instanceof Error ? error.message : "Failed to fetch token price")
       // Manter o preço anterior se houver um erro
     } finally {
       setIsLoadingPrice(false)
+    }
+  }
+
+  // Função para desenhar o gráfico de preço
+  const drawChart = () => {
+    const canvas = chartRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    // Limpar o canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Configurar o estilo do gráfico
+    ctx.strokeStyle = priceChange >= 0 ? "#10B981" : "#EF4444"
+    ctx.lineWidth = 2
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+
+    // Encontrar os valores mínimo e máximo para escalar o gráfico
+    const prices = priceHistory.map((point) => point.price)
+    const minPrice = Math.min(...prices) * 0.99
+    const maxPrice = Math.max(...prices) * 1.01
+    const priceRange = maxPrice - minPrice
+
+    // Desenhar a linha do gráfico
+    ctx.beginPath()
+    priceHistory.forEach((point, index) => {
+      const x = (index / (priceHistory.length - 1)) * canvas.width
+      const y = canvas.height - ((point.price - minPrice) / priceRange) * canvas.height
+
+      if (index === 0) {
+        ctx.moveTo(x, y)
+      } else {
+        ctx.lineTo(x, y)
+      }
+    })
+    ctx.stroke()
+
+    // Adicionar área sob a linha
+    const lastPoint = priceHistory[priceHistory.length - 1]
+    const lastX = canvas.width
+    const lastY = canvas.height - ((lastPoint.price - minPrice) / priceRange) * canvas.height
+
+    ctx.lineTo(lastX, canvas.height)
+    ctx.lineTo(0, canvas.height)
+    ctx.closePath()
+
+    // Preencher a área sob a linha com um gradiente
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+    if (priceChange >= 0) {
+      gradient.addColorStop(0, "rgba(16, 185, 129, 0.2)")
+      gradient.addColorStop(1, "rgba(16, 185, 129, 0.0)")
+    } else {
+      gradient.addColorStop(0, "rgba(239, 68, 68, 0.2)")
+      gradient.addColorStop(1, "rgba(239, 68, 68, 0.0)")
+    }
+    ctx.fillStyle = gradient
+    ctx.fill()
+  }
+
+  // Função para gerar um link de swap para o UNO
+  const handleSwap = (toSymbol: string) => {
+    if (!token.symbol) return
+
+    // Gerar um link de swap para o UNO
+    const amount = token.quantity ? token.quantity.replace(/,/g, "") : "0"
+    const swapLink = generateSwapLink(token.symbol, toSymbol, amount)
+
+    // Abrir o link em uma nova janela
+    window.open(swapLink, "_blank")
+
+    // Fechar o modal
+    setShowSwapOptions(false)
+
+    // Chamar o callback onSwap se fornecido
+    if (onSwap) {
+      onSwap()
     }
   }
 
@@ -207,13 +309,29 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
                 <div className="text-red-500 text-sm">{priceError}</div>
               ) : tokenPrice !== null ? (
                 <div className="flex flex-col">
-                  <div className="text-lg font-bold text-gray-800">
-                    {tokenPrice.toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                      minimumFractionDigits: 4,
-                      maximumFractionDigits: 6,
-                    })}
+                  <div className="flex items-center">
+                    <div className="text-lg font-bold text-gray-800">
+                      {tokenPrice.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        minimumFractionDigits: 4,
+                        maximumFractionDigits: 6,
+                      })}
+                    </div>
+                    {priceChange !== 0 && (
+                      <div
+                        className={`ml-2 text-xs flex items-center ${
+                          priceChange >= 0 ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {priceChange >= 0 ? (
+                          <TrendingUp size={12} className="mr-0.5" />
+                        ) : (
+                          <TrendingDown size={12} className="mr-0.5" />
+                        )}
+                        {Math.abs(priceChange).toFixed(2)}%
+                      </div>
+                    )}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     {t("price_source", "Source")}: {priceSource}
@@ -223,6 +341,33 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
                 <div className="text-gray-600">{t("price_unavailable", "Price unavailable")}</div>
               )}
             </div>
+
+            {/* Price Chart */}
+            {priceHistory.length > 0 && (
+              <div className="bg-gray-100 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-xs text-gray-500">{t("price_chart", "Price Chart")}</div>
+                  <div className="flex space-x-1">
+                    {["1h", "24h", "7d"].map((timeframe) => (
+                      <button
+                        key={timeframe}
+                        onClick={() => setSelectedTimeframe(timeframe)}
+                        className={`text-[10px] px-1.5 py-0.5 rounded ${
+                          selectedTimeframe === timeframe
+                            ? "bg-gray-700 text-white"
+                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        }`}
+                      >
+                        {timeframe}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="h-32 w-full">
+                  <canvas ref={chartRef} width={300} height={128} className="w-full h-full"></canvas>
+                </div>
+              </div>
+            )}
 
             {/* Total Value */}
             {totalValue && (
@@ -250,7 +395,64 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-between">
+          <div className="relative">
+            <button
+              onClick={() => setShowSwapOptions(!showSwapOptions)}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:opacity-90 transition-colors text-sm flex items-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                />
+              </svg>
+              {t("swap", "Swap")}
+            </button>
+
+            {/* Dropdown de opções de swap */}
+            {showSwapOptions && (
+              <div className="absolute left-0 bottom-full mb-2 bg-white rounded-lg shadow-lg border border-gray-300 p-2 w-48">
+                <div className="text-xs text-gray-500 mb-2">{t("swap_to", "Swap to:")}</div>
+                <div className="space-y-1">
+                  {["USDC", "WLD", "WETH"]
+                    .filter((s) => s !== token.symbol)
+                    .map((symbol) => (
+                      <button
+                        key={symbol}
+                        onClick={() => handleSwap(symbol)}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center"
+                      >
+                        {symbol}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3 w-3 ml-auto"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"
+                          />
+                        </svg>
+                      </button>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:opacity-90 transition-colors text-sm"

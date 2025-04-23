@@ -196,6 +196,10 @@ const translations: Record<Language, Record<string, string>> = {
     price_unavailable: "Price unavailable",
     price_source: "Source",
     total_value: "Total Value",
+    price_chart: "Price Chart",
+    swap: "Swap",
+    swap_to: "Swap to:",
+    back_to_menu: "Back to Menu",
 
     // Token Price Tester
     fetch_price: "Fetch Price",
