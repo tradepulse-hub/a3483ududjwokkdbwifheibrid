@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { MiniKit } from "@worldcoin/minikit-js"
 import Image from "next/image"
@@ -307,7 +305,7 @@ export default function SendCASHModal({
 
                 <form
                   className="space-y-4"
-                  onSubmit={(e: React.FormEvent) => {
+                  onSubmit={(e) => {
                     e.preventDefault()
                     handleSendCASH()
                   }}
