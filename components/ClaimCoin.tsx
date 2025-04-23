@@ -249,84 +249,141 @@ export function ClaimCoin({ userAddress }: { userAddress: string }) {
           perspective: "1000px",
         }}
       >
-        {/* Borda externa da moeda */}
+        {/* Borda externa ondulada da moeda */}
         <div
-          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-300 to-gray-200 shadow-xl flex items-center justify-center"
+          className="absolute inset-0 rounded-full bg-black shadow-xl flex items-center justify-center"
           style={{
-            transform: "translateZ(-2px)",
-            boxShadow: "0 0 30px rgba(0,0,0,0.2)",
+            transform: "translateZ(-4px)",
+            boxShadow: "0 0 30px rgba(0,0,0,0.4)",
+            clipPath: "url(#wavyBorder)",
           }}
         ></div>
 
-        {/* Lateral da moeda - dá a sensação de espessura */}
+        {/* SVG para definir o caminho da borda ondulada */}
+        <svg width="0" height="0" className="absolute">
+          <defs>
+            <clipPath id="wavyBorder" clipPathUnits="objectBoundingBox">
+              <path d="M0.5,0 C0.65,0 0.75,0.1 0.9,0.15 C1,0.25 1,0.4 1,0.5 C1,0.6 1,0.75 0.9,0.85 C0.75,0.9 0.65,1 0.5,1 C0.35,1 0.25,0.9 0.1,0.85 C0,0.75 0,0.6 0,0.5 C0,0.4 0,0.25 0.1,0.15 C0.25,0.1 0.35,0 0.5,0 Z" />
+            </clipPath>
+          </defs>
+        </svg>
+
+        {/* Lateral da moeda - dá a sensação de espessura maior */}
         <div
           className="absolute inset-0 rounded-full"
           style={{
-            transform: "translateZ(-1px)",
-            background: "linear-gradient(to right, #999, #eee, #999, #eee, #999)",
-            boxShadow: "inset 0 0 10px rgba(0,0,0,0.5)",
+            transform: "translateZ(-3px)",
+            background: "linear-gradient(to right, #222, #444, #222, #444, #222)",
+            boxShadow: "inset 0 0 15px rgba(0,0,0,0.8)",
+            clipPath: "url(#wavyBorder)",
           }}
         ></div>
 
         {/* Frente da moeda */}
         <div
           ref={coinFrontRef}
-          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 shadow-xl border-8 border-gray-300 flex items-center justify-center overflow-hidden"
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-900 to-black shadow-xl border-8 border-gray-800 flex items-center justify-center overflow-hidden"
           style={{
-            transform: "translateZ(2px)",
-            boxShadow: "0 0 20px rgba(0,0,0,0.1)",
+            transform: "translateZ(4px)",
+            boxShadow: "0 0 20px rgba(0,0,0,0.3)",
+            clipPath: "url(#wavyBorder)",
           }}
         >
-          <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
-            <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
-              <Image
-                src="/images/tpf-logo-new.png"
-                alt="TPF Logo"
-                width={100}
-                height={100}
-                className="w-28 h-28 object-contain"
-              />
+          <div className="w-36 h-36 rounded-full overflow-hidden bg-black p-1 shadow-inner relative">
+            {/* Efeito de cunhagem para o logotipo */}
+            <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center relative">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-28 h-28 relative">
+                  {/* Sombra para efeito de cunhagem */}
+                  <div
+                    className="absolute inset-0 opacity-30 filter blur-[1px]"
+                    style={{ transform: "translate(2px, 2px)" }}
+                  >
+                    <Image
+                      src="/images/tpf-logo-new.png"
+                      alt="TPF Logo"
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  {/* Logotipo cunhado */}
+                  <Image
+                    src="/images/tpf-logo-new.png"
+                    alt="TPF Logo"
+                    width={100}
+                    height={100}
+                    className="w-full h-full object-contain opacity-80"
+                    style={{ filter: "brightness(0.9) contrast(1.2)" }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Verso da moeda - Agora com um gráfico subindo */}
+        {/* Verso da moeda - com gráfico cunhado */}
         <div
           ref={coinBackRef}
-          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 shadow-xl border-8 border-gray-300 flex items-center justify-center overflow-hidden"
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-900 to-black shadow-xl border-8 border-gray-800 flex items-center justify-center overflow-hidden"
           style={{
-            transform: "translateZ(-2px) rotateY(180deg)",
+            transform: "translateZ(-4px) rotateY(180deg)",
             backfaceVisibility: "hidden",
+            clipPath: "url(#wavyBorder)",
           }}
         >
-          <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 p-1 shadow-inner">
-            <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
-              {/* Gráfico subindo */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-green-600"
-              >
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-              </svg>
+          <div className="w-36 h-36 rounded-full overflow-hidden bg-black p-1 shadow-inner">
+            <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center">
+              {/* Gráfico cunhado */}
+              <div className="relative w-16 h-16">
+                {/* Sombra para efeito de cunhagem */}
+                <div
+                  className="absolute inset-0 opacity-30 filter blur-[1px]"
+                  style={{ transform: "translate(2px, 2px)" }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="64"
+                    height="64"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#333"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                  </svg>
+                </div>
+                {/* Gráfico principal */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="64"
+                  height="64"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#666"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="opacity-80"
+                >
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                  <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Reflexo na moeda */}
         <div
-          className="absolute inset-0 rounded-full bg-gradient-to-b from-white/20 to-transparent"
+          className="absolute inset-0 rounded-full bg-gradient-to-b from-white/10 to-transparent"
           style={{
-            transform: "translateZ(3px)",
+            transform: "translateZ(5px)",
             height: "50%",
+            clipPath: "url(#wavyBorder)",
           }}
         ></div>
       </div>
