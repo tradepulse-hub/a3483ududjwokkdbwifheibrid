@@ -27,6 +27,7 @@ const translations: Record<Language, Record<string, string>> = {
     social: "Social",
     twitter_x: "Twitter/X",
     telegram: "Telegram",
+    claim_in: "Claim your TPF in",
 
     // Contract Status
     contract_status_check: "Contract Status Check",
@@ -195,6 +196,7 @@ const translations: Record<Language, Record<string, string>> = {
     social: "Social",
     twitter_x: "Twitter/X",
     telegram: "Telegram",
+    claim_in: "Reclama tu TPF en",
 
     // Contract Status
     contract_status_check: "Verificación de Estado del Contrato",
@@ -364,6 +366,7 @@ const translations: Record<Language, Record<string, string>> = {
     social: "Social",
     twitter_x: "Twitter/X",
     telegram: "Telegram",
+    claim_in: "Richiedi il tuo TPF in",
 
     // Contract Status
     contract_status_check: "Verifica Stato del Contratto",
@@ -532,6 +535,7 @@ const translations: Record<Language, Record<string, string>> = {
     social: "社交",
     twitter_x: "推特/X",
     telegram: "电报",
+    claim_in: "在此时间内领取您的TPF",
 
     // Contract Status
     contract_status_check: "合约状态检查",
@@ -650,6 +654,7 @@ const translations: Record<Language, Record<string, string>> = {
     more_tpf_higher_chance: "发送的TPF越多，获胜机会越大！",
     info: "信息",
     burned: "已销毁",
+    claim_in: "在此时间内领取您的TPF",
 
     // Adicionar novas traduções para o modal de recebimento
     your_wallet_address: "您的钱包地址",
@@ -698,6 +703,7 @@ const translations: Record<Language, Record<string, string>> = {
     social: "Social",
     twitter_x: "Twitter/X",
     telegram: "Telegram",
+    claim_in: "Réclamez votre TPF dans",
 
     // Contract Status
     contract_status_check: "Vérification de l'État du Contrat",
@@ -819,6 +825,7 @@ const translations: Record<Language, Record<string, string>> = {
     more_tpf_higher_chance: "Plus vous envoyez de TPF, plus vous avez de chances de gagner !",
     info: "Info",
     burned: "Brûlé",
+    claim_in: "Réclamez votre TPF dans",
 
     // Adicionar novas traduções para o modal de recebimento
     your_wallet_address: "Votre Adresse de Portefeuille",
@@ -868,6 +875,7 @@ const translations: Record<Language, Record<string, string>> = {
     social: "Social",
     twitter_x: "Twitter/X",
     telegram: "Telegram",
+    claim_in: "Reivindique seu TPF em",
 
     // Contract Status
     contract_status_check: "Verificação de Status do Contrato",

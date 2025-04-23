@@ -3,6 +3,7 @@
 import { MiniKit, type WalletAuthInput } from "@worldcoin/minikit-js"
 import { useCallback, useEffect, useState } from "react"
 import { useLanguage } from "@/lib/languageContext"
+import Image from "next/image"
 
 const walletAuthInput = (nonce: string): WalletAuthInput => {
   return {
@@ -89,6 +90,17 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
                  hover:bg-pos-100 text-white shadow-lg hover:shadow-gray-500/30 
                  transform hover:scale-105 relative overflow-hidden"
       >
+        {/* Logo TPF */}
+        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-white flex items-center justify-center">
+          <Image
+            src="/images/tpf-logo-new.png"
+            alt="TPF Logo"
+            width={24}
+            height={24}
+            className="w-6 h-6 object-contain"
+          />
+        </div>
+
         {/* Animated glow effect */}
         <span className="absolute inset-0 w-full h-full bg-white/20 animate-shimmer"></span>
 
@@ -110,7 +122,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
             {t("connecting", "Connecting...")}
           </div>
         ) : (
-          <span className="relative z-10">{t("connect_wallet", "Connect Wallet")}</span>
+          <span className="relative z-10 pl-4">{t("connect_wallet", "Connect Wallet")}</span>
         )}
       </button>
     </div>

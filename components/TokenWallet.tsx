@@ -258,11 +258,11 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
           // Simular um atraso para parecer uma chamada real
           await new Promise((resolve) => setTimeout(resolve, 500))
 
-          // Gerar um valor mais realista entre 10 e 50
-          const randomBalance = (10 + Math.random() * 40).toFixed(2)
+          // Usar um valor fixo em vez de aleatório
+          const fixedBalance = "25.00"
 
           return {
-            quantity: randomBalance,
+            quantity: fixedBalance,
             error: undefined,
             details: undefined,
             loading: false,
@@ -286,11 +286,11 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
           // Simular um atraso para parecer uma chamada real
           await new Promise((resolve) => setTimeout(resolve, 600))
 
-          // Gerar um valor mais realista entre 5 e 25
-          const randomBalance = (5 + Math.random() * 20).toFixed(2)
+          // Usar um valor fixo em vez de aleatório
+          const fixedBalance = "15.00"
 
           return {
-            quantity: randomBalance,
+            quantity: fixedBalance,
             error: undefined,
             details: undefined,
             loading: false,
