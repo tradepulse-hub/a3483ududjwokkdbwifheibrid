@@ -162,6 +162,12 @@ const translations: Record<Language, Record<string, string>> = {
     // Novas traduções para o menu
     menu: "Menu",
     select_option: "Select an option to continue",
+
+    // Worldchain notices
+    worldchain_only_notice:
+      "This application only supports sending tokens on the Worldchain network. Make sure the recipient is on Worldchain.",
+    worldchain_only_receive_notice:
+      "Important: This wallet only supports receiving tokens on the Worldchain network. Sending tokens from other networks may result in permanent loss of funds.",
   },
 
   es: {
@@ -325,6 +331,12 @@ const translations: Record<Language, Record<string, string>> = {
     // Novas traduções para o menu
     menu: "Menú",
     select_option: "Selecciona una opción para continuar",
+
+    // Worldchain notices
+    worldchain_only_notice:
+      "Esta aplicación solo admite el envío de tokens en la red Worldchain. Asegúrate de que el destinatario esté en Worldchain.",
+    worldchain_only_receive_notice:
+      "Importante: Esta billetera solo admite recibir tokens en la red Worldchain. Enviar tokens desde otras redes puede resultar en la pérdida permanente de fondos.",
   },
 
   it: {
@@ -487,6 +499,12 @@ const translations: Record<Language, Record<string, string>> = {
     // Novas traduções para o menu
     menu: "Menu",
     select_option: "Seleziona un'opzione per continuare",
+
+    // Worldchain notices
+    worldchain_only_notice:
+      "Questa applicazione supporta solo l'invio di token sulla rete Worldchain. Assicurati che il destinatario sia su Worldchain.",
+    worldchain_only_receive_notice:
+      "Importante: Questo portafoglio supporta solo la ricezione di token sulla rete Worldchain. L'invio di token da altre reti potrebbe comportare la perdita permanente di fondi.",
   },
 
   zh: {
@@ -648,6 +666,11 @@ const translations: Record<Language, Record<string, string>> = {
     // Novas traduções para o menu
     menu: "菜单",
     select_option: "选择一个选项继续",
+
+    // Worldchain notices
+    worldchain_only_notice: "此应用程序仅支持在 Worldchain 网络上发送代币。请确保接收者在 Worldchain 上。",
+    worldchain_only_receive_notice:
+      "重要提示：此钱包仅支持在 Worldchain 网络上接收代币。从其他网络发送代币可能会导致资金永久丢失。",
   },
 
   fr: {
@@ -812,6 +835,12 @@ const translations: Record<Language, Record<string, string>> = {
     // Novas traduções para o menu
     menu: "Menu",
     select_option: "Sélectionnez une option pour continuer",
+
+    // Worldchain notices
+    worldchain_only_notice:
+      "Cette application ne prend en charge que l'envoi de jetons sur le réseau Worldchain. Assurez-vous que le destinataire est sur Worldchain.",
+    worldchain_only_receive_notice:
+      "Important : Ce portefeuille ne prend en charge que la réception de jetons sur le réseau Worldchain. L'envoi de jetons depuis d'autres réseaux peut entraîner une perte permanente de fonds.",
   },
 
   pt: {
@@ -974,6 +1003,12 @@ const translations: Record<Language, Record<string, string>> = {
     // Novas traduções para o menu
     menu: "Menu",
     select_option: "Selecione uma opção para continuar",
+
+    // Worldchain notices
+    worldchain_only_notice:
+      "Esta aplicação só suporta o envio de tokens na rede Worldchain. Certifique-se de que o destinatário está na Worldchain.",
+    worldchain_only_receive_notice:
+      "Importante: Esta carteira só suporta receber tokens na rede Worldchain. Enviar tokens de outras redes pode resultar em perda permanente de fundos.",
   },
 }
 

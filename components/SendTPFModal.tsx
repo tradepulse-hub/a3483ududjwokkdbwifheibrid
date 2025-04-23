@@ -359,6 +359,29 @@ export default function SendTPFModal({
                     {validationErrors.amount && <p className="mt-1 text-xs text-red-600">{validationErrors.amount}</p>}
                   </div>
 
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-700 flex items-start">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-blue-500 mr-1 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>
+                      {t(
+                        "worldchain_only_notice",
+                        "This application only supports sending tokens on the Worldchain network. Make sure the recipient is on Worldchain.",
+                      )}
+                    </span>
+                  </div>
+
                   <div className="pt-2">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
