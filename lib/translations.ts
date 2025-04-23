@@ -173,6 +173,22 @@ const translations: Record<Language, Record<string, string>> = {
       "This application only supports sending tokens on the Worldchain network. Make sure the recipient is on Worldchain.",
     worldchain_only_receive_notice:
       "Important: This wallet only supports receiving tokens on the Worldchain network. Sending tokens from other networks may result in permanent loss of funds.",
+
+    // Adicionar estas novas traduções ao objeto translations existente para cada idioma
+    // Para o inglês (en)
+    settings: "Settings",
+    developer_mode: "Developer Mode",
+    dev_mode_locked: "Developer mode is locked",
+    enter_password: "Enter password",
+    incorrect_password: "Incorrect password",
+    unlock: "Unlock",
+    dev_mode_unlocked: "Developer mode is unlocked",
+    dev_tools: "Developer Tools",
+    contract_debug: "Contract Debugger",
+    network_inspector: "Network Inspector",
+    token_tester: "Token Tester",
+    api_explorer: "API Explorer",
+    exit_dev_mode: "Exit Developer Mode",
   },
 
   es: {
@@ -1042,6 +1058,22 @@ const translations: Record<Language, Record<string, string>> = {
       "Esta aplicação só suporta o envio de tokens na rede Worldchain. Certifique-se de que o destinatário está na Worldchain.",
     worldchain_only_receive_notice:
       "Importante: Esta carteira só suporta receber tokens na rede Worldchain. Enviar tokens de outras redes pode resultar em perda permanente de fundos.",
+
+    // Adicionar estas novas traduções ao objeto translations existente para cada idioma
+    // Para o português (pt)
+    settings: "Configurações",
+    developer_mode: "Modo Desenvolvedor",
+    dev_mode_locked: "Modo desenvolvedor está bloqueado",
+    enter_password: "Digite a senha",
+    incorrect_password: "Senha incorreta",
+    unlock: "Desbloquear",
+    dev_mode_unlocked: "Modo desenvolvedor está desbloqueado",
+    dev_tools: "Ferramentas de Desenvolvimento",
+    contract_debug: "Depurador de Contrato",
+    network_inspector: "Inspetor de Rede",
+    token_tester: "Testador de Token",
+    api_explorer: "Explorador de API",
+    exit_dev_mode: "Sair do Modo Desenvolvedor",
   },
 }
 
