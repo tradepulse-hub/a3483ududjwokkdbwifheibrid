@@ -28,6 +28,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
   const [earnedRewards, setEarnedRewards] = useState<string>("0")
   const [stakeAmount, setStakeAmount] = useState<string>("")
   const [unstakeAmount, setUnstakeAmount] = useState<string>("")
+  const [apr, setApr] = useState<number | null>(null)
 
   // UI state
   const [activeTab, setActiveTab] = useState<"stake" | "unstake" | "rewards">("stake")
@@ -61,6 +62,22 @@ export function Staking({ userAddress }: { userAddress: string }) {
     }
   }, [visibilityCount])
 
+  // Fetch APR
+  const fetchAPR = async () => {
+    try {
+      const response = await fetch(`/api/staking-apr`)
+      const data = await response.json()
+
+      if (data.success) {
+        setApr(data.apr)
+      } else {
+        console.error("Error fetching APR:", data.error)
+      }
+    } catch (error) {
+      console.error("Error fetching APR:", error)
+    }
+  }
+
   // Fetch balances
   const fetchBalances = async () => {
     if (!userAddress) return
@@ -91,6 +108,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
       try {
         const stakedResponse = await fetch(`/api/staking-balance?address=${userAddress}`)
         const stakedData = await stakedResponse.json()
+        console.log("STAKED BALANCE RESPONSE:", stakedData)
 
         if (stakedData.success) {
           // Convert from wei to ether and format
@@ -107,6 +125,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
         // Fetch earned rewards from the real API
         const rewardsResponse = await fetch(`/api/staking-rewards?address=${userAddress}`)
         const rewardsData = await rewardsResponse.json()
+        console.log("REWARDS RESPONSE:", rewardsData)
 
         if (rewardsData.success) {
           // Convert from wei to ether and format
@@ -119,6 +138,9 @@ export function Staking({ userAddress }: { userAddress: string }) {
         } else {
           throw new Error(rewardsData.error || "Failed to fetch rewards")
         }
+
+        // Fetch APR
+        await fetchAPR()
       } catch (err) {
         console.error("Error fetching staking data:", err)
         setError("Failed to fetch staking data")
@@ -210,7 +232,6 @@ export function Staking({ userAddress }: { userAddress: string }) {
                 outputs: [],
                 stateMutability: "nonpayable",
                 type: "function",
-                method_id: "0xa694fc3a", // Correct method ID for stake
               },
             ],
             functionName: "stake",
@@ -275,7 +296,6 @@ export function Staking({ userAddress }: { userAddress: string }) {
                 outputs: [],
                 stateMutability: "nonpayable",
                 type: "function",
-                method_id: "0x2e1a7d4d", // Correct method ID for withdraw
               },
             ],
             functionName: "withdraw",
@@ -330,7 +350,6 @@ export function Staking({ userAddress }: { userAddress: string }) {
                 outputs: [],
                 stateMutability: "nonpayable",
                 type: "function",
-                method_id: "0xb88a802f", // Correct method ID for claimReward
               },
             ],
             functionName: "claimReward",
@@ -379,7 +398,14 @@ export function Staking({ userAddress }: { userAddress: string }) {
     >
       {/* Header */}
       <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-2 text-white">
-        <h2 className="text-base font-bold text-center">{t("staking_account", "Staking Account")}</h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-base font-bold">{t("staking_account", "Staking Account")}</h2>
+          {apr !== null && (
+            <div className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+              APR: {apr.toFixed(2)}%
+            </div>
+          )}
+        </div>
         <p className="text-xs text-center text-gray-300">
           {t("earn_interest_every_second", "Earn interest every second")}
         </p>
@@ -526,6 +552,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
               <ul className="text-[9px] text-blue-600 space-y-0.5 list-disc pl-3">
                 <li>{t("staking_info_2", "Rewards are distributed every second")}</li>
                 <li>{t("staking_info_3", "Minimum stake amount: 1 TPF")}</li>
+                {apr !== null && <li>Current APR: {apr.toFixed(2)}%</li>}
               </ul>
             </div>
           </div>
@@ -627,7 +654,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
               {isClaiming ? (
                 <div className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
+                    className="animate-spin -ml-1 mr-1 h-4 w-4 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -652,15 +679,6 @@ export function Staking({ userAddress }: { userAddress: string }) {
                 t("collect", "Collect")
               )}
             </button>
-
-            <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
-              <p className="text-[9px] text-blue-700">
-                {t(
-                  "rewards_info",
-                  "Rewards are calculated based on your staked amount and the time you've been staking. Claim your rewards at any time.",
-                )}
-              </p>
-            </div>
           </div>
         )}
       </div>

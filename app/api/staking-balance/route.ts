@@ -3,7 +3,8 @@ import { ethers } from "ethers"
 import { stakingContractABI } from "@/lib/stakingContractABI"
 
 const STAKING_CONTRACT_ADDRESS = "0xb4b2f053031FC05aDBC858CA721185994e3c041B"
-const RPC_URL = "https://rpc.ankr.com/polygon"
+// Update to use Worldchain RPC instead of Polygon
+const RPC_URL = "https://worldchain-mainnet.g.alchemy.com/public"
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,10 +15,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Address is required" }, { status: 400 })
     }
 
+    console.log(`[Staking API] Fetching staked balance for address: ${address}`)
+
     const provider = new ethers.JsonRpcProvider(RPC_URL)
     const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, stakingContractABI, provider)
 
+    // Call balanceOf function to get staked balance
     const stakedBalance = await stakingContract.balanceOf(address)
+    console.log(`[Staking API] Raw staked balance: ${stakedBalance.toString()}`)
 
     return NextResponse.json({
       success: true,
@@ -25,6 +30,15 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error fetching staking balance:", error)
-    return NextResponse.json({ success: false, error: "Failed to fetch staking balance" }, { status: 500 })
+
+    // Return a more detailed error for debugging
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch staking balance",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }
