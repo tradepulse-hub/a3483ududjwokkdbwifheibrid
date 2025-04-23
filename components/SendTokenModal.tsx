@@ -42,6 +42,58 @@ export default function SendTokenModal({
   }>({})
   const [currentStep, setCurrentStep] = useState(1)
 
+  // Adicionar um estado para armazenar o saldo do token
+  const [tokenBalance, setTokenBalance] = useState<string>("0.00")
+
+  // Adicionar um efeito para buscar o saldo do token quando o modal abrir
+  useEffect(() => {
+    if (isOpen) {
+      const fetchTokenBalance = async () => {
+        try {
+          // Endereço do contrato WLD na World Chain
+          const wldTokenAddress = "0x2cFc85d8E48F8EAB294be644d9E25C3030863003"
+
+          // Usar o RPC público da Worldchain
+          const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
+
+          // ABI mínimo para consultar o saldo de um token ERC20
+          const tokenAbi = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function decimals() view returns (uint8)",
+          ]
+
+          // Criar uma instância do contrato
+          const wldContract = new ethers.Contract(wldTokenAddress, tokenAbi, provider)
+
+          // Buscar os decimais do token
+          let decimals
+          try {
+            decimals = await wldContract.decimals()
+          } catch (error) {
+            console.error("Error fetching WLD token decimals:", error)
+            decimals = 18 // Valor padrão para tokens ERC-20
+          }
+
+          // Buscar o saldo do token
+          const balance = await wldContract.balanceOf(walletAddress)
+
+          // Converter o saldo para um formato legível
+          const formattedBalance = Number(ethers.formatUnits(balance, decimals)).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+
+          setTokenBalance(formattedBalance)
+        } catch (error) {
+          console.error("Error fetching WLD balance:", error)
+          setTokenBalance("0.00")
+        }
+      }
+
+      fetchTokenBalance()
+    }
+  }, [isOpen, walletAddress])
+
   // Ocultar o menu quando o modal abrir
   useEffect(() => {
     if (isOpen && setMenuVisible) {
@@ -144,26 +196,14 @@ export default function SendTokenModal({
       setIsLoading(true)
       setError(null)
 
-      // Obter o endereço do contrato WLD com base no tokenSymbol
-      let tokenAddress: string
-
-      if (tokenSymbol === "WLD") {
-        // Endereço do contrato WLD na World Chain
-        tokenAddress = "0x2cFc85d8E48F8EAB294be644d9E25C3030863003"
-      } else {
-        throw new Error(
-          t("token_not_supported", "Token {tokenSymbol} not supported for direct sending").replace(
-            "{tokenSymbol}",
-            tokenSymbol,
-          ),
-        )
-      }
+      // Endereço do contrato WLD na World Chain
+      const tokenAddress = "0x2cFc85d8E48F8EAB294be644d9E25C3030863003"
 
       // Converter o valor para wei (assumindo 18 decimais para WLD)
       const amountValue = Number.parseFloat(amount)
       const amountInWei = BigInt(Math.floor(amountValue * 10 ** 18)).toString()
 
-      console.log(`Sending ${amount} ${tokenSymbol} (${amountInWei} in wei) to ${recipientAddress}`)
+      console.log(`Sending ${amount} WLD (${amountInWei} in wei) to ${recipientAddress}`)
 
       // ABI mínimo para a função transfer do ERC20
       const transferAbi = [
@@ -176,7 +216,7 @@ export default function SendTokenModal({
           outputs: [{ name: "", type: "bool" }],
           stateMutability: "nonpayable",
           type: "function",
-          // Seletor de função para transfer
+          // Adicionar o seletor de função que você compartilhou
           method_id: "0xa9059cbb",
         },
       ]
@@ -216,21 +256,13 @@ export default function SendTokenModal({
         onClose()
       }, 3000)
     } catch (error) {
-      console.error(`Error sending ${tokenSymbol}:`, error)
+      console.error("Error sending WLD:", error)
 
       // Verificar se o erro é relacionado a contrato não reconhecido
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : t("failed_to_send", "Failed to send {tokenSymbol}").replace("{tokenSymbol}", tokenSymbol)
+      const errorMessage = error instanceof Error ? error.message : `Failed to send ${tokenSymbol}`
 
       if (errorMessage.includes("unrecognized contract") || errorMessage.includes("Invalid Token")) {
-        setError(
-          t(
-            "error_sending_token",
-            "There was an error sending {tokenSymbol}. Please try again or use the worldcoin app directly.",
-          ).replace("{tokenSymbol}", tokenSymbol),
-        )
+        setError(`There was an error sending ${tokenSymbol}. Please try again or use the worldcoin app directly.`)
       } else {
         setError(errorMessage)
       }
@@ -333,30 +365,10 @@ export default function SendTokenModal({
                           validationErrors.recipient ? "border-red-500" : "border-gray-300"
                         }`}
                       />
-                      {recipientAddress && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </motion.div>
+                      {validationErrors.recipient && (
+                        <p className="mt-1 text-xs text-red-600">{validationErrors.recipient}</p>
                       )}
                     </div>
-                    {validationErrors.recipient && (
-                      <p className="mt-1 text-xs text-red-600">{validationErrors.recipient}</p>
-                    )}
                   </div>
 
                   <div>

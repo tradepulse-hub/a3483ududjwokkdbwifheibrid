@@ -90,6 +90,7 @@ const translations: Record<Language, Record<string, string>> = {
     copy_address_to_receive: "Copy the address above to receive",
     your_balance: "Your balance",
     max: "MAX",
+    exchange_warning: "Warning: Do not send your tokens to any exchange. Only send to personal wallets.",
 
     // Navigation
     wallet: "Wallet",
@@ -263,6 +264,7 @@ const translations: Record<Language, Record<string, string>> = {
     copy_address_to_receive: "Copia la dirección de arriba para recibir",
     your_balance: "Tu saldo",
     max: "MÁX",
+    exchange_warning: "Advertencia: No envíe sus tokens a ningún exchange. Solo envíe a billeteras personales.",
 
     // Navigation
     wallet: "Billetera",
@@ -435,6 +437,7 @@ const translations: Record<Language, Record<string, string>> = {
     copy_address_to_receive: "Copia l'indirizzo sopra per ricevere",
     your_balance: "Il tuo saldo",
     max: "MAX",
+    exchange_warning: "Avvertenza: Non inviare i tuoi token a nessun exchange. Invia solo a portafogli personali.",
 
     // Navigation
     wallet: "Portafoglio",
@@ -606,6 +609,7 @@ const translations: Record<Language, Record<string, string>> = {
     copy_address_to_receive: "复制上面的地址以接收",
     your_balance: "您的余额",
     max: "最大",
+    exchange_warning: "警告：请勿将您的代币发送到任何交易所。只发送到个人钱包。",
 
     // Navigation
     wallet: "钱包",
@@ -779,6 +783,8 @@ const translations: Record<Language, Record<string, string>> = {
     copy_address_to_receive: "Copiez l'adresse ci-dessus pour recevoir",
     your_balance: "Votre solde",
     max: "MAX",
+    exchange_warning:
+      "Avertissement : N'envoyez pas vos jetons à une plateforme d'échange. Envoyez uniquement à des portefeuilles personnels.",
 
     // Navigation
     wallet: "Portefeuille",
@@ -953,6 +959,7 @@ const translations: Record<Language, Record<string, string>> = {
     copy_address_to_receive: "Copie o endereço acima para receber",
     your_balance: "Seu saldo",
     max: "MÁX",
+    exchange_warning: "Aviso: Não envie seus tokens para nenhuma exchange. Envie apenas para carteiras pessoais.",
 
     // Navigation
     wallet: "Carteira",
