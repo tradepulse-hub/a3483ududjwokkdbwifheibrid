@@ -30,7 +30,7 @@ export default function ReceiveTokensModal({
       symbol: "TPF",
       name: "TPulseFi",
       gradient: "from-gray-600 to-gray-700",
-      logo: "/images/tpf-logo.png",
+      logo: "/images/tpf-logo-new.png",
       address: "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45",
       verified: true,
     },
@@ -40,6 +40,14 @@ export default function ReceiveTokensModal({
       gradient: "from-gray-600 to-gray-700",
       logo: "/images/worldcoin-logo.jpeg",
       address: "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+      verified: true,
+    },
+    {
+      symbol: "DNA",
+      name: "DNA Token",
+      gradient: "from-amber-500 to-amber-600",
+      logo: "/images/dna-token-logo.png",
+      address: "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113",
       verified: true,
     },
   ])

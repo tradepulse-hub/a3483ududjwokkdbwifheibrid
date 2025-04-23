@@ -37,7 +37,7 @@ export default function TokenWallet({ walletAddress }: TokenWalletProps) {
       name: "TPulseFi",
       quantity: null,
       gradient: "from-gray-600 to-gray-700",
-      logo: "/images/tpf-logo.png",
+      logo: "/images/tpf-logo-new.png",
       loading: true,
       address: "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45",
       verified: true, // Token verificado

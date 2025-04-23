@@ -8,7 +8,7 @@ import { useLanguage } from "@/lib/languageContext"
 import { motion, AnimatePresence } from "framer-motion"
 
 // Adicionar uma prop para controlar a visibilidade do menu
-type SendTPFModalProps = {
+type SendDNAModalProps = {
   isOpen: boolean
   onClose: () => void
   walletAddress: string
@@ -17,14 +17,14 @@ type SendTPFModalProps = {
   setMenuVisible?: (visible: boolean) => void // Nova prop
 }
 
-export default function SendTPFModal({
+export default function SendDNAModal({
   isOpen,
   onClose,
   walletAddress,
   tokenLogo,
   onSuccess,
   setMenuVisible,
-}: SendTPFModalProps) {
+}: SendDNAModalProps) {
   const { t } = useLanguage()
   const [recipientAddress, setRecipientAddress] = useState("")
   const [amount, setAmount] = useState("")
@@ -125,7 +125,7 @@ export default function SendTPFModal({
     return Object.keys(errors).length === 0
   }
 
-  const handleSendTPF = async () => {
+  const handleSendDNA = async () => {
     // Validate form
     if (!validateForm()) {
       return
@@ -140,14 +140,14 @@ export default function SendTPFModal({
       setIsLoading(true)
       setError(null)
 
-      // Endereço do contrato TPF na World Chain
-      const tokenAddress = "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45"
+      // Endereço do contrato DNA na World Chain
+      const tokenAddress = "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113"
 
-      // Converter o valor para wei (assumindo 18 decimais para TPF)
+      // Converter o valor para wei (assumindo 18 decimais para DNA)
       const amountValue = Number.parseFloat(amount)
       const amountInWei = BigInt(Math.floor(amountValue * 10 ** 18)).toString()
 
-      console.log(`Sending ${amount} TPF (${amountInWei} in wei) to ${recipientAddress}`)
+      console.log(`Sending ${amount} DNA (${amountInWei} in wei) to ${recipientAddress}`)
 
       // ABI mínimo para a função transfer do ERC20
       const transferAbi = [
@@ -200,15 +200,13 @@ export default function SendTPFModal({
         onClose()
       }, 3000)
     } catch (error) {
-      console.error("Error sending TPF:", error)
+      console.error("Error sending DNA:", error)
 
       // Verificar se o erro é relacionado a contrato não reconhecido
-      const errorMessage = error instanceof Error ? error.message : t("failed_to_send_tpf", "Failed to send TPF")
+      const errorMessage = error instanceof Error ? error.message : "Failed to send DNA"
 
       if (errorMessage.includes("unrecognized contract") || errorMessage.includes("Invalid Token")) {
-        setError(
-          t("error_sending_tpf", "There was an error sending TPF. Please try again or use the worldcoin app directly."),
-        )
+        setError("There was an error sending DNA. Please try again or use the worldcoin app directly.")
       } else {
         setError(errorMessage)
       }
@@ -229,7 +227,7 @@ export default function SendTPFModal({
         className="bg-gradient-to-br from-gray-200 to-gray-300 border border-gray-400/50 rounded-xl w-full max-w-md overflow-hidden shadow-2xl"
       >
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-gray-600 to-gray-700 p-5 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-5 relative overflow-hidden">
           {/* Animated shine effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer bg-size-200"></div>
 
@@ -237,16 +235,16 @@ export default function SendTPFModal({
             <div className="flex items-center">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border-2 border-white/20 flex-shrink-0 mr-3 shadow-lg">
                 <Image
-                  src={tokenLogo || "/images/tpf-logo-new.png"}
-                  alt="TPF logo"
+                  src={tokenLogo || "/placeholder.svg"}
+                  alt="DNA logo"
                   width={48}
                   height={48}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white flex items-center">{t("send", "Send")} TPF</h3>
-                <div className="text-xs text-white/70">TPulseFi</div>
+                <h3 className="text-xl font-bold text-white flex items-center">{t("send", "Send")} DNA</h3>
+                <div className="text-xs text-white/70">DNA Token</div>
               </div>
             </div>
             <button
@@ -291,7 +289,7 @@ export default function SendTPFModal({
                   className="space-y-4"
                   onSubmit={(e) => {
                     e.preventDefault()
-                    handleSendTPF()
+                    handleSendDNA()
                   }}
                 >
                   <div>
@@ -353,7 +351,7 @@ export default function SendTPFModal({
                         }`}
                       />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 font-medium">
-                        TPF
+                        DNA
                       </div>
                     </div>
                     {validationErrors.amount && <p className="mt-1 text-xs text-red-600">{validationErrors.amount}</p>}
@@ -388,7 +386,7 @@ export default function SendTPFModal({
                       whileTap={{ scale: 0.98 }}
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3 px-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:opacity-90 transition-colors flex items-center justify-center font-medium shadow-lg shadow-gray-500/20"
+                      className="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:opacity-90 transition-colors flex items-center justify-center font-medium shadow-lg shadow-amber-500/20"
                     >
                       {isLoading ? (
                         <>
@@ -430,7 +428,7 @@ export default function SendTPFModal({
                               d="M12 19V5M5 12l7-7 7 7"
                             />
                           </svg>
-                          {t("send", "Send")} TPF
+                          {t("send", "Send")} DNA
                         </>
                       )}
                     </motion.button>

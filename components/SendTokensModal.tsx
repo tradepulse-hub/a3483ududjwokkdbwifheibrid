@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useLanguage } from "@/lib/languageContext"
 import SendTokenModal from "./SendTokenModal"
 import SendTPFModal from "./SendTPFModal"
+import SendDNAModal from "./SendDNAModal"
 
 type TokenInfo = {
   symbol: string
@@ -35,6 +36,7 @@ export default function SendTokensModal({
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
   const [isSendModalOpen, setIsSendModalOpen] = useState(false)
   const [isSendTPFModalOpen, setIsSendTPFModalOpen] = useState(false)
+  const [isSendDNAModalOpen, setIsSendDNAModalOpen] = useState(false)
 
   // Ocultar o menu quando o modal abrir
   useEffect(() => {
@@ -107,6 +109,10 @@ export default function SendTokensModal({
           const wldResponse = await fetch(`/api/ethers-wld-balance?address=${userData.user.walletAddress}`)
           const wldData = await wldResponse.json()
 
+          // Buscar saldo de DNA
+          const dnaResponse = await fetch(`/api/dna-token-balance?address=${userData.user.walletAddress}`)
+          const dnaData = await dnaResponse.json()
+
           // Formatar os dados dos tokens
           const tokensData: TokenInfo[] = [
             {
@@ -119,7 +125,7 @@ export default function SendTokensModal({
                     maximumFractionDigits: 2,
                   }),
               gradient: "from-gray-600 to-gray-700",
-              logo: "/images/tpf-logo.png",
+              logo: "/images/tpf-logo-new.png",
               address: "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45",
               verified: true,
             },
@@ -135,6 +141,20 @@ export default function SendTokensModal({
               gradient: "from-gray-600 to-gray-700",
               logo: "/images/worldcoin-logo.jpeg",
               address: "0x2cFc85d8E48F8EAB294be644d9E25C3030863003",
+              verified: true,
+            },
+            {
+              symbol: "DNA",
+              name: "DNA Token",
+              quantity: dnaData.error
+                ? "0.00"
+                : dnaData.balance.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }),
+              gradient: "from-amber-500 to-amber-600",
+              logo: "/images/dna-token-logo.png",
+              address: "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113",
               verified: true,
             },
           ]
@@ -155,6 +175,8 @@ export default function SendTokensModal({
     setSelectedToken(token)
     if (token.symbol === "TPF") {
       setIsSendTPFModalOpen(true)
+    } else if (token.symbol === "DNA") {
+      setIsSendDNAModalOpen(true)
     } else {
       setIsSendModalOpen(true)
     }
@@ -205,7 +227,7 @@ export default function SendTokensModal({
 
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2].map((i) => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="p-3 rounded-lg bg-gray-100/80 backdrop-blur-sm animate-pulse">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -303,6 +325,21 @@ export default function SendTokensModal({
           isOpen={isSendTPFModalOpen}
           onClose={() => {
             setIsSendTPFModalOpen(false)
+            setSelectedToken(null)
+          }}
+          walletAddress={walletAddress}
+          tokenLogo={selectedToken.logo}
+          onSuccess={handleTransactionSuccess}
+          setMenuVisible={setMenuVisible}
+        />
+      )}
+
+      {/* Send DNA Modal */}
+      {selectedToken && selectedToken.symbol === "DNA" && (
+        <SendDNAModal
+          isOpen={isSendDNAModalOpen}
+          onClose={() => {
+            setIsSendDNAModalOpen(false)
             setSelectedToken(null)
           }}
           walletAddress={walletAddress}
