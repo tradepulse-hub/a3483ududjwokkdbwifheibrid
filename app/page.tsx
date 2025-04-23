@@ -10,7 +10,6 @@ import BottomMenu from "@/components/BottomMenu"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
 import { Staking } from "@/components/Staking"
-import { motion, AnimatePresence } from "framer-motion"
 
 interface User {
   walletAddress: string
@@ -154,6 +153,7 @@ export default function Home() {
 
   // Manipulador de mudança de aba que garante que o menu esteja visível
   const handleTabChange = (tab: string) => {
+    console.log("Tab changed to:", tab)
     setActiveTab(tab)
     ensureMenuVisible()
   }
@@ -268,25 +268,16 @@ export default function Home() {
 
           {/* Content based on active tab - Altura fixa e sem rolagem */}
           <div className="flex-1 overflow-hidden bg-white rounded-lg shadow-md border border-gray-200 p-2 mb-2 -mt-1">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="h-full"
-                onAnimationComplete={ensureMenuVisible}
-              >
-                {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
+            {/* REMOVED AnimatePresence and motion.div to simplify rendering */}
+            <div className="h-full">
+              {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
 
-                {activeTab === "staking" && user.walletAddress && <Staking userAddress={user.walletAddress} />}
+              {activeTab === "staking" && user.walletAddress && <Staking userAddress={user.walletAddress} />}
 
-                {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
+              {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
 
-                {activeTab === "airdrop" && user.walletAddress && <ClaimCoin userAddress={user.walletAddress} />}
-              </motion.div>
-            </AnimatePresence>
+              {activeTab === "airdrop" && user.walletAddress && <ClaimCoin userAddress={user.walletAddress} />}
+            </div>
           </div>
 
           {/* Espaço para o menu inferior */}
