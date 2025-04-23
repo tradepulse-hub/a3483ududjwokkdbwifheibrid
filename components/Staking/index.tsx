@@ -211,13 +211,39 @@ export function Staking({ userAddress }: StakingProps) {
             <button
               onClick={handleClaimRewards}
               disabled={Number.parseFloat(earnedRewards) <= 0 || isClaiming}
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 ${
                 Number.parseFloat(earnedRewards) <= 0 || isClaiming
-                  ? "bg-gray-300 text-gray-500"
-                  : "bg-black text-white hover:bg-gray-800"
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-gray-700 to-gray-900 text-white hover:shadow-md hover:shadow-gray-500/20 transform hover:scale-105"
               }`}
             >
-              {isClaiming ? t("collecting", "Collecting...") : t("collect", "Collect")}
+              {isClaiming ? (
+                <div className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {t("collecting", "Collecting...")}
+                </div>
+              ) : (
+                t("collect", "Collect")
+              )}
             </button>
           </div>
         </div>
@@ -275,16 +301,51 @@ export function Staking({ userAddress }: StakingProps) {
               Number.parseFloat(stakeAmount) > Number.parseFloat(tpfBalance) ||
               isStaking
             }
-            className={`w-full py-3 rounded-lg text-white font-medium ${
+            className={`w-full py-3 rounded-lg text-white font-medium transition-all duration-300 ${
               !stakeAmount ||
               Number.parseFloat(stakeAmount) <= 0 ||
               Number.parseFloat(stakeAmount) > Number.parseFloat(tpfBalance) ||
               isStaking
-                ? "bg-gray-400"
-                : "bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black hover:shadow-lg hover:shadow-gray-500/20 transform hover:scale-[1.02]"
             }`}
           >
-            {isStaking ? t("staking", "Staking...") : t("stake_tpf", "Stake TPF")}
+            {isStaking ? (
+              <div className="flex items-center justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                {t("staking", "Staking...")}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                {t("stake_tpf", "Stake TPF")}
+              </div>
+            )}
           </button>
         </div>
       ) : (
@@ -318,16 +379,57 @@ export function Staking({ userAddress }: StakingProps) {
               Number.parseFloat(unstakeAmount) > Number.parseFloat(stakedBalance) ||
               isUnstaking
             }
-            className={`w-full py-3 rounded-lg text-white font-medium ${
+            className={`w-full py-3 rounded-lg text-white font-medium transition-all duration-300 ${
               !unstakeAmount ||
               Number.parseFloat(unstakeAmount) <= 0 ||
               Number.parseFloat(unstakeAmount) > Number.parseFloat(stakedBalance) ||
               isUnstaking
-                ? "bg-gray-400"
-                : "bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black hover:shadow-lg hover:shadow-gray-500/20 transform hover:scale-[1.02]"
             }`}
           >
-            {isUnstaking ? t("unstaking", "Unstaking...") : t("unstake_tpf", "Unstake TPF")}
+            {isUnstaking ? (
+              <div className="flex items-center justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                {t("unstaking", "Unstaking...")}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                {t("unstake_tpf", "Unstake TPF")}
+              </div>
+            )}
           </button>
         </div>
       )}
