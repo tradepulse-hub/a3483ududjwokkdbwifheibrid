@@ -361,33 +361,33 @@ export function Staking({ userAddress }: { userAddress: string }) {
       }}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-4 text-white">
-        <h2 className="text-xl font-bold text-center">{t("staking_account", "Staking Account")}</h2>
-        <p className="text-sm text-center text-gray-300">
+      <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-2 text-white">
+        <h2 className="text-base font-bold text-center">{t("staking_account", "Staking Account")}</h2>
+        <p className="text-xs text-center text-gray-300">
           {t("earn_interest_every_second", "Earn interest every second")}
         </p>
       </div>
 
       {/* Balances */}
-      <div className="grid grid-cols-3 gap-2 p-3 bg-gray-50 border-b border-gray-200">
+      <div className="grid grid-cols-3 gap-1 p-2 bg-gray-50 border-b border-gray-200">
         <div className="text-center">
-          <p className="text-xs text-gray-500">{t("available_balance", "Available Balance")}</p>
-          <p className="text-sm font-bold">{tpfBalance} TPF</p>
+          <p className="text-[9px] text-gray-500">{t("available_balance", "Available Balance")}</p>
+          <p className="text-xs font-bold">{tpfBalance} TPF</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">{t("staked_balance", "Staked Balance")}</p>
-          <p className="text-sm font-bold">{stakedBalance} TPF</p>
+          <p className="text-[9px] text-gray-500">{t("staked_balance", "Staked Balance")}</p>
+          <p className="text-xs font-bold">{stakedBalance} TPF</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">{t("rewards", "Rewards")}</p>
-          <p className="text-sm font-bold text-green-600">{earnedRewards} TPF</p>
+          <p className="text-[9px] text-gray-500">{t("rewards", "Rewards")}</p>
+          <p className="text-xs font-bold text-green-600">{earnedRewards} TPF</p>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
         <button
-          className={`flex-1 py-2 text-sm font-medium ${
+          className={`flex-1 py-1 text-xs font-medium ${
             activeTab === "stake" ? "text-gray-800 border-b-2 border-gray-800" : "text-gray-500 hover:text-gray-700"
           }`}
           onClick={() => setActiveTab("stake")}
@@ -395,7 +395,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
           {t("deposit", "Deposit")}
         </button>
         <button
-          className={`flex-1 py-2 text-sm font-medium ${
+          className={`flex-1 py-1 text-xs font-medium ${
             activeTab === "unstake" ? "text-gray-800 border-b-2 border-gray-800" : "text-gray-500 hover:text-gray-700"
           }`}
           onClick={() => setActiveTab("unstake")}
@@ -403,7 +403,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
           {t("withdraw", "Withdraw")}
         </button>
         <button
-          className={`flex-1 py-2 text-sm font-medium ${
+          className={`flex-1 py-1 text-xs font-medium ${
             activeTab === "rewards" ? "text-gray-800 border-b-2 border-gray-800" : "text-gray-500 hover:text-gray-700"
           }`}
           onClick={() => setActiveTab("rewards")}
@@ -413,22 +413,22 @@ export function Staking({ userAddress }: { userAddress: string }) {
       </div>
 
       {/* Content */}
-      <div className="p-4 flex-1 overflow-auto">
+      <div className="p-2 flex-1 overflow-auto">
         {/* Error and success messages */}
         {error && (
-          <div className="bg-red-50 text-red-600 text-xs p-2 rounded-lg mb-3 border border-red-200">{error}</div>
+          <div className="bg-red-50 text-red-600 text-[9px] p-1.5 rounded-lg mb-2 border border-red-200">{error}</div>
         )}
 
         {success && (
-          <div className="bg-green-50 text-green-600 text-xs p-2 rounded-lg mb-3 border border-green-200">
+          <div className="bg-green-50 text-green-600 text-[9px] p-1.5 rounded-lg mb-2 border border-green-200">
             {success}
             {txHash && (
-              <div className="mt-1">
+              <div className="mt-0.5">
                 <a
                   href={`https://worldscan.org/tx/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-[10px]"
+                  className="text-blue-600 hover:underline text-[8px]"
                 >
                   {t("view_on_worldscan", "View on WorldScan")}
                 </a>
@@ -440,8 +440,8 @@ export function Staking({ userAddress }: { userAddress: string }) {
         {/* Stake tab */}
         {activeTab === "stake" && (
           <div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
                 {t("amount_to_stake", "Amount to stake")}
               </label>
               <div className="relative">
@@ -450,13 +450,13 @@ export function Staking({ userAddress }: { userAddress: string }) {
                   value={stakeAmount}
                   onChange={(e) => setStakeAmount(e.target.value)}
                   placeholder="0.0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded-lg text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500"
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2">
                   <button
                     type="button"
                     onClick={setMaxStakeAmount}
-                    className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded"
+                    className="text-[9px] bg-gray-200 hover:bg-gray-300 text-gray-800 px-1.5 py-0.5 rounded"
                   >
                     {t("max", "MAX")}
                   </button>
@@ -467,7 +467,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
             <button
               onClick={handleStake}
               disabled={isStaking || !stakeAmount || Number.parseFloat(stakeAmount) <= 0}
-              className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-300 ${
+              className={`w-full py-1.5 px-3 rounded-lg font-medium transition-all duration-300 text-xs ${
                 isStaking || !stakeAmount || Number.parseFloat(stakeAmount) <= 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : "bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg hover:shadow-gray-500/20"
@@ -476,7 +476,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
               {isStaking ? (
                 <div className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -502,11 +502,11 @@ export function Staking({ userAddress }: { userAddress: string }) {
               )}
             </button>
 
-            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <h4 className="text-sm font-medium text-blue-700 mb-2">
+            <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
+              <h4 className="text-xs font-medium text-blue-700 mb-1">
                 {t("staking_info_1", "Stake TPF to earn rewards")}
               </h4>
-              <ul className="text-xs text-blue-600 space-y-1 list-disc pl-4">
+              <ul className="text-[9px] text-blue-600 space-y-0.5 list-disc pl-3">
                 <li>{t("staking_info_2", "Rewards are distributed every second")}</li>
                 <li>{t("staking_info_3", "Minimum stake amount: 1 TPF")}</li>
               </ul>
@@ -593,9 +593,9 @@ export function Staking({ userAddress }: { userAddress: string }) {
         {/* Rewards tab */}
         {activeTab === "rewards" && (
           <div>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-              <h3 className="text-lg font-medium text-green-700 mb-2">{t("earned_rewards", "Earned Rewards")}</h3>
-              <p className="text-2xl font-bold text-green-600">{earnedRewards} TPF</p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
+              <h3 className="text-sm font-medium text-green-700 mb-1">{t("earned_rewards", "Earned Rewards")}</h3>
+              <p className="text-lg font-bold text-green-600">{earnedRewards} TPF</p>
             </div>
 
             <button
