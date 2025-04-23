@@ -213,6 +213,7 @@ const translations: Record<Language, Record<string, string>> = {
     status: "Status",
     success: "Success",
     failed: "Failed",
+    worldcoin_price_tester: "Worldcoin Price Tester",
   },
 
   es: {

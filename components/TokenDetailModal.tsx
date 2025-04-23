@@ -5,7 +5,6 @@ import Image from "next/image"
 import { useLanguage } from "@/lib/languageContext"
 import { motion } from "framer-motion"
 import { Loader2, ExternalLink, RefreshCw, TrendingUp, TrendingDown } from "lucide-react"
-import { generateSwapLink } from "@/lib/unoService"
 
 type PriceHistoryPoint = {
   time: string
@@ -38,7 +37,6 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
   const [priceHistory, setPriceHistory] = useState<PriceHistoryPoint[]>([])
   const [priceChange, setPriceChange] = useState<number>(0)
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1h")
-  const [showSwapOptions, setShowSwapOptions] = useState<boolean>(false)
 
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstanceRef = useRef<any>(null)
@@ -83,8 +81,8 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
     setPriceError(null)
 
     try {
-      // Usar a API do UNO para buscar o preço
-      const response = await fetch(`/api/uno-token-price?symbol=${token.symbol}&timeframe=${selectedTimeframe}`)
+      // Usar a API da Worldcoin para buscar o preço
+      const response = await fetch(`/api/worldcoin-token-price?symbol=${token.symbol}&timeframe=${selectedTimeframe}`)
 
       if (!response.ok) {
         throw new Error(`Failed to fetch price: ${response.status}`)
@@ -166,26 +164,6 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
     }
     ctx.fillStyle = gradient
     ctx.fill()
-  }
-
-  // Função para gerar um link de swap para o UNO
-  const handleSwap = (toSymbol: string) => {
-    if (!token.symbol) return
-
-    // Gerar um link de swap para o UNO
-    const amount = token.quantity ? token.quantity.replace(/,/g, "") : "0"
-    const swapLink = generateSwapLink(token.symbol, toSymbol, amount)
-
-    // Abrir o link em uma nova janela
-    window.open(swapLink, "_blank")
-
-    // Fechar o modal
-    setShowSwapOptions(false)
-
-    // Chamar o callback onSwap se fornecido
-    if (onSwap) {
-      onSwap()
-    }
   }
 
   // Fechar modal com ESC
@@ -395,64 +373,7 @@ export default function TokenDetailModal({ isOpen, onClose, token, walletAddress
           </div>
         </div>
 
-        <div className="flex justify-between">
-          <div className="relative">
-            <button
-              onClick={() => setShowSwapOptions(!showSwapOptions)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:opacity-90 transition-colors text-sm flex items-center"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-                />
-              </svg>
-              {t("swap", "Swap")}
-            </button>
-
-            {/* Dropdown de opções de swap */}
-            {showSwapOptions && (
-              <div className="absolute left-0 bottom-full mb-2 bg-white rounded-lg shadow-lg border border-gray-300 p-2 w-48">
-                <div className="text-xs text-gray-500 mb-2">{t("swap_to", "Swap to:")}</div>
-                <div className="space-y-1">
-                  {["USDC", "WLD", "WETH"]
-                    .filter((s) => s !== token.symbol)
-                    .map((symbol) => (
-                      <button
-                        key={symbol}
-                        onClick={() => handleSwap(symbol)}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center"
-                      >
-                        {symbol}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-3 w-3 ml-auto"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M14 5l7 7m0 0l-7 7m7-7H3"
-                          />
-                        </svg>
-                      </button>
-                    ))}
-                </div>
-              </div>
-            )}
-          </div>
-
+        <div className="flex justify-end">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:opacity-90 transition-colors text-sm"

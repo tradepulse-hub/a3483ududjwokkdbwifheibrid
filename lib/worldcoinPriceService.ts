@@ -79,6 +79,14 @@ export async function getTokenPrice(symbol: string): Promise<{
     // Normalizar o símbolo para o formato esperado pela API
     const normalizedSymbol = normalizeTokenSymbol(symbol)
 
+    // Se o token não for suportado pela API da Worldcoin, usar fallback
+    if (normalizedSymbol === "UNSUPPORTED") {
+      return {
+        price: getDefaultPrice(symbol),
+        source: "fallback_unsupported",
+      }
+    }
+
     // Obter preços da API usando apenas o token específico
     const priceData = await getTokenPrices([normalizedSymbol], ["USD"])
 
@@ -93,6 +101,7 @@ export async function getTokenPrice(symbol: string): Promise<{
       // Converter o preço usando amount e decimals
       const price = convertPrice(priceInfo.amount, priceInfo.decimals)
 
+      console.log(`[WorldcoinPrice] Price for ${symbol}: $${price} (from API)`)
       return {
         price,
         source: "worldcoin_api",
@@ -100,6 +109,7 @@ export async function getTokenPrice(symbol: string): Promise<{
     }
 
     // Se não conseguir obter o preço, usar valor padrão
+    console.log(`[WorldcoinPrice] Using default price for ${symbol}`)
     return {
       price: getDefaultPrice(symbol),
       source: "fallback",
@@ -125,9 +135,11 @@ function normalizeTokenSymbol(symbol: string): string {
     case "USDCE":
       return "USDCE"
     case "TPF":
-      // TPF não está disponível na API, então retornamos WLD como fallback
-      // Na prática, você precisaria implementar uma lógica específica para TPF
-      return "WLD"
+    case "DNA":
+    case "WDD":
+    case "CASH":
+      // Tokens não suportados pela API da Worldcoin
+      return "UNSUPPORTED"
     default:
       return symbol.toUpperCase()
   }
@@ -145,6 +157,12 @@ function getDefaultPrice(symbol: string): number {
       return 1.0
     case "TPF":
       return 0.0125
+    case "DNA":
+      return 0.25
+    case "WDD":
+      return 0.05
+    case "CASH":
+      return 0.1
     case "WETH":
     case "ETH":
       return 3500.0
@@ -154,13 +172,92 @@ function getDefaultPrice(symbol: string): number {
 }
 
 /**
- * Obtém dados históricos de preço reais (se disponíveis)
- * Para simplificar, esta função retorna um array vazio por enquanto
+ * Gera dados históricos de preço simulados com base no preço atual
  */
-export async function getTokenPriceHistory(
-  symbol: string,
+export function generatePriceHistory(
+  currentPrice: number,
   timeframe: string,
-): Promise<{ time: string; price: number }[]> {
-  // Implementação futura para obter dados históricos reais
-  return []
+  volatility = 0.05,
+): { time: string; price: number }[] {
+  console.log(`[WorldcoinPrice] Generating simulated price history for timeframe: ${timeframe}`)
+
+  // Determinar o número de pontos com base no timeframe
+  let points = 24
+  switch (timeframe) {
+    case "1m":
+    case "5m":
+    case "15m":
+      points = 60
+      break
+    case "1h":
+      points = 24
+      break
+    case "4h":
+      points = 30
+      break
+    case "8h":
+      points = 24
+      break
+    case "24h":
+      points = 24
+      break
+    default:
+      points = 24
+  }
+
+  // Gerar dados históricos simulados
+  const now = new Date()
+  const history: { time: string; price: number }[] = []
+
+  for (let i = points; i >= 0; i--) {
+    const date = new Date(now.getTime() - i * getTimeframeInMilliseconds(timeframe))
+
+    // Gerar um preço com variação aleatória
+    const randomFactor = 1 + (Math.random() * volatility * 2 - volatility)
+    const price = currentPrice * randomFactor
+
+    // Formatar a hora com base no timeframe
+    let timeString
+    if (["1m", "5m", "15m"].includes(timeframe)) {
+      timeString = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    } else {
+      timeString = date.toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    }
+
+    history.push({
+      time: timeString,
+      price,
+    })
+  }
+
+  return history
+}
+
+/**
+ * Converte o timeframe em milissegundos
+ */
+function getTimeframeInMilliseconds(timeframe: string): number {
+  switch (timeframe) {
+    case "1m":
+      return 60 * 1000
+    case "5m":
+      return 5 * 60 * 1000
+    case "15m":
+      return 15 * 60 * 1000
+    case "1h":
+      return 60 * 60 * 1000
+    case "4h":
+      return 4 * 60 * 60 * 1000
+    case "8h":
+      return 8 * 60 * 60 * 1000
+    case "24h":
+      return 24 * 60 * 60 * 1000
+    default:
+      return 60 * 60 * 1000 // 1h por padrão
+  }
 }
