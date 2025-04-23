@@ -62,62 +62,76 @@ export function Staking({ userAddress }: { userAddress: string }) {
   }, [visibilityCount])
 
   // Fetch balances
-  useEffect(() => {
-    const fetchBalances = async () => {
-      if (!userAddress) return
-      console.log("FETCHING BALANCES FOR", userAddress)
+  const fetchBalances = async () => {
+    if (!userAddress) return
+    console.log("FETCHING BALANCES FOR", userAddress)
 
-      setIsLoading(true)
-      setError(null)
+    setIsLoading(true)
+    setError(null)
 
+    try {
+      // Fetch TPF balance
+      const tpfResponse = await fetch(`/api/token-balance?address=${userAddress}`)
+      const tpfData = await tpfResponse.json()
+      console.log("TPF BALANCE RESPONSE:", tpfData)
+
+      if (tpfData.error) {
+        console.error("Error fetching TPF balance:", tpfData.error)
+        setError("Failed to fetch TPF balance")
+      } else {
+        // Format balance with 2 decimal places
+        const formattedBalance = tpfData.balance.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+        setTpfBalance(formattedBalance)
+      }
+
+      // Fetch staked balance from the real API
       try {
-        // Fetch TPF balance
-        const tpfResponse = await fetch(`/api/token-balance?address=${userAddress}`)
-        const tpfData = await tpfResponse.json()
-        console.log("TPF BALANCE RESPONSE:", tpfData)
+        const stakedResponse = await fetch(`/api/staking-balance?address=${userAddress}`)
+        const stakedData = await stakedResponse.json()
 
-        if (tpfData.error) {
-          console.error("Error fetching TPF balance:", tpfData.error)
-          setError("Failed to fetch TPF balance")
-        } else {
-          // Format balance with 2 decimal places
-          const formattedBalance = tpfData.balance.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-          setTpfBalance(formattedBalance)
-        }
-
-        // Fetch staked balance
-        try {
-          // For now, we'll use a simulated value
-          // In a real implementation, this would call the staking contract
-          const stakedAmount = Math.random() * 500
+        if (stakedData.success) {
+          // Convert from wei to ether and format
+          const stakedAmount = Number(ethers.formatUnits(stakedData.stakedBalance, 18))
           const formattedStaked = stakedAmount.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
           setStakedBalance(formattedStaked)
+        } else {
+          throw new Error(stakedData.error || "Failed to fetch staked balance")
+        }
 
-          // Simulate earned rewards
-          const rewardsAmount = stakedAmount * 0.05
+        // Fetch earned rewards from the real API
+        const rewardsResponse = await fetch(`/api/staking-rewards?address=${userAddress}`)
+        const rewardsData = await rewardsResponse.json()
+
+        if (rewardsData.success) {
+          // Convert from wei to ether and format
+          const rewardsAmount = Number(ethers.formatUnits(rewardsData.earnedRewards, 18))
           const formattedRewards = rewardsAmount.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
           setEarnedRewards(formattedRewards)
-        } catch (err) {
-          console.error("Error fetching staking data:", err)
-          setError("Failed to fetch staking data")
+        } else {
+          throw new Error(rewardsData.error || "Failed to fetch rewards")
         }
       } catch (err) {
-        console.error("Error in fetchBalances:", err)
-        setError("Failed to fetch balances")
-      } finally {
-        setIsLoading(false)
+        console.error("Error fetching staking data:", err)
+        setError("Failed to fetch staking data")
       }
+    } catch (err) {
+      console.error("Error in fetchBalances:", err)
+      setError("Failed to fetch balances")
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchBalances()
 
     // Refresh every 30 seconds
@@ -184,7 +198,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
       // Wait a bit for the approval to be processed
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      // Now stake the tokens
+      // Now stake the tokens with the correct method ID
       const stakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
@@ -196,6 +210,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
                 outputs: [],
                 stateMutability: "nonpayable",
                 type: "function",
+                method_id: "0xa694fc3a", // Correct method ID for stake
               },
             ],
             functionName: "stake",
@@ -248,7 +263,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
 
       const amountInWei = ethers.parseUnits(unstakeAmount, 18).toString()
 
-      // Unstake transaction
+      // Unstake transaction with the correct method ID
       const unstakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
@@ -260,6 +275,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
                 outputs: [],
                 stateMutability: "nonpayable",
                 type: "function",
+                method_id: "0x2e1a7d4d", // Correct method ID for withdraw
               },
             ],
             functionName: "withdraw",
@@ -302,7 +318,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
         throw new Error("MiniKit is not installed")
       }
 
-      // Claim rewards transaction
+      // Claim rewards transaction with the correct method ID
       const claimResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
@@ -314,6 +330,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
                 outputs: [],
                 stateMutability: "nonpayable",
                 type: "function",
+                method_id: "0xb88a802f", // Correct method ID for claimReward
               },
             ],
             functionName: "claimReward",
@@ -517,8 +534,8 @@ export function Staking({ userAddress }: { userAddress: string }) {
         {/* Unstake tab */}
         {activeTab === "unstake" && (
           <div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
                 {t("amount_to_unstake", "Amount to unstake")}
               </label>
               <div className="relative">
@@ -527,13 +544,13 @@ export function Staking({ userAddress }: { userAddress: string }) {
                   value={unstakeAmount}
                   onChange={(e) => setUnstakeAmount(e.target.value)}
                   placeholder="0.0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded-lg text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500"
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2">
                   <button
                     type="button"
                     onClick={setMaxUnstakeAmount}
-                    className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded"
+                    className="text-[9px] bg-gray-200 hover:bg-gray-300 text-gray-800 px-1.5 py-0.5 rounded"
                   >
                     {t("max", "MAX")}
                   </button>
@@ -544,7 +561,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
             <button
               onClick={handleUnstake}
               disabled={isUnstaking || !unstakeAmount || Number.parseFloat(unstakeAmount) <= 0}
-              className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-300 ${
+              className={`w-full py-1.5 px-3 rounded-lg font-medium transition-all duration-300 text-xs ${
                 isUnstaking || !unstakeAmount || Number.parseFloat(unstakeAmount) <= 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : "bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg hover:shadow-gray-500/20"
@@ -553,7 +570,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
               {isUnstaking ? (
                 <div className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -579,8 +596,8 @@ export function Staking({ userAddress }: { userAddress: string }) {
               )}
             </button>
 
-            <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <p className="text-xs text-yellow-700">
+            <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+              <p className="text-[9px] text-yellow-700">
                 {t(
                   "unstaking_warning",
                   "You can unstake your TPF tokens at any time. Unstaking will not claim your pending rewards.",
@@ -594,14 +611,14 @@ export function Staking({ userAddress }: { userAddress: string }) {
         {activeTab === "rewards" && (
           <div>
             <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
-              <h3 className="text-sm font-medium text-green-700 mb-1">{t("earned_rewards", "Earned Rewards")}</h3>
-              <p className="text-lg font-bold text-green-600">{earnedRewards} TPF</p>
+              <h3 className="text-xs font-medium text-green-700 mb-1">{t("earned_rewards", "Earned Rewards")}</h3>
+              <p className="text-base font-bold text-green-600">{earnedRewards} TPF</p>
             </div>
 
             <button
               onClick={handleClaimRewards}
               disabled={isClaiming || Number.parseFloat(earnedRewards.replace(/,/g, "")) <= 0}
-              className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-300 ${
+              className={`w-full py-1.5 px-3 rounded-lg font-medium transition-all duration-300 text-xs ${
                 isClaiming || Number.parseFloat(earnedRewards.replace(/,/g, "")) <= 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/20"
@@ -610,7 +627,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
               {isClaiming ? (
                 <div className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    className="animate-spin -ml-1 mr-1 h-3 w-3 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -636,8 +653,8 @@ export function Staking({ userAddress }: { userAddress: string }) {
               )}
             </button>
 
-            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs text-blue-700">
+            <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
+              <p className="text-[9px] text-blue-700">
                 {t(
                   "rewards_info",
                   "Rewards are calculated based on your staked amount and the time you've been staking. Claim your rewards at any time.",
