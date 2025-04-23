@@ -5,7 +5,7 @@ import "./globals.css"
 import MiniKitProvider from "@/components/minikit-provider"
 import NextAuthProvider from "@/components/next-auth-provider"
 import LanguageProvider from "@/components/LanguageProvider"
-import SettingsModal from "@/components/SettingsModal"
+import LanguageSelector from "@/components/LanguageSelector"
 import "@worldcoin/mini-apps-ui-kit-react/styles.css"
 
 const sora = Sora({ subsets: ["latin"] })
@@ -31,7 +31,7 @@ export default function RootLayout({
         <NextAuthProvider>
           <MiniKitProvider>
             <LanguageProvider>
-              <SettingsModal />
+              <LanguageSelector />
               {children}
             </LanguageProvider>
           </MiniKitProvider>
