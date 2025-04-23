@@ -78,7 +78,7 @@ const translations: Record<Language, Record<string, string>> = {
     amount_required: "Amount is required",
     amount_positive: "Amount must be a positive number",
     minikit_not_installed: "MiniKit is not installed",
-    token_not_supported: "Token {tokenSymbol} not supported for direct sending",
+    token_not_supported: "Token {tokenSymbol} is not supported for direct sending",
     transaction_failed: "Transaction failed",
     failed_to_send: "Failed to send {tokenSymbol}",
     error_sending_token:
@@ -151,6 +151,7 @@ const translations: Record<Language, Record<string, string>> = {
     more_tpf_higher_chance: "The more TPF you send, the higher your chance of winning!",
     info: "Info",
     burned: "Burned",
+    claim_in: "Claim your TPF in",
 
     // Adicionar novas traduções para o modal de recebimento
     your_wallet_address: "Your Wallet Address",
@@ -424,6 +425,7 @@ const translations: Record<Language, Record<string, string>> = {
     status: "Estado",
     success: "Éxito",
     failed: "Fallido",
+    worldcoin_price_tester: "Probador de Precios de Worldcoin",
   },
 
   it: {
@@ -633,6 +635,7 @@ const translations: Record<Language, Record<string, string>> = {
     status: "Stato",
     success: "Successo",
     failed: "Fallito",
+    worldcoin_price_tester: "Tester Prezzi Worldcoin",
   },
 
   zh: {
@@ -841,8 +844,8 @@ const translations: Record<Language, Record<string, string>> = {
     status: "状态",
     success: "成功",
     failed: "失败",
+    worldcoin_price_tester: "Worldcoin 价格测试器",
   },
-
   fr: {
     // Airdrop
     daily_airdrop: "Airdrop Quotidien",
@@ -1054,6 +1057,7 @@ const translations: Record<Language, Record<string, string>> = {
     status: "Statut",
     success: "Succès",
     failed: "Échec",
+    worldcoin_price_tester: "Testeur de Prix Worldcoin",
   },
 
   pt: {
@@ -1194,7 +1198,7 @@ const translations: Record<Language, Record<string, string>> = {
     enter_now_button: "ENTRAR AGORA!",
     good_luck: "Boa Sorte!",
     close: "Fechar",
-    enter_now: "Entre agora",
+    enter_now: "Participe agora",
     for_chance_to_win: "para ter a chance de ganhar muito! Mais TPF = maior chance!",
     refreshing_data: "Atualizando dados...",
     how_it_works_point1: "Participe da loteria enviando tokens TPF (mínimo {minEntry} TPF)",
@@ -1264,6 +1268,7 @@ const translations: Record<Language, Record<string, string>> = {
     status: "Status",
     success: "Sucesso",
     failed: "Falha",
+    worldcoin_price_tester: "Testador de Preços Worldcoin",
   },
 }
 

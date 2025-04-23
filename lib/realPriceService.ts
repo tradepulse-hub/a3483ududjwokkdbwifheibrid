@@ -2,14 +2,22 @@
  * Serviço para obter preços reais de tokens de várias fontes
  */
 
+import { getTokenPrices as getDexScreenerTokenPrices } from "./dexscreenerService"
+
 // Endereços dos tokens
 export const TPF_ADDRESS = "0x834a73c0a83F3BCe349A116FFB2A4c2d1C651E45".toLowerCase()
 export const WLD_ADDRESS = "0x2cFc85d8E48F8EAB294be644d9E25C3030863003".toLowerCase()
+export const DNA_ADDRESS = "0xED49fE44fD4249A09843C2Ba4bba7e50BECa7113".toLowerCase()
+export const WDD_ADDRESS = "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B".toLowerCase()
+export const CASH_ADDRESS = "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575".toLowerCase()
 
 // Valores fixos para fallback (caso as APIs falhem)
 const FALLBACK_PRICES = {
   TPF: 0.0125, // Valor fixo para TPF
   WLD: 2.35, // Valor fixo para WLD
+  DNA: 0.25, // Valor fixo para DNA
+  WDD: 0.05, // Valor fixo para WDD
+  CASH: 0.1, // Valor fixo para CASH
 }
 
 /**
@@ -45,29 +53,6 @@ async function getWLDPriceFromCoinGecko(): Promise<number | null> {
 }
 
 /**
- * Busca o preço do TPF em uma fonte alternativa
- * Como o TPF é um token personalizado, usamos uma fonte alternativa ou um valor fixo
- */
-async function getTPFPriceFromAlternative(): Promise<number | null> {
-  try {
-    // Aqui você poderia implementar uma chamada para uma API específica que tenha o preço do TPF
-    // Por enquanto, vamos usar um valor fixo
-    console.log("[RealPrice] Usando fonte alternativa para o preço do TPF")
-
-    // Simulando uma chamada de API com um timeout
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // Retornar um valor fixo para TPF (poderia ser substituído por uma chamada de API real)
-    const price = 0.0125 // Valor fixo para TPF
-    console.log(`[RealPrice] Preço do TPF: $${price}`)
-    return price
-  } catch (error) {
-    console.error("[RealPrice] Erro ao buscar preço do TPF:", error)
-    return null
-  }
-}
-
-/**
  * Busca o preço do token com base no símbolo
  */
 export async function getTokenPrice(symbol: string): Promise<{
@@ -78,7 +63,7 @@ export async function getTokenPrice(symbol: string): Promise<{
 
   try {
     let price: number | null = null
-    const source = "api"
+    let source = "api"
 
     if (symbol === "WLD") {
       // Buscar preço do WLD no CoinGecko
@@ -86,11 +71,26 @@ export async function getTokenPrice(symbol: string): Promise<{
       if (price !== null) {
         return { price, source: "coingecko" }
       }
-    } else if (symbol === "TPF") {
-      // Buscar preço do TPF em uma fonte alternativa
-      price = await getTPFPriceFromAlternative()
-      if (price !== null) {
-        return { price, source: "alternative" }
+    } else {
+      // Buscar preço do DexScreener
+      const tokenAddresses = {
+        TPF: TPF_ADDRESS,
+        DNA: DNA_ADDRESS,
+        WDD: WDD_ADDRESS,
+        CASH: CASH_ADDRESS,
+      }
+
+      const tokenAddress = tokenAddresses[symbol as keyof typeof tokenAddresses]
+
+      if (tokenAddress) {
+        const dexscreenerPairs = await getDexScreenerTokenPrices("worldchain", tokenAddress)
+        if (dexscreenerPairs && dexscreenerPairs.length > 0) {
+          const pair = dexscreenerPairs[0]
+          price = Number(pair.priceUsd)
+          source = "dexscreener"
+          console.log(`[RealPrice] Preço do ${symbol} (DexScreener): $${price}`)
+          return { price, source }
+        }
       }
     }
 

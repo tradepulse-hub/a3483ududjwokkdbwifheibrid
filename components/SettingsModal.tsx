@@ -83,12 +83,7 @@ export default function SettingsModal() {
     setActiveDevTool(null)
   }
 
-  // Abrir uma ferramenta de desenvolvedor
-  const openDevTool = (tool: string) => {
-    setActiveDevTool(tool)
-  }
-
-  // Voltar ao menu de ferramentas
+  // Voltar ao menu principal do modo desenvolvedor
   const backToDevMenu = () => {
     setActiveDevTool(null)
   }
@@ -110,44 +105,17 @@ export default function SettingsModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="absolute right-0 mt-2 rounded-lg shadow-lg bg-gray-900/90 backdrop-blur-sm border border-gray-700 overflow-hidden"
-            style={{
-              width: activeDevTool === "token-tester" || activeDevTool === "worldcoin-price-tester" ? "500px" : "300px",
-            }}
+            className="absolute right-0 mt-2 w-72 rounded-lg shadow-lg bg-gray-900/90 backdrop-blur-sm border border-gray-700 overflow-hidden"
           >
             {/* Header */}
             <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
-              <h3 className="text-gray-200 font-medium">
-                {activeDevTool ? (
-                  <div className="flex items-center">
-                    <button onClick={backToDevMenu} className="mr-2 text-gray-400 hover:text-gray-200">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    {activeDevTool === "token-tester" && t("token_tester", "Token Tester")}
-                    {activeDevTool === "worldcoin-price-tester" &&
-                      t("worldcoin_price_tester", "Worldcoin Price Tester")}
-                    {activeDevTool === "contract-debug" && t("contract_debug", "Contract Debugger")}
-                    {activeDevTool === "network-inspector" && t("network_inspector", "Network Inspector")}
-                    {activeDevTool === "api-explorer" && t("api_explorer", "API Explorer")}
-                  </div>
-                ) : (
-                  t("settings", "Settings")
-                )}
-              </h3>
+              <h3 className="text-gray-200 font-medium">{t("settings", "Settings")}</h3>
               <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-200 transition-colors">
                 <X size={18} />
               </button>
             </div>
 
-            {/* Tabs - Mostrar apenas se não estiver em uma ferramenta específica */}
+            {/* Tabs */}
             {!activeDevTool && (
               <div className="flex border-b border-gray-700">
                 <button
@@ -173,23 +141,34 @@ export default function SettingsModal() {
               </div>
             )}
 
-            {/* Tab Content ou Ferramenta Específica */}
+            {/* Tab Content */}
             <div className="p-4">
               {activeDevTool ? (
-                // Mostrar a ferramenta específica
-                <>
-                  {activeDevTool === "token-tester" && <TokenPriceTester />}
-                  {activeDevTool === "worldcoin-price-tester" && <WorldcoinPriceTester />}
-                  {activeDevTool === "contract-debug" && (
-                    <div className="text-gray-300 text-sm">Contract Debugger Tool (Coming Soon)</div>
-                  )}
-                  {activeDevTool === "network-inspector" && (
-                    <div className="text-gray-300 text-sm">Network Inspector Tool (Coming Soon)</div>
-                  )}
-                  {activeDevTool === "api-explorer" && (
-                    <div className="text-gray-300 text-sm">API Explorer Tool (Coming Soon)</div>
-                  )}
-                </>
+                <div>
+                  <button
+                    onClick={backToDevMenu}
+                    className="mb-4 flex items-center text-sm text-blue-400 hover:text-blue-300"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                      />
+                    </svg>
+                    {t("back_to_menu", "Back to Menu")}
+                  </button>
+
+                  {activeDevTool === "token_tester" && <TokenPriceTester />}
+                  {activeDevTool === "worldcoin_price_tester" && <WorldcoinPriceTester />}
+                </div>
               ) : activeTab === "language" ? (
                 <div className="space-y-2">
                   {Object.entries(languageInfo).map(([code, { flag, name }]) => (
@@ -281,36 +260,35 @@ export default function SettingsModal() {
                             <p className="text-sm text-gray-300 mb-2">{t("dev_tools", "Developer Tools")}</p>
 
                             <button
-                              onClick={() => openDevTool("contract-debug")}
                               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                              onClick={() => setActiveDevTool("contract_debugger")}
                             >
                               {t("contract_debug", "Contract Debugger")}
                             </button>
 
                             <button
-                              onClick={() => openDevTool("network-inspector")}
                               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                              onClick={() => setActiveDevTool("network_inspector")}
                             >
                               {t("network_inspector", "Network Inspector")}
                             </button>
 
                             <button
-                              onClick={() => openDevTool("token-tester")}
                               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                              onClick={() => setActiveDevTool("token_tester")}
                             >
                               {t("token_tester", "Token Tester")}
                             </button>
-
                             <button
-                              onClick={() => openDevTool("worldcoin-price-tester")}
                               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                              onClick={() => setActiveDevTool("worldcoin_price_tester")}
                             >
                               {t("worldcoin_price_tester", "Worldcoin Price Tester")}
                             </button>
 
                             <button
-                              onClick={() => openDevTool("api-explorer")}
                               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm text-gray-300 transition-colors"
+                              onClick={() => setActiveDevTool("api_explorer")}
                             >
                               {t("api_explorer", "API Explorer")}
                             </button>
