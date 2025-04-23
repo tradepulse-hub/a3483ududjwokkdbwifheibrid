@@ -87,6 +87,8 @@ const translations: Record<Language, Record<string, string>> = {
     in_development: "In Development",
     qr_code_coming_soon: "QR code functionality coming soon. Please use the wallet address below.",
     copy_address_to_receive: "Copy the address above to receive",
+    your_balance: "Your balance",
+    max: "MAX",
 
     // Navigation
     wallet: "Wallet",
@@ -257,6 +259,8 @@ const translations: Record<Language, Record<string, string>> = {
     qr_code_coming_soon:
       "Funcionalidad de código QR próximamente. Por favor, usa la dirección de billetera a continuación.",
     copy_address_to_receive: "Copia la dirección de arriba para recibir",
+    your_balance: "Tu saldo",
+    max: "MÁX",
 
     // Navigation
     wallet: "Billetera",
@@ -426,6 +430,8 @@ const translations: Record<Language, Record<string, string>> = {
     in_development: "In Sviluppo",
     qr_code_coming_soon: "Funzionalità codice QR in arrivo. Utilizza l'indirizzo del portafoglio qui sotto.",
     copy_address_to_receive: "Copia l'indirizzo sopra per ricevere",
+    your_balance: "Il tuo saldo",
+    max: "MAX",
 
     // Navigation
     wallet: "Portafoglio",
@@ -594,6 +600,8 @@ const translations: Record<Language, Record<string, string>> = {
     in_development: "开发中",
     qr_code_coming_soon: "二维码功能即将推出。请使用下方的钱包地址。",
     copy_address_to_receive: "复制上面的地址以接收",
+    your_balance: "您的余额",
+    max: "最大",
 
     // Navigation
     wallet: "钱包",
@@ -764,6 +772,8 @@ const translations: Record<Language, Record<string, string>> = {
     in_development: "En Développement",
     qr_code_coming_soon: "Fonctionnalité de code QR à venir. Veuillez utiliser l'adresse du portefeuille ci-dessous.",
     copy_address_to_receive: "Copiez l'adresse ci-dessus pour recevoir",
+    your_balance: "Votre solde",
+    max: "MAX",
 
     // Navigation
     wallet: "Portefeuille",
@@ -935,6 +945,8 @@ const translations: Record<Language, Record<string, string>> = {
     in_development: "Em Desenvolvimento",
     qr_code_coming_soon: "Funcionalidade de código QR em breve. Por favor, use o endereço da carteira abaixo.",
     copy_address_to_receive: "Copie o endereço acima para receber",
+    your_balance: "Seu saldo",
+    max: "MÁX",
 
     // Navigation
     wallet: "Carteira",

@@ -38,6 +38,58 @@ export default function SendWDDModal({
   }>({})
   const [currentStep, setCurrentStep] = useState(1)
 
+  // Adicionar um estado para armazenar o saldo do token
+  const [tokenBalance, setTokenBalance] = useState<string>("0.00")
+
+  // Adicionar um efeito para buscar o saldo do token quando o modal abrir
+  useEffect(() => {
+    if (isOpen) {
+      const fetchTokenBalance = async () => {
+        try {
+          // Endereço do contrato WDD na World Chain
+          const wddTokenAddress = "0xEdE54d9c024ee80C85ec0a75eD2d8774c7Fbac9B"
+
+          // Usar o RPC público da Worldchain
+          const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
+
+          // ABI mínimo para consultar o saldo de um token ERC20
+          const tokenAbi = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function decimals() view returns (uint8)",
+          ]
+
+          // Criar uma instância do contrato
+          const wddContract = new ethers.Contract(wddTokenAddress, tokenAbi, provider)
+
+          // Buscar os decimais do token
+          let decimals
+          try {
+            decimals = await wddContract.decimals()
+          } catch (error) {
+            console.error("Error fetching WDD token decimals:", error)
+            decimals = 18 // Valor padrão para tokens ERC-20
+          }
+
+          // Buscar o saldo do token
+          const balance = await wddContract.balanceOf(walletAddress)
+
+          // Converter o saldo para um formato legível
+          const formattedBalance = Number(ethers.formatUnits(balance, decimals)).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+
+          setTokenBalance(formattedBalance)
+        } catch (error) {
+          console.error("Error fetching WDD balance:", error)
+          setTokenBalance("0.00")
+        }
+      }
+
+      fetchTokenBalance()
+    }
+  }, [isOpen, walletAddress])
+
   // Ocultar o menu quando o modal abrir
   useEffect(() => {
     if (isOpen && setMenuVisible) {
@@ -373,6 +425,19 @@ export default function SendWDDModal({
                       </div>
                     </div>
                     {validationErrors.amount && <p className="mt-1 text-xs text-red-600">{validationErrors.amount}</p>}
+                  </div>
+
+                  <div className="text-xs text-gray-600 mt-1 flex justify-between">
+                    <span>
+                      {t("your_balance", "Your balance")}: {tokenBalance} WDD
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAmount(tokenBalance.replace(/,/g, ""))}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      {t("max", "MAX")}
+                    </button>
                   </div>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-700 flex items-start">

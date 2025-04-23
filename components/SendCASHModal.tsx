@@ -38,6 +38,58 @@ export default function SendCASHModal({
   }>({})
   const [currentStep, setCurrentStep] = useState(1)
 
+  // Adicionar um estado para armazenar o saldo do token
+  const [tokenBalance, setTokenBalance] = useState<string>("0.00")
+
+  // Adicionar um efeito para buscar o saldo do token quando o modal abrir
+  useEffect(() => {
+    if (isOpen) {
+      const fetchTokenBalance = async () => {
+        try {
+          // Endereço do contrato CASH na World Chain
+          const cashTokenAddress = "0xbfdA4F50a2d5B9b864511579D7dfa1C72f118575"
+
+          // Usar o RPC público da Worldchain
+          const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
+
+          // ABI mínimo para consultar o saldo de um token ERC20
+          const tokenAbi = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function decimals() view returns (uint8)",
+          ]
+
+          // Criar uma instância do contrato
+          const cashContract = new ethers.Contract(cashTokenAddress, tokenAbi, provider)
+
+          // Buscar os decimais do token
+          let decimals
+          try {
+            decimals = await cashContract.decimals()
+          } catch (error) {
+            console.error("Error fetching CASH token decimals:", error)
+            decimals = 18 // Valor padrão para tokens ERC-20
+          }
+
+          // Buscar o saldo do token
+          const balance = await cashContract.balanceOf(walletAddress)
+
+          // Converter o saldo para um formato legível
+          const formattedBalance = Number(ethers.formatUnits(balance, decimals)).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+
+          setTokenBalance(formattedBalance)
+        } catch (error) {
+          console.error("Error fetching CASH balance:", error)
+          setTokenBalance("0.00")
+        }
+      }
+
+      fetchTokenBalance()
+    }
+  }, [isOpen, walletAddress])
+
   // Ocultar o menu quando o modal abrir
   useEffect(() => {
     if (isOpen && setMenuVisible) {
@@ -373,6 +425,19 @@ export default function SendCASHModal({
                       </div>
                     </div>
                     {validationErrors.amount && <p className="mt-1 text-xs text-red-600">{validationErrors.amount}</p>}
+                  </div>
+
+                  <div className="text-xs text-gray-600 mt-1 flex justify-between">
+                    <span>
+                      {t("your_balance", "Your balance")}: {tokenBalance} CASH
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAmount(tokenBalance.replace(/,/g, ""))}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      {t("max", "MAX")}
+                    </button>
                   </div>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-700 flex items-start">
