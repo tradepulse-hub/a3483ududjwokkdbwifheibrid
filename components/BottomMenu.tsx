@@ -67,8 +67,8 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
       ),
     },
     {
-      id: "multicall",
-      label: "Multicall",
+      id: "swap",
+      label: "Swap",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -80,11 +80,12 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="lucide lucide-layers-3"
         >
-          <path d="M2 3 7.33 5.67 12 8 22 13" />
-          <path d="M22 5 12 10 2 15" />
-          <path d="M2 17 12 12 22 7" />
+          <path d="M16 3h5v5"></path>
+          <path d="M4 20 21 3"></path>
+          <path d="M21 16v5h-5"></path>
+          <path d="M15 15 3 3"></path>
+          <path d="m4 4 16 16"></path>
         </svg>
       ),
     },
