@@ -9,7 +9,7 @@ import TokenWallet from "@/components/TokenWallet"
 import BottomMenu from "@/components/BottomMenu"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
-import { Staking } from "@/components/Staking"
+import Multicall from "@/components/Multicall"
 
 interface User {
   walletAddress: string
@@ -272,7 +272,7 @@ export default function Home() {
             <div className="h-full">
               {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
 
-              {activeTab === "staking" && user.walletAddress && <Staking userAddress={user.walletAddress} />}
+              {activeTab === "multicall" && <Multicall />}
 
               {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
 

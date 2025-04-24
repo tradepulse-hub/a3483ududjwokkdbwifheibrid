@@ -67,22 +67,24 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
       ),
     },
     {
-      id: "staking",
-      label: t("staking", "Staking"),
+      id: "multicall",
+      label: "Multicall",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
+          width="24"
+          height="24"
           viewBox="0 0 24 24"
+          fill="none"
           stroke="currentColor"
-          strokeWidth={2}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="lucide lucide-layers-3"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
+          <path d="M2 3 7.33 5.67 12 8 22 13" />
+          <path d="M22 5 12 10 2 15" />
+          <path d="M2 17 12 12 22 7" />
         </svg>
       ),
     },
