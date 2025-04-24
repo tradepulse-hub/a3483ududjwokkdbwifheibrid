@@ -183,58 +183,64 @@ export function Staking({ userAddress }: { userAddress: string }) {
         throw new Error("MiniKit is not installed")
       }
 
-      // First approve the staking contract to spend tokens
+      // Convert amount to wei
       const amountInWei = ethers.parseUnits(stakeAmount, 18).toString()
 
-      // Approve transaction
-      const approveResponse = await MiniKit.commandsAsync.sendTransaction({
-        transaction: [
-          {
-            address: TPF_TOKEN_ADDRESS,
-            abi: [
-              {
-                inputs: [
-                  { name: "spender", type: "address" },
-                  { name: "amount", type: "uint256" },
-                ],
-                name: "approve",
-                outputs: [{ name: "", type: "bool" }],
-                stateMutability: "nonpayable",
-                type: "function",
-              },
-            ],
-            functionName: "approve",
-            args: [STAKING_CONTRACT_ADDRESS, amountInWei],
-          },
-        ],
-      })
-
-      if (approveResponse.finalPayload.status === "error") {
-        throw new Error(
-          approveResponse.finalPayload.message ||
-            approveResponse.finalPayload.description ||
-            "Failed to approve tokens",
-        )
+      // Step 1: Check current allowance
+      console.log("Checking current allowance...")
+      let currentAllowance = "0"
+      try {
+        // Create a provider to check allowance
+        const provider = new ethers.JsonRpcProvider("https://worldchain-mainnet.g.alchemy.com/public")
+        const tpfContract = new ethers.Contract(TPF_TOKEN_ADDRESS, TPF_ABI, provider)
+        currentAllowance = (await tpfContract.allowance(userAddress, STAKING_CONTRACT_ADDRESS)).toString()
+        console.log(`Current allowance: ${currentAllowance}`)
+      } catch (error) {
+        console.error("Error checking allowance:", error)
+        // Continue with approval anyway to be safe
+        currentAllowance = "0"
       }
 
-      // Wait a bit for the approval to be processed
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Step 2: Approve tokens if needed
+      if (BigInt(currentAllowance) < BigInt(amountInWei)) {
+        console.log("Insufficient allowance, sending approval transaction...")
+        setSuccess("Approving tokens... Please confirm the transaction in your wallet.")
 
-      // Now stake the tokens with the correct method ID
+        // Approve transaction with explicit method_id
+        const approveResponse = await MiniKit.commandsAsync.sendTransaction({
+          transaction: [
+            {
+              address: TPF_TOKEN_ADDRESS,
+              method_id: "0x095ea7b3", // method_id for approve(address,uint256)
+              args: [STAKING_CONTRACT_ADDRESS, amountInWei],
+            },
+          ],
+        })
+
+        if (approveResponse.finalPayload.status === "error") {
+          throw new Error(
+            approveResponse.finalPayload.message ||
+              approveResponse.finalPayload.description ||
+              "Failed to approve tokens",
+          )
+        }
+
+        setSuccess("Tokens approved successfully! Now staking...")
+        console.log("Approval transaction successful:", approveResponse.finalPayload)
+
+        // Wait a bit for the approval to be processed
+        await new Promise((resolve) => setTimeout(resolve, 3000))
+      } else {
+        console.log("Sufficient allowance already exists, proceeding to stake")
+      }
+
+      // Step 3: Stake tokens with explicit method_id
+      console.log("Sending stake transaction...")
       const stakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            abi: [
-              {
-                inputs: [{ name: "amount", type: "uint256" }],
-                name: "stake",
-                outputs: [],
-                stateMutability: "nonpayable",
-                type: "function",
-              },
-            ],
-            functionName: "stake",
+            method_id: "0xa694fc3a", // method_id for stake(uint256)
             args: [amountInWei],
           },
         ],
@@ -284,21 +290,13 @@ export function Staking({ userAddress }: { userAddress: string }) {
 
       const amountInWei = ethers.parseUnits(unstakeAmount, 18).toString()
 
-      // Unstake transaction with the correct method ID
+      // Unstake transaction with explicit method_id
+      console.log("Sending unstake transaction...")
       const unstakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            abi: [
-              {
-                inputs: [{ name: "amount", type: "uint256" }],
-                name: "withdraw",
-                outputs: [],
-                stateMutability: "nonpayable",
-                type: "function",
-              },
-            ],
-            functionName: "withdraw",
+            method_id: "0x2e1a7d4d", // method_id for withdraw(uint256)
             args: [amountInWei],
           },
         ],
@@ -338,21 +336,13 @@ export function Staking({ userAddress }: { userAddress: string }) {
         throw new Error("MiniKit is not installed")
       }
 
-      // Claim rewards transaction with the correct method ID
+      // Claim rewards transaction with explicit method_id
+      console.log("Sending claim rewards transaction...")
       const claimResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            abi: [
-              {
-                inputs: [],
-                name: "claimReward",
-                outputs: [],
-                stateMutability: "nonpayable",
-                type: "function",
-              },
-            ],
-            functionName: "claimReward",
+            method_id: "0xe6f1daf2", // method_id for claimReward()
             args: [],
           },
         ],
