@@ -171,32 +171,33 @@ export function Staking({ userAddress }: { userAddress: string }) {
           })
           setStakedBalance(formattedStaked)
         } else {
-          throw new Error(stakedData.error || "Failed to fetch staked balance")
+          console.error("Error in staked balance response:", stakedData.error)
+          setStakedBalance("0.00")
         }
-
-        // Fetch earned rewards from the real API
-        const rewardsResponse = await fetch(`/api/staking-rewards?address=${userAddress}`)
-        const rewardsData = await rewardsResponse.json()
-        console.log("REWARDS RESPONSE:", rewardsData)
-
-        if (rewardsData.success) {
-          // Convert from wei to ether and format
-          const rewardsAmount = Number(ethers.formatUnits(rewardsData.earnedRewards, 18))
-          const formattedRewards = rewardsAmount.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-          setEarnedRewards(formattedRewards)
-        } else {
-          throw new Error(rewardsData.error || "Failed to fetch rewards")
-        }
-
-        // Fetch APR
-        await fetchAPR()
       } catch (err) {
-        console.error("Error fetching staking data:", err)
-        setError("Failed to fetch staking data")
+        console.error("Error fetching staked balance:", err)
+        setStakedBalance("0.00")
       }
+
+      // Fetch earned rewards from the real API
+      const rewardsResponse = await fetch(`/api/staking-rewards?address=${userAddress}`)
+      const rewardsData = await rewardsResponse.json()
+      console.log("REWARDS RESPONSE:", rewardsData)
+
+      if (rewardsData.success) {
+        // Convert from wei to ether and format
+        const rewardsAmount = Number(ethers.formatUnits(rewardsData.earnedRewards, 18))
+        const formattedRewards = rewardsAmount.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+        setEarnedRewards(formattedRewards)
+      } else {
+        throw new Error(rewardsData.error || "Failed to fetch rewards")
+      }
+
+      // Fetch APR
+      await fetchAPR()
     } catch (err) {
       console.error("Error in fetchBalances:", err)
       setError("Failed to fetch balances")
@@ -238,7 +239,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
       // Convert amount to wei
       const amountInWei = ethers.parseUnits(stakeAmount, 18).toString()
 
-      // Step 1: Approve tokens using the method_id approach
+      // Step 1: Approve tokens using the correct method_id for approve
       console.log("Sending approval transaction...")
       setSuccess("Approving tokens... Please confirm the transaction in your wallet.")
 
@@ -266,7 +267,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
       // Wait a bit for the approval to be processed
       await new Promise((resolve) => setTimeout(resolve, 3000))
 
-      // Step 2: Stake tokens using the method_id approach
+      // Step 2: Stake tokens using the correct method_id for stake
       console.log("Sending stake transaction...")
       const stakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
@@ -322,7 +323,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
 
       const amountInWei = ethers.parseUnits(unstakeAmount, 18).toString()
 
-      // Unstake transaction using method_id
+      // Unstake transaction using the correct method_id for withdraw
       console.log("Sending unstake transaction...")
       const unstakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
@@ -368,13 +369,13 @@ export function Staking({ userAddress }: { userAddress: string }) {
         throw new Error("MiniKit is not installed")
       }
 
-      // Claim rewards transaction using method_id
+      // Claim rewards transaction using the correct method_id for claimReward
       console.log("Sending claim rewards transaction...")
       const claimResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            method_id: "0xe6f1daf2", // method_id for claimReward()
+            method_id: "0xaec6b737", // method_id for claimReward()
             args: [],
           },
         ],

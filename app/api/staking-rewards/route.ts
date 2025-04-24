@@ -21,13 +21,25 @@ export async function GET(request: NextRequest) {
     const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, stakingContractABI, provider)
 
     // Call earned function to get rewards
-    const earnedRewards = await stakingContract.earned(address)
-    console.log(`[Staking API] Raw earned rewards: ${earnedRewards.toString()}`)
+    try {
+      const earnedRewards = await stakingContract.earned(address)
+      console.log(`[Staking API] Raw earned rewards: ${earnedRewards.toString()}`)
 
-    return NextResponse.json({
-      success: true,
-      earnedRewards: earnedRewards.toString(),
-    })
+      return NextResponse.json({
+        success: true,
+        earnedRewards: earnedRewards.toString(),
+      })
+    } catch (contractError) {
+      console.error("[Staking API] Contract error:", contractError)
+
+      // Return a fallback value of 0 for rewards
+      return NextResponse.json({
+        success: true,
+        earnedRewards: "0",
+        warning: "Failed to fetch rewards from contract, returning 0 as fallback",
+        details: contractError instanceof Error ? contractError.message : "Unknown contract error",
+      })
+    }
   } catch (error) {
     console.error("Error fetching staking rewards:", error)
 
