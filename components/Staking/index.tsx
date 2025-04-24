@@ -5,16 +5,47 @@ import { MiniKit } from "@worldcoin/minikit-js"
 import { ethers } from "ethers"
 import { useLanguage } from "@/lib/languageContext"
 import { TPF_TOKEN_ADDRESS } from "@/lib/constants"
+import { stakingContractABI } from "@/lib/stakingContractABI"
 
 // Staking contract address
 const STAKING_CONTRACT_ADDRESS = "0xb4b2f053031FC05aDBC858CA721185994e3c041B"
 
 // ERC20 ABI for TPF token
 const TPF_ABI = [
-  "function balanceOf(address owner) view returns (uint256)",
-  "function decimals() view returns (uint8)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function allowance(address owner, address spender) view returns (uint256)",
+  {
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    name: "approve",
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ name: "account", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [{ name: "", type: "uint8" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" },
+    ],
+    name: "allowance",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ]
 
 export function Staking({ userAddress }: { userAddress: string }) {
@@ -206,12 +237,13 @@ export function Staking({ userAddress }: { userAddress: string }) {
         console.log("Insufficient allowance, sending approval transaction...")
         setSuccess("Approving tokens... Please confirm the transaction in your wallet.")
 
-        // Approve transaction with explicit method_id
+        // Approve transaction using ABI
         const approveResponse = await MiniKit.commandsAsync.sendTransaction({
           transaction: [
             {
               address: TPF_TOKEN_ADDRESS,
-              method_id: "0x095ea7b3", // method_id for approve(address,uint256)
+              abi: TPF_ABI,
+              functionName: "approve",
               args: [STAKING_CONTRACT_ADDRESS, amountInWei],
             },
           ],
@@ -234,13 +266,14 @@ export function Staking({ userAddress }: { userAddress: string }) {
         console.log("Sufficient allowance already exists, proceeding to stake")
       }
 
-      // Step 3: Stake tokens with explicit method_id
+      // Step 3: Stake tokens using ABI
       console.log("Sending stake transaction...")
       const stakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            method_id: "0xa694fc3a", // method_id for stake(uint256)
+            abi: stakingContractABI,
+            functionName: "stake",
             args: [amountInWei],
           },
         ],
@@ -290,13 +323,14 @@ export function Staking({ userAddress }: { userAddress: string }) {
 
       const amountInWei = ethers.parseUnits(unstakeAmount, 18).toString()
 
-      // Unstake transaction with explicit method_id
+      // Unstake transaction using ABI
       console.log("Sending unstake transaction...")
       const unstakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            method_id: "0x2e1a7d4d", // method_id for withdraw(uint256)
+            abi: stakingContractABI,
+            functionName: "withdraw",
             args: [amountInWei],
           },
         ],
@@ -336,13 +370,14 @@ export function Staking({ userAddress }: { userAddress: string }) {
         throw new Error("MiniKit is not installed")
       }
 
-      // Claim rewards transaction with explicit method_id
+      // Claim rewards transaction using ABI
       console.log("Sending claim rewards transaction...")
       const claimResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            method_id: "0xe6f1daf2", // method_id for claimReward()
+            abi: stakingContractABI,
+            functionName: "claimReward",
             args: [],
           },
         ],
