@@ -44,7 +44,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
     setIsMenuOpen(false)
   }
 
-  // Find the tabs array and remove the swap tab
+  // Make sure the tabs array only includes wallet and airdrop
   const tabs = [
     {
       id: "wallet",
