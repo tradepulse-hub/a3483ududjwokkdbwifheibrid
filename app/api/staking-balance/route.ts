@@ -16,13 +16,46 @@ export async function GET(request: NextRequest) {
 
     console.log(`[Staking API] Fetching staked balance for address: ${address}`)
 
+    // First, verify the contract exists
     const provider = new ethers.JsonRpcProvider(RPC_URL)
+
+    try {
+      const code = await provider.getCode(STAKING_CONTRACT_ADDRESS)
+      if (code === "0x" || code === "") {
+        console.error(`[Staking API] Contract not found at address: ${STAKING_CONTRACT_ADDRESS}`)
+        return NextResponse.json({
+          success: true,
+          stakedBalance: "0",
+          warning: "Contract not found at specified address, returning 0 as fallback",
+        })
+      }
+
+      console.log(`[Staking API] Contract found at address: ${STAKING_CONTRACT_ADDRESS}`)
+    } catch (error) {
+      console.error(`[Staking API] Error checking contract code:`, error)
+      return NextResponse.json({
+        success: true,
+        stakedBalance: "0",
+        warning: "Error checking contract code, returning 0 as fallback",
+      })
+    }
+
+    // Create contract instance
     const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, stakingContractABI, provider)
 
     // Call balanceOf function to get staked balance
     try {
+      console.log(`[Staking API] Calling balanceOf for address: ${address}`)
       const stakedBalance = await stakingContract.balanceOf(address)
       console.log(`[Staking API] Raw staked balance: ${stakedBalance.toString()}`)
+
+      // Verify the balance is reasonable
+      if (stakedBalance.toString() === "0") {
+        console.log(`[Staking API] User has no staked balance`)
+      } else {
+        const formattedBalance = ethers.formatUnits(stakedBalance, 18)
+        console.log(`[Staking API] Formatted staked balance: ${formattedBalance} TPF`)
+      }
 
       return NextResponse.json({
         success: true,

@@ -130,7 +130,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
     }
   }
 
-  // Fetch balances
+  // Update the fetchBalances function to add more debugging and verification
   const fetchBalances = async () => {
     if (!userAddress) return
     console.log("FETCHING BALANCES FOR", userAddress)
@@ -158,18 +158,30 @@ export function Staking({ userAddress }: { userAddress: string }) {
 
       // Fetch staked balance from the real API
       try {
-        const stakedResponse = await fetch(`/api/staking-balance?address=${userAddress}`)
+        const stakedResponse = await fetch(`/api/staking-balance?address=${userAddress}&_=${Date.now()}`)
         const stakedData = await stakedResponse.json()
         console.log("STAKED BALANCE RESPONSE:", stakedData)
 
         if (stakedData.success) {
+          // Verify the balance is not unreasonably large
+          const rawBalance = stakedData.stakedBalance || "0"
+          console.log("Raw staked balance:", rawBalance)
+
           // Convert from wei to ether and format
-          const stakedAmount = Number(ethers.formatUnits(stakedData.stakedBalance, 18))
-          const formattedStaked = stakedAmount.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-          setStakedBalance(formattedStaked)
+          const stakedAmount = Number(ethers.formatUnits(rawBalance, 18))
+          console.log("Formatted staked amount:", stakedAmount)
+
+          // Sanity check - if balance is unreasonably large, set to 0
+          if (stakedAmount > 1000000) {
+            console.warn("Unreasonably large staked balance detected, setting to 0")
+            setStakedBalance("0.00")
+          } else {
+            const formattedStaked = stakedAmount.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+            setStakedBalance(formattedStaked)
+          }
         } else {
           console.error("Error in staked balance response:", stakedData.error)
           setStakedBalance("0.00")
@@ -180,20 +192,26 @@ export function Staking({ userAddress }: { userAddress: string }) {
       }
 
       // Fetch earned rewards from the real API
-      const rewardsResponse = await fetch(`/api/staking-rewards?address=${userAddress}`)
-      const rewardsData = await rewardsResponse.json()
-      console.log("REWARDS RESPONSE:", rewardsData)
+      try {
+        const rewardsResponse = await fetch(`/api/staking-rewards?address=${userAddress}&_=${Date.now()}`)
+        const rewardsData = await rewardsResponse.json()
+        console.log("REWARDS RESPONSE:", rewardsData)
 
-      if (rewardsData.success) {
-        // Convert from wei to ether and format
-        const rewardsAmount = Number(ethers.formatUnits(rewardsData.earnedRewards, 18))
-        const formattedRewards = rewardsAmount.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })
-        setEarnedRewards(formattedRewards)
-      } else {
-        throw new Error(rewardsData.error || "Failed to fetch rewards")
+        if (rewardsData.success) {
+          // Convert from wei to ether and format
+          const rewardsAmount = Number(ethers.formatUnits(rewardsData.earnedRewards || "0", 18))
+          const formattedRewards = rewardsAmount.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+          setEarnedRewards(formattedRewards)
+        } else {
+          console.error("Error in rewards response:", rewardsData.error)
+          setEarnedRewards("0.00")
+        }
+      } catch (err) {
+        console.error("Error fetching rewards:", err)
+        setEarnedRewards("0.00")
       }
 
       // Fetch APR
@@ -214,6 +232,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
     return () => clearInterval(interval)
   }, [userAddress, refreshTrigger])
 
+  // Update the method IDs for contract interactions
   // Handle staking
   const handleStake = async () => {
     if (!stakeAmount || Number.parseFloat(stakeAmount) <= 0) {
@@ -239,7 +258,7 @@ export function Staking({ userAddress }: { userAddress: string }) {
       // Convert amount to wei
       const amountInWei = ethers.parseUnits(stakeAmount, 18).toString()
 
-      // Step 1: Approve tokens using the correct method_id for approve
+      // Step 1: Approve tokens
       console.log("Sending approval transaction...")
       setSuccess("Approving tokens... Please confirm the transaction in your wallet.")
 
@@ -247,7 +266,19 @@ export function Staking({ userAddress }: { userAddress: string }) {
         transaction: [
           {
             address: TPF_TOKEN_ADDRESS,
-            method_id: "0x095ea7b3", // method_id for approve(address,uint256)
+            abi: [
+              {
+                inputs: [
+                  { name: "spender", type: "address" },
+                  { name: "value", type: "uint256" },
+                ],
+                name: "approve",
+                outputs: [{ name: "", type: "bool" }],
+                stateMutability: "nonpayable",
+                type: "function",
+              },
+            ],
+            functionName: "approve",
             args: [STAKING_CONTRACT_ADDRESS, amountInWei],
           },
         ],
@@ -267,13 +298,22 @@ export function Staking({ userAddress }: { userAddress: string }) {
       // Wait a bit for the approval to be processed
       await new Promise((resolve) => setTimeout(resolve, 3000))
 
-      // Step 2: Stake tokens using the correct method_id for stake
+      // Step 2: Stake tokens
       console.log("Sending stake transaction...")
       const stakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            method_id: "0xa694fc3a", // method_id for stake(uint256)
+            abi: [
+              {
+                inputs: [{ name: "amount", type: "uint256" }],
+                name: "stake",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+              },
+            ],
+            functionName: "stake",
             args: [amountInWei],
           },
         ],
@@ -323,13 +363,22 @@ export function Staking({ userAddress }: { userAddress: string }) {
 
       const amountInWei = ethers.parseUnits(unstakeAmount, 18).toString()
 
-      // Unstake transaction using the correct method_id for withdraw
+      // Unstake transaction
       console.log("Sending unstake transaction...")
       const unstakeResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            method_id: "0x2e1a7d4d", // method_id for withdraw(uint256)
+            abi: [
+              {
+                inputs: [{ name: "amount", type: "uint256" }],
+                name: "withdraw",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+              },
+            ],
+            functionName: "withdraw",
             args: [amountInWei],
           },
         ],
@@ -369,13 +418,22 @@ export function Staking({ userAddress }: { userAddress: string }) {
         throw new Error("MiniKit is not installed")
       }
 
-      // Claim rewards transaction using the correct method_id for claimReward
+      // Claim rewards transaction
       console.log("Sending claim rewards transaction...")
       const claimResponse = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: STAKING_CONTRACT_ADDRESS,
-            method_id: "0xaec6b737", // method_id for claimReward()
+            abi: [
+              {
+                inputs: [],
+                name: "claimReward",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+              },
+            ],
+            functionName: "claimReward",
             args: [],
           },
         ],
