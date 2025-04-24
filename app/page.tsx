@@ -9,6 +9,7 @@ import TokenWallet from "@/components/TokenWallet"
 import BottomMenu from "@/components/BottomMenu"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
+import Settings from "@/components/Settings"
 
 interface User {
   walletAddress: string
@@ -24,12 +25,12 @@ export default function Home() {
   const [copySuccess, setCopySuccess] = useState(false)
   const [isMenuVisible, setIsMenuVisible] = useState(true)
 
-  // Referência para rastrear se o componente está montado
+  // Reference to track if the component is mounted
   const isMounted = useRef(true)
 
-  // Forçar tela cheia e desabilitar rolagem
+  // Force fullscreen and disable scrolling
   useEffect(() => {
-    // Definir altura e largura para 100%
+    // Set height and width to 100%
     document.documentElement.style.height = "100%"
     document.documentElement.style.width = "100%"
     document.body.style.height = "100%"
@@ -38,7 +39,7 @@ export default function Home() {
     document.body.style.margin = "0"
     document.body.style.padding = "0"
 
-    // Remover qualquer rolagem
+    // Remove any scrolling
     document.documentElement.style.overflow = "hidden"
 
     return () => {
@@ -53,20 +54,20 @@ export default function Home() {
     }
   }, [])
 
-  // Garantir que o menu esteja sempre visível quando mudar de aba
+  // Ensure the menu is always visible when changing tabs
   useEffect(() => {
     if (isMounted.current) {
       setIsMenuVisible(true)
     }
   }, [activeTab])
 
-  // Efeito para restaurar a visibilidade do menu periodicamente
+  // Effect to restore menu visibility periodically
   useEffect(() => {
     const menuVisibilityInterval = setInterval(() => {
       if (isMounted.current && !isMenuVisible) {
         setIsMenuVisible(true)
       }
-    }, 1000) // Verificar a cada segundo
+    }, 1000) // Check every second
 
     return () => {
       clearInterval(menuVisibilityInterval)
@@ -143,14 +144,14 @@ export default function Home() {
     }
   }
 
-  // Função para garantir que o menu esteja visível
+  // Function to ensure the menu is visible
   const ensureMenuVisible = () => {
     if (!isMenuVisible) {
       setIsMenuVisible(true)
     }
   }
 
-  // Manipulador de mudança de aba que garante que o menu esteja visível
+  // Tab change handler that ensures the menu is visible
   const handleTabChange = (tab: string) => {
     console.log("Tab changed to:", tab)
     setActiveTab(tab)
@@ -218,7 +219,10 @@ export default function Home() {
       ) : (
         <div className="w-full h-full flex flex-col relative">
           <div className="fixed inset-0 bg-gray-50 -z-5"></div>
-          {/* Header - Mais compacto e único para toda a aplicação */}
+          {/* Settings component */}
+          <Settings onLogout={handleLogout} />
+
+          {/* Header - More compact and unique for the entire application */}
           <div className="text-center pt-1 pb-1 bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg shadow-md border border-gray-600 mb-1">
             <div className="inline-block rounded-full shadow-lg mb-1 p-1 bg-gradient-to-r from-gray-600 to-gray-700">
               <Image
@@ -235,37 +239,17 @@ export default function Home() {
             <p className="text-xs text-gray-300">Global Crypto Bridge</p>
           </div>
 
-          {/* Status bar - Mais compacto */}
+          {/* Status bar - More compact */}
           <div className="bg-white rounded-lg shadow-md p-1 border border-gray-200 mb-1">
             <div className="flex justify-end">
               <div className="flex items-center">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block mr-1"></span>
                 <span className="text-xs text-gray-600 mr-2">{t("connected", "Connected")}</span>
-                <button
-                  onClick={handleLogout}
-                  className="text-xxs bg-red-500 hover:bg-red-600 text-white px-1.5 py-0.5 rounded-lg transition-all duration-300 flex items-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-2.5 w-2.5 mr-0.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 013-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
-                  {t("logout", "Logout")}
-                </button>
               </div>
             </div>
           </div>
 
-          {/* Content based on active tab - Altura fixa e sem rolagem */}
+          {/* Content based on active tab - Fixed height and no scrolling */}
           <div className="flex-1 overflow-hidden bg-white rounded-lg shadow-md border border-gray-200 p-2 mb-2 -mt-1">
             {/* REMOVED AnimatePresence and motion.div to simplify rendering */}
             <div className="h-full">
@@ -277,10 +261,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Espaço para o menu inferior */}
+          {/* Space for the bottom menu */}
           <div className="h-14"></div>
 
-          {/* Bottom Menu com a prop de visibilidade */}
+          {/* Bottom Menu with visibility prop */}
           <BottomMenu activeTab={activeTab} onTabChange={handleTabChange} isVisible={isMenuVisible} />
         </div>
       )}

@@ -196,6 +196,7 @@ const translations: Record<Language, Record<string, string>> = {
     staking_info_1: "Stake TPF to earn rewards",
     staking_info_2: "Rewards are distributed every second",
     staking_info_3: "Minimum stake amount: 1 TPF",
+    settings: "Settings",
   },
 
   es: {
@@ -393,6 +394,7 @@ const translations: Record<Language, Record<string, string>> = {
     staking_info_1: "Haz staking de TPF para ganar recompensas",
     staking_info_2: "Las recompensas se distribuyen cada segundo",
     staking_info_3: "Cantidad mínima de staking: 1 TPF",
+    settings: "Ajustes",
   },
 
   it: {
@@ -566,6 +568,7 @@ const translations: Record<Language, Record<string, string>> = {
       "Questa applicazione supporta solo l'invio di token sulla rete Worldchain. Assicurati che il destinatario sia su Worldchain.",
     worldchain_only_receive_notice:
       "Importante: Questo portafoglio supporta solo la ricezione di token sulla rete Worldchain. L'invio di token da altre reti potrebbe comportare la perdita permanente di fondi.",
+    settings: "Impostazioni",
   },
 
   zh: {
@@ -761,6 +764,7 @@ const translations: Record<Language, Record<string, string>> = {
     staking_info_1: "质押 TPF 以赚取奖励",
     staking_info_2: "奖励每秒分配",
     staking_info_3: "最低质押金额：1 TPF",
+    settings: "设置",
   },
 
   fr: {
@@ -938,6 +942,7 @@ const translations: Record<Language, Record<string, string>> = {
       "Cette application ne prend en charge que l'envoi de jetons sur le réseau Worldchain. Assurez-vous que le destinataire est sur Worldchain.",
     worldchain_only_receive_notice:
       "Important : Ce portefeuille ne prend en charge que la réception de jetons sur le réseau Worldchain. L'envoi de jetons depuis d'autres réseaux peut entraîner une perte permanente de fonds.",
+    settings: "Paramètres",
   },
 
   pt: {
@@ -1134,6 +1139,7 @@ const translations: Record<Language, Record<string, string>> = {
     staking_info_1: "Faça staking de TPF para ganhar recompensas",
     staking_info_2: "As recompensas são distribuídas a cada segundo",
     staking_info_3: "Quantidade mínima de staking: 1 TPF",
+    settings: "Definições",
   },
 }
 
