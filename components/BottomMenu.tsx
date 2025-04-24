@@ -44,7 +44,7 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
     setIsMenuOpen(false)
   }
 
-  // Find the tabs array and remove the lottery tab
+  // Find the tabs array and remove the swap tab
   const tabs = [
     {
       id: "wallet",
@@ -63,29 +63,6 @@ export default function BottomMenu({ activeTab, onTabChange, isVisible = true }:
             strokeLinejoin="round"
             d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
           />
-        </svg>
-      ),
-    },
-    {
-      id: "swap",
-      label: "Swap",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M16 3h5v5"></path>
-          <path d="M4 20 21 3"></path>
-          <path d="M21 16v5h-5"></path>
-          <path d="M15 15 3 3"></path>
-          <path d="m4 4 16 16"></path>
         </svg>
       ),
     },

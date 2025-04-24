@@ -9,7 +9,6 @@ import TokenWallet from "@/components/TokenWallet"
 import BottomMenu from "@/components/BottomMenu"
 import { useLanguage } from "@/lib/languageContext"
 import { Lottery } from "@/components/Lottery"
-import Swap from "@/components/Swap"
 
 interface User {
   walletAddress: string
@@ -271,8 +270,6 @@ export default function Home() {
             {/* REMOVED AnimatePresence and motion.div to simplify rendering */}
             <div className="h-full">
               {activeTab === "wallet" && user.walletAddress && <TokenWallet walletAddress={user.walletAddress} />}
-
-              {activeTab === "swap" && <Swap userAddress={user?.walletAddress || ""} />}
 
               {activeTab === "lottery" && user.walletAddress && <Lottery userAddress={user.walletAddress} />}
 
